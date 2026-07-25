@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+spirit_revision=1049b8a1a9e3c2be7ece3553b89c7e3815939d43
+system=${PROTOS_ENGINE_SPIRIT_SYSTEM:-}
+
+if [[ -z "$system" ]]; then
+  system=$(nix eval --raw --impure --expr builtins.currentSystem)
+fi
+
+temporary_root=$(mktemp -d)
+trap 'rm -rf "$temporary_root"' EXIT
+mkdir -p "$temporary_root/tmp"
+export TMPDIR="$temporary_root/tmp"
+
+# Spirit does not yet expose the exact named test as a standalone flake output.
+# Its published nota-text suite owns and runs that real TempDir-backed daemon
+# witness, so this sink delegates to the immutable owner check.
+nix build --no-link --print-build-logs \
+  "github:LiGoldragon/spirit/${spirit_revision}#checks.${system}.test-nota-text"

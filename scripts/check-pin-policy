@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if (( $# != 1 )); then
+  echo "usage: check-pin-policy REPOSITORY_ROOT" >&2
+  exit 2
+fi
+
+repository_root=$1
+flake_file="$repository_root/flake.nix"
+lock_file="$repository_root/flake.lock"
+
+[[ -f "$flake_file" ]] || {
+  echo "missing flake.nix" >&2
+  exit 1
+}
+[[ -f "$lock_file" ]] || {
+  echo "missing flake.lock" >&2
+  exit 1
+}
+
+expected_pins=(
+  "NixOS/nixpkgs|91cc1fdf6831e29b6c98768e721a72241f3d0797"
+  "LiGoldragon/content-identity|ac0075842799b3ece8909ad0eb4b8a92b596b188"
+  "LiGoldragon/name-table|a1705ef512efec28925ae3ffc9faa5a2aa4dc4a8"
+  "LiGoldragon/raw-discovery|c27a9efabb1981c8b3d887c870fff82fc7daf49c"
+  "LiGoldragon/structural-codec|e5fa1b3bbdde13f3dac205920b16a2e73f3d4487"
+  "LiGoldragon/protos|c6fa54c066a1210bbba026d9d761bb3ef5b8af5f"
+  "LiGoldragon/schema-language|9c217610c4b8d3bdaa9f95542e28c04424a593e3"
+  "LiGoldragon/schema-rust|3721656b0a654d47d9abde31f14d89d01f9305cf"
+  "LiGoldragon/signal-spirit|1cf7c010029de46369b742687da4fa1ca6def9a9"
+  "LiGoldragon/meta-signal-spirit|0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3"
+  "LiGoldragon/spirit|1049b8a1a9e3c2be7ece3553b89c7e3815939d43"
+)
+
+for pin in "${expected_pins[@]}"; do
+  repository=${pin%%|*}
+  revision=${pin##*|}
+  expected="github:$repository/$revision"
+  if ! grep -Fq "$expected" "$flake_file"; then
+    echo "missing exact repository pin: $expected" >&2
+    exit 1
+  fi
+done
+
+while IFS= read -r input_url; do
+  if [[ ! "$input_url" =~ ^github:[^/]+/[^/]+/[0-9a-f]{40}$ ]]; then
+    echo "repository input is not pinned to a full Git revision: $input_url" >&2
+    exit 1
+  fi
+done < <(
+  sed -nE 's/.*url = "(github:[^"]+)".*/\1/p' "$flake_file"
+)
+
+echo "all repository inputs use exact full Git revisions"

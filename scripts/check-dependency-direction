@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if (( $# < 2 )); then
+  echo "usage: check-dependency-direction REPOSITORY_ROOT NAME=SOURCE..." >&2
+  exit 2
+fi
+
+repository_root=$1
+shift
+
+if find "$repository_root" \
+  \( -path "$repository_root/.git" -o -path "$repository_root/.jj" \) -prune -o \
+  -type f \( -name Cargo.toml -o -name Cargo.lock -o -name build.rs \) \
+  -print -quit | grep -q .; then
+  echo "protos-engine must have no Cargo or build-script surface" >&2
+  exit 1
+fi
+
+for source_specification in "$@"; do
+  source_name=${source_specification%%=*}
+  source_path=${source_specification#*=}
+
+  if [[ "$source_name" == "$source_path" || ! -d "$source_path" ]]; then
+    echo "invalid pinned source specification: $source_specification" >&2
+    exit 2
+  fi
+
+  while IFS= read -r -d '' manifest; do
+    if grep -nE 'protos[-_]engine|LiGoldragon/protos-engine' "$manifest"; then
+      echo "forbidden component-to-sink dependency edge in $source_name: $manifest" >&2
+      exit 1
+    fi
+  done < <(
+    find "$source_path" -type f \
+      \( -name Cargo.toml -o -name flake.nix \) -print0
+  )
+done
+
+echo "no pinned component imports protos-engine"

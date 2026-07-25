@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if (( $# != 1 )); then
+  echo "usage: check-repository-shape REPOSITORY_ROOT" >&2
+  exit 2
+fi
+
+repository_root=$1
+
+for entry in "$repository_root"/* "$repository_root"/.[!.]*; do
+  [[ -e "$entry" ]] || continue
+  name=${entry##*/}
+  case "$name" in
+    .git|.jj|AGENTS.md|ARCHITECTURE.md|README.md|flake.lock|flake.nix|scripts)
+      ;;
+    *)
+      echo "protos-engine top-level path is outside the source-free allowlist: $entry" >&2
+      exit 1
+      ;;
+  esac
+done
+
+for forbidden_directory in src crates packages vendor vendor-sources; do
+  if [[ -e "$repository_root/$forbidden_directory" ]]; then
+    echo "protos-engine must not contain $forbidden_directory/" >&2
+    exit 1
+  fi
+done
+
+forbidden_files=$(
+  find "$repository_root" \
+    \( -path "$repository_root/.git" -o -path "$repository_root/.jj" \) -prune -o \
+    -type f \
+    \( -name Cargo.toml -o -name Cargo.lock -o -name build.rs -o -name '*.rs' \) \
+    -print
+)
+
+if [[ -n "$forbidden_files" ]]; then
+  echo "protos-engine must not contain Cargo or Rust implementation files:" >&2
+  printf '%s\n' "$forbidden_files" >&2
+  exit 1
+fi
+
+echo "repository shape is source-free"

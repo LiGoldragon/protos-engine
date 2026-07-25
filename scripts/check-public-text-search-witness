@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if (( $# != 2 )); then
+  echo "usage: check-public-text-search-witness SIGNAL_SPIRIT_SOURCE SPIRIT_SOURCE" >&2
+  exit 2
+fi
+
+signal_spirit_source=$1
+spirit_source=$2
+signal_contract="$signal_spirit_source/schema/signal.schema"
+process_test="$spirit_source/tests/process_boundary.rs"
+
+[[ -f "$signal_contract" && -f "$process_test" ]] || {
+  echo "pinned Spirit sources do not contain the expected owner surfaces" >&2
+  exit 1
+}
+
+grep -Fq "PublicTextSearch SearchText" "$signal_contract"
+
+witness=$(
+  sed -n \
+    '/fn public_text_search_returns_direct_ranked_records()/,/^}/p' \
+    "$process_test"
+)
+
+for required_surface in \
+  'TempDir::new()' \
+  'public-text-search.sock' \
+  'public-text-search.sema' \
+  'DaemonProcess::spawn' \
+  '(PublicTextSearch .criome)' \
+  '(PublicTextSearch [routing protocol])'; do
+  if [[ "$witness" != *"$required_surface"* ]]; then
+    echo "pinned owner witness is missing: $required_surface" >&2
+    exit 1
+  fi
+done
+
+echo "pinned PublicTextSearch owner witness uses an isolated real process boundary"
