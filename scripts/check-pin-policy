@@ -4,9 +4,8 @@ set -euo pipefail
 readonly expected_pins=$'content-identity|LiGoldragon|content-identity|ac0075842799b3ece8909ad0eb4b8a92b596b188\nmeta-signal-spirit|LiGoldragon|meta-signal-spirit|0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3\nname-table|LiGoldragon|name-table|a1705ef512efec28925ae3ffc9faa5a2aa4dc4a8\nnixpkgs|NixOS|nixpkgs|91cc1fdf6831e29b6c98768e721a72241f3d0797\nprotos|LiGoldragon|protos|c6fa54c066a1210bbba026d9d761bb3ef5b8af5f\nraw-discovery|LiGoldragon|raw-discovery|c27a9efabb1981c8b3d887c870fff82fc7daf49c\nschema-language|LiGoldragon|schema-language|9c217610c4b8d3bdaa9f95542e28c04424a593e3\nschema-rust|LiGoldragon|schema-rust|3721656b0a654d47d9abde31f14d89d01f9305cf\nsignal-spirit|LiGoldragon|signal-spirit|1cf7c010029de46369b742687da4fa1ca6def9a9\nspirit|LiGoldragon|spirit|1049b8a1a9e3c2be7ece3553b89c7e3815939d43\nstructural-codec|LiGoldragon|structural-codec|e5fa1b3bbdde13f3dac205920b16a2e73f3d4487'
 readonly expected_input_names=$'content-identity\nmeta-signal-spirit\nname-table\nnixpkgs\nprotos\nraw-discovery\nschema-language\nschema-rust\nsignal-spirit\nspirit\nstructural-codec'
 
-validate_pin_policy() {
+validate_lock_policy() {
   local lock_file=$1
-  local metadata_file=$2
   local actual_input_names
   local input_name
   local owner
@@ -22,15 +21,6 @@ validate_pin_policy() {
     and (.nodes[.root].inputs | type == "object")
   ' "$lock_file" >/dev/null || {
     echo "flake.lock does not have the expected structural root" >&2
-    return 1
-  }
-
-  jq -e --slurp '
-    (.[1] | type == "object")
-    and (.[1].locks | type == "object")
-    and (.[0] == .[1].locks)
-  ' "$lock_file" "$metadata_file" >/dev/null || {
-    echo "flake metadata locks differ from flake.lock" >&2
     return 1
   }
 
@@ -104,36 +94,113 @@ validate_pin_policy() {
   }
 }
 
-mutate_both() {
-  local lock_file=$1
-  local metadata_file=$2
-  local jq_program=$3
-  local mutated_lock=$4
-  local mutated_metadata=$5
+repository_status() {
+  local repository_root=$1
 
-  jq "$jq_program" "$lock_file" > "$mutated_lock"
-  jq --slurp '.[0].locks = .[1] | .[0]' \
-    "$metadata_file" "$mutated_lock" > "$mutated_metadata"
+  if [[ -d "$repository_root/.jj" || -f "$repository_root/.jj" ]]; then
+    jj --repository "$repository_root" status
+  else
+    printf 'no-jujutsu-working-copy\n'
+  fi
 }
 
-expect_pin_rejection() {
+evaluate_live_metadata() {
+  local repository_root=$1
+  local metadata_file=$2
+
+  nix flake metadata \
+    --json \
+    --no-write-lock-file \
+    "path:$repository_root" > "$metadata_file"
+}
+
+validate_live_policy() {
+  local repository_root=$1
+  local lock_file="$repository_root/flake.lock"
+  local temporary_root
+  local metadata_file
+  local evaluated_lock_file
+  local lock_hash_before
+  local lock_hash_after
+  local status_before
+  local status_after
+
+  [[ -f "$repository_root/flake.nix" && -f "$lock_file" ]] || {
+    echo "live pin policy requires flake.nix and flake.lock" >&2
+    return 1
+  }
+  if [[ -d "$repository_root/.jj" || -f "$repository_root/.jj" ]]; then
+    if ! jj --repository "$repository_root" diff --quiet -- flake.lock; then
+      echo "flake.lock has uncommitted working-copy changes" >&2
+      return 1
+    fi
+  fi
+
+  validate_lock_policy "$lock_file"
+  temporary_root=$(mktemp -d)
+  metadata_file="$temporary_root/metadata.json"
+  evaluated_lock_file="$temporary_root/evaluated-locks.json"
+  lock_hash_before=$(sha256sum "$lock_file")
+  status_before=$(repository_status "$repository_root")
+
+  if ! evaluate_live_metadata "$repository_root" "$metadata_file"; then
+    rm -rf "$temporary_root"
+    echo "live flake metadata evaluation failed" >&2
+    return 1
+  fi
+
+  lock_hash_after=$(sha256sum "$lock_file")
+  status_after=$(repository_status "$repository_root")
+  if [[ "$lock_hash_before" != "$lock_hash_after" ]]; then
+    rm -rf "$temporary_root"
+    echo "live metadata evaluation rewrote flake.lock" >&2
+    return 1
+  fi
+  if [[ "$status_before" != "$status_after" ]]; then
+    rm -rf "$temporary_root"
+    echo "live metadata evaluation changed repository status" >&2
+    return 1
+  fi
+
+  jq -e --slurp '
+    (.[1] | type == "object")
+    and (.[1].locks | type == "object")
+    and (.[0] == .[1].locks)
+  ' "$lock_file" "$metadata_file" >/dev/null || {
+    rm -rf "$temporary_root"
+    echo "evaluated metadata declarations differ from committed flake.lock" >&2
+    return 1
+  }
+
+  jq -e '.locks' "$metadata_file" > "$evaluated_lock_file"
+  validate_lock_policy "$evaluated_lock_file"
+  rm -rf "$temporary_root"
+}
+
+mutate_lock() {
+  local lock_file=$1
+  local jq_program=$2
+  local mutated_lock=$3
+
+  jq "$jq_program" "$lock_file" > "$mutated_lock"
+}
+
+expect_lock_rejection() {
   local label=$1
   local lock_file=$2
-  local metadata_file=$3
 
-  if validate_pin_policy "$lock_file" "$metadata_file" >/dev/null 2>&1; then
-    echo "pin mutation unexpectedly passed: $label" >&2
+  if validate_lock_policy "$lock_file" >/dev/null 2>&1; then
+    echo "lock mutation unexpectedly passed: $label" >&2
     return 1
   fi
 }
 
-run_self_test() {
+run_lock_self_test() {
   local lock_file=$1
-  local metadata_file=$2
   local temporary_root
   local node_expression
 
-  validate_pin_policy "$lock_file" "$metadata_file"
+  validate_lock_policy "$lock_file"
   temporary_root=$(mktemp -d)
   trap 'rm -rf "$temporary_root"' RETURN
 
@@ -146,10 +213,8 @@ run_self_test() {
         "repo": "content-identity",
         "ref": "main"
       }'
-  mutate_both "$lock_file" "$metadata_file" "$node_expression" \
-    "$temporary_root/branch.lock" "$temporary_root/branch.metadata"
-  expect_pin_rejection "root branch input" \
-    "$temporary_root/branch.lock" "$temporary_root/branch.metadata"
+  mutate_lock "$lock_file" "$node_expression" "$temporary_root/branch.lock"
+  expect_lock_rejection "root branch input" "$temporary_root/branch.lock"
 
   # shellcheck disable=SC2016
   node_expression='.root as $root
@@ -158,18 +223,14 @@ run_self_test() {
         "type": "path",
         "path": "../content-identity"
       }'
-  mutate_both "$lock_file" "$metadata_file" "$node_expression" \
-    "$temporary_root/path.lock" "$temporary_root/path.metadata"
-  expect_pin_rejection "root path input" \
-    "$temporary_root/path.lock" "$temporary_root/path.metadata"
+  mutate_lock "$lock_file" "$node_expression" "$temporary_root/path.lock"
+  expect_lock_rejection "root path input" "$temporary_root/path.lock"
 
   # shellcheck disable=SC2016
   node_expression='.root as $root
     | .nodes[$root].inputs["unexpected-engine"] = "content-identity"'
-  mutate_both "$lock_file" "$metadata_file" "$node_expression" \
-    "$temporary_root/extra.lock" "$temporary_root/extra.metadata"
-  expect_pin_rejection "extra root input" \
-    "$temporary_root/extra.lock" "$temporary_root/extra.metadata"
+  mutate_lock "$lock_file" "$node_expression" "$temporary_root/extra.lock"
+  expect_lock_rejection "extra root input" "$temporary_root/extra.lock"
 
   # shellcheck disable=SC2016
   node_expression='first(
@@ -179,31 +240,146 @@ run_self_test() {
       | .key
     ) as $node
     | del(.nodes[$node].locked.narHash)'
-  mutate_both "$lock_file" "$metadata_file" "$node_expression" \
-    "$temporary_root/transitive.lock" "$temporary_root/transitive.metadata"
-  expect_pin_rejection "unlocked transitive branch input" \
-    "$temporary_root/transitive.lock" "$temporary_root/transitive.metadata"
+  mutate_lock "$lock_file" "$node_expression" "$temporary_root/transitive.lock"
+  expect_lock_rejection "unlocked transitive branch input" \
+    "$temporary_root/transitive.lock"
+}
+
+copy_flake_fixture() {
+  local repository_root=$1
+  local fixture=$2
+
+  mkdir -p "$fixture/scripts"
+  cp "$repository_root/AGENTS.md" "$fixture/AGENTS.md"
+  cp "$repository_root/ARCHITECTURE.md" "$fixture/ARCHITECTURE.md"
+  cp "$repository_root/README.md" "$fixture/README.md"
+  cp "$repository_root/flake.lock" "$fixture/flake.lock"
+  cp "$repository_root/flake.nix" "$fixture/flake.nix"
+  cp "$repository_root/scripts/"* "$fixture/scripts/"
+  chmod +x "$fixture/scripts/"*
+}
+
+expect_live_rejection_without_lock_write() {
+  local label=$1
+  local fixture=$2
+  local temporary_root
+  local metadata_file
+  local lock_hash_before
+  local lock_hash_after
+
+  temporary_root=$(mktemp -d)
+  metadata_file="$temporary_root/metadata.json"
+  lock_hash_before=$(sha256sum "$fixture/flake.lock")
+  if ! evaluate_live_metadata "$fixture" "$metadata_file" >/dev/null 2>&1; then
+    rm -rf "$temporary_root"
+    echo "live declaration mutation did not produce evaluated metadata: $label" >&2
+    return 1
+  fi
+  jq -e '.locks.nodes[.locks.root].inputs | type == "object"' \
+    "$metadata_file" >/dev/null || {
+    rm -rf "$temporary_root"
+    echo "live declaration mutation metadata lacks evaluated root inputs: $label" >&2
+    return 1
+  }
+  if validate_live_policy "$fixture" >/dev/null 2>&1; then
+    rm -rf "$temporary_root"
+    echo "live declaration mutation unexpectedly passed: $label" >&2
+    return 1
+  fi
+  lock_hash_after=$(sha256sum "$fixture/flake.lock")
+  if [[ "$lock_hash_before" != "$lock_hash_after" ]]; then
+    rm -rf "$temporary_root"
+    echo "rejected live declaration mutation rewrote its stale lock: $label" >&2
+    return 1
+  fi
+  rm -rf "$temporary_root"
+}
+
+replace_content_identity_declaration() {
+  local flake_file=$1
+  local replacement=$2
+
+  sed -i \
+    "s#github:LiGoldragon/content-identity/ac0075842799b3ece8909ad0eb4b8a92b596b188#$replacement#" \
+    "$flake_file"
+}
+
+run_live_self_test() {
+  local repository_root=$1
+  local temporary_root
+
+  validate_live_policy "$repository_root"
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+
+  copy_flake_fixture "$repository_root" "$temporary_root/branch"
+  replace_content_identity_declaration \
+    "$temporary_root/branch/flake.nix" \
+    "github:LiGoldragon/content-identity/main"
+  expect_live_rejection_without_lock_write \
+    "branch declaration with stale lock" "$temporary_root/branch"
+
+  copy_flake_fixture "$repository_root" "$temporary_root/path"
+  replace_content_identity_declaration \
+    "$temporary_root/path/flake.nix" \
+    "path:/git/github.com/LiGoldragon/content-identity"
+  expect_live_rejection_without_lock_write \
+    "path declaration with stale lock" "$temporary_root/path"
+
+  copy_flake_fixture "$repository_root" "$temporary_root/identity"
+  replace_content_identity_declaration \
+    "$temporary_root/identity/flake.nix" \
+    "github:NixOS/nixpkgs/91cc1fdf6831e29b6c98768e721a72241f3d0797"
+  expect_live_rejection_without_lock_write \
+    "owner repository revision declaration mismatch" \
+    "$temporary_root/identity"
+
+  copy_flake_fixture "$repository_root" "$temporary_root/dirty-lock"
+  jj git init --colocate "$temporary_root/dirty-lock" >/dev/null 2>&1
+  jj --repository "$temporary_root/dirty-lock" \
+    commit -m "freeze pin-policy fixture" >/dev/null 2>&1
+  printf '\n' >> "$temporary_root/dirty-lock/flake.lock"
+  if validate_live_policy "$temporary_root/dirty-lock" >/dev/null 2>&1; then
+    echo "live policy unexpectedly accepted a dirty flake.lock" >&2
+    return 1
+  fi
 }
 
 case ${1:-} in
-  --self-test)
-    (( $# == 3 )) || {
-      echo "usage: check-pin-policy --self-test FLAKE_LOCK METADATA_JSON" >&2
+  --lock-only)
+    (( $# == 2 )) || {
+      echo "usage: check-pin-policy --lock-only FLAKE_LOCK" >&2
       exit 2
     }
-    run_self_test "$2" "$3"
-    echo "pin-policy mutations reject branch, path, extra-root, and unlocked transitive inputs"
+    validate_lock_policy "$2"
+    echo "committed lock uses the exact immutable root source-input set"
+    ;;
+  --lock-self-test)
+    (( $# == 2 )) || {
+      echo "usage: check-pin-policy --lock-self-test FLAKE_LOCK" >&2
+      exit 2
+    }
+    run_lock_self_test "$2"
+    echo "lock mutations reject branch, path, extra-root, and unlocked transitive inputs"
+    ;;
+  --self-test)
+    (( $# == 2 )) || {
+      echo "usage: check-pin-policy --self-test REPOSITORY_ROOT" >&2
+      exit 2
+    }
+    run_live_self_test "$2"
+    echo "live mutations reject branch, path, identity drift, and dirty lock without rewrites"
     ;;
   "")
-    echo "usage: check-pin-policy FLAKE_LOCK METADATA_JSON" >&2
+    echo "usage: check-pin-policy REPOSITORY_ROOT" >&2
     exit 2
     ;;
   *)
-    (( $# == 2 )) || {
-      echo "usage: check-pin-policy FLAKE_LOCK METADATA_JSON" >&2
+    (( $# == 1 )) || {
+      echo "usage: check-pin-policy REPOSITORY_ROOT" >&2
       exit 2
     }
-    validate_pin_policy "$1" "$2"
-    echo "root metadata and lock use the exact immutable source-input set"
+    validate_live_policy "$1"
+    echo "live evaluated metadata matches the clean committed lock and exact root policy"
     ;;
 esac

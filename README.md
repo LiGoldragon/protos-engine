@@ -49,11 +49,14 @@ The three Spirit-family pins retain the existing `PublicTextSearch` process
 witness until its successor feature revisions are independently audited and
 published.
 
-`scripts/check-pin-policy` parses both `flake.lock` and the evaluated flake
-metadata. Root inputs must be exactly the table above plus the pinned Nixpkgs
-input; each root original and locked record must agree on a full 40-hex
-revision and the locked record must carry a `narHash`. Root branch, path, and
-extra inputs are rejected.
+`scripts/check-pin-policy` has two explicit gates. Its pure gate parses the
+committed `flake.lock`. Its live gate independently runs
+`nix flake metadata --json --no-write-lock-file path:$repo`, compares the
+actual evaluated `locks` with the committed lock, and proves neither the lock
+nor repository status changed. Root inputs must be exactly the table above
+plus the pinned Nixpkgs input; each root original and locked record must agree
+on a full 40-hex revision and the locked record must carry a `narHash`. Root
+branch, path, and extra inputs are rejected.
 
 Transitive inputs belong to the immutable pinned Spirit flake closure. Their
 locked originals may retain branch metadata from the producer only when the
@@ -66,8 +69,14 @@ Run the reproducible evaluation and check surface:
 
 ```sh
 nix flake show
-nix flake check --print-build-logs
+nix run .#check-all
 ```
+
+`check-all` is canonical because a Nix derivation cannot recursively ask the
+Nix daemon for independent live flake metadata. It first runs the live
+evaluated-metadata gate and its declaration mutations, then runs
+`nix flake check --print-build-logs` for the pure lock, direction, shape,
+ShellCheck, owner-suite, and exact-witness derivations.
 
 The current Spirit flake does not export its exact
 `public_text_search_returns_direct_ranked_records` test as a standalone output.

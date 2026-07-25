@@ -3,20 +3,20 @@ set -euo pipefail
 
 readonly forbidden_edge='protos[-_]engine|github[.]com[/:]ligoldragon/protos-engine|ligoldragon/protos-engine'
 
-metadata_family_names() {
-  local metadata_file=$1
+lock_family_names() {
+  local lock_file=$1
 
   jq -r '
-    .locks.root as $root
-    | .locks.nodes[$root].inputs
+    .root as $root
+    | .nodes[$root].inputs
     | keys[]
     | select(. != "nixpkgs")
-  ' "$metadata_file"
+  ' "$lock_file"
 }
 
 validate_dependency_direction() {
   local repository_root=$1
-  local metadata_file=$2
+  local lock_file=$2
   local source_map_file=$3
   local expected_source_names
   local actual_source_names
@@ -28,9 +28,9 @@ validate_dependency_direction() {
     echo "repository root is not a directory: $repository_root" >&2
     return 1
   }
-  jq -e '.locks.nodes[.locks.root].inputs | type == "object"' \
-    "$metadata_file" >/dev/null || {
-    echo "metadata lacks structural root inputs" >&2
+  jq -e '.nodes[.root].inputs | type == "object"' \
+    "$lock_file" >/dev/null || {
+    echo "lock lacks structural root inputs" >&2
     return 1
   }
   jq -e 'type == "object" and all(.[]; type == "string")' \
@@ -39,7 +39,7 @@ validate_dependency_direction() {
     return 1
   }
 
-  expected_source_names=$(metadata_family_names "$metadata_file")
+  expected_source_names=$(lock_family_names "$lock_file")
   actual_source_names=$(jq -r 'keys[]' "$source_map_file")
   if [[ "$actual_source_names" != "$expected_source_names" ]]; then
     echo "source map is not derived from the validated root family inputs" >&2
@@ -78,11 +78,11 @@ validate_dependency_direction() {
 expect_direction_rejection() {
   local label=$1
   local repository_root=$2
-  local metadata_file=$3
+  local lock_file=$3
   local source_map_file=$4
 
   if validate_dependency_direction \
-    "$repository_root" "$metadata_file" "$source_map_file" >/dev/null 2>&1; then
+    "$repository_root" "$lock_file" "$source_map_file" >/dev/null 2>&1; then
     echo "dependency-direction mutation unexpectedly passed: $label" >&2
     return 1
   fi
@@ -90,7 +90,7 @@ expect_direction_rejection() {
 
 run_self_test() {
   local repository_root=$1
-  local metadata_file=$2
+  local lock_file=$2
   local temporary_root
   local source_name
   local source_map='{}'
@@ -110,48 +110,48 @@ run_self_test() {
         --arg path "$temporary_root/sources/$source_name" \
         '$source_map + {($name): $path}'
     )
-  done < <(metadata_family_names "$metadata_file")
+  done < <(lock_family_names "$lock_file")
   printf '%s\n' "$source_map" > "$temporary_root/source-map.json"
 
   validate_dependency_direction "$temporary_root/repository" \
-    "$metadata_file" "$temporary_root/source-map.json"
+    "$lock_file" "$temporary_root/source-map.json"
 
-  source_name=$(metadata_family_names "$metadata_file" | head -n 1)
+  source_name=$(lock_family_names "$lock_file" | head -n 1)
   printf '%s\n' \
     '[dependencies]' \
     'PrOtOs_EnGiNe = { git = "https://GitHub.com/LiGoldragon/Protos-Engine" }' \
     > "$temporary_root/sources/$source_name/Cargo.toml"
   expect_direction_rejection "mixed-case inbound dependency" \
-    "$temporary_root/repository" "$metadata_file" \
+    "$temporary_root/repository" "$lock_file" \
     "$temporary_root/source-map.json"
 
   printf '[package]\nname = "fixture"\n' \
     > "$temporary_root/sources/$source_name/Cargo.toml"
   jq '
-    .locks.root as $root
-    | .locks.nodes[$root].inputs["new-family"] = "content-identity"
-  ' "$metadata_file" > "$temporary_root/extra-input.metadata.json"
+    .root as $root
+    | .nodes[$root].inputs["new-family"] = "content-identity"
+  ' "$lock_file" > "$temporary_root/extra-input.lock"
   expect_direction_rejection "new root family input without a derived source" \
-    "$temporary_root/repository" "$temporary_root/extra-input.metadata.json" \
+    "$temporary_root/repository" "$temporary_root/extra-input.lock" \
     "$temporary_root/source-map.json"
 }
 
 case ${1:-} in
   --self-test)
     (( $# == 4 )) || {
-      echo "usage: check-dependency-direction --self-test REPOSITORY_ROOT METADATA_JSON SOURCE_MAP_JSON" >&2
+      echo "usage: check-dependency-direction --self-test REPOSITORY_ROOT FLAKE_LOCK SOURCE_MAP_JSON" >&2
       exit 2
     }
     run_self_test "$2" "$3"
     echo "dependency-direction mutations reject mixed-case and new-input edges"
     ;;
   "")
-    echo "usage: check-dependency-direction REPOSITORY_ROOT METADATA_JSON SOURCE_MAP_JSON" >&2
+    echo "usage: check-dependency-direction REPOSITORY_ROOT FLAKE_LOCK SOURCE_MAP_JSON" >&2
     exit 2
     ;;
   *)
     (( $# == 3 )) || {
-      echo "usage: check-dependency-direction REPOSITORY_ROOT METADATA_JSON SOURCE_MAP_JSON" >&2
+      echo "usage: check-dependency-direction REPOSITORY_ROOT FLAKE_LOCK SOURCE_MAP_JSON" >&2
       exit 2
     }
     validate_dependency_direction "$1" "$2" "$3"

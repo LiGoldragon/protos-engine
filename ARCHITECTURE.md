@@ -50,10 +50,19 @@ This is an integration limitation, not permission to add engine code here.
 
 ## Lock policy
 
-Root source inputs are a closed set parsed from `flake.lock` and evaluated
-flake metadata. Every root original is a GitHub owner/repository/full-revision
-record; the locked record must repeat that revision and provide its `narHash`.
-Root branch, path, follows, and extra source inputs are invalid.
+Root source inputs are a closed set proved by two independent surfaces. The
+pure derivation parses the committed `flake.lock`. The live gate obtains real
+metadata only by running
+`nix flake metadata --json --no-write-lock-file path:$repo`, compares its
+evaluated lock graph to the committed lock, and rejects any lock rewrite or
+repository-status change. No lock-derived object is presented as metadata.
+
+Every root original is a GitHub owner/repository/full-revision record; the
+locked record must repeat that revision and provide its `narHash`. Root branch,
+path, follows, and extra source inputs are invalid. Declaration mutation
+witnesses keep a stale committed lock while changing an existing root input to
+branch, path, and different owner/repository/revision forms; all must fail the
+live gate without rewriting the lock.
 
 A producer flake may retain branch metadata inside its transitive lock graph
 only when the transitive locked node still has an immutable full revision and

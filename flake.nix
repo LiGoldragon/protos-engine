@@ -65,12 +65,6 @@
       ];
       forAllSystems = function:
         nixpkgs.lib.genAttrs systems (system: function system);
-      lockData = builtins.fromJSON (builtins.readFile ./flake.lock);
-      rootMetadata = builtins.toFile "protos-engine-flake-metadata.json" (
-        builtins.toJSON {
-          locks = lockData;
-        }
-      );
       familyInputs = builtins.removeAttrs inputs [
         "nixpkgs"
         "self"
@@ -110,9 +104,9 @@
             nativeBuildInputs = scriptInputs;
           } ''
             bash ${./scripts/check-pin-policy} \
-              ${self}/flake.lock ${rootMetadata}
+              --lock-only ${self}/flake.lock
             bash ${./scripts/check-pin-policy} \
-              --self-test ${self}/flake.lock ${rootMetadata}
+              --lock-self-test ${self}/flake.lock
             touch "$out"
           '';
           dependencyDirection = pkgs.runCommand "protos-engine-dependency-direction" {
@@ -121,9 +115,9 @@
           } ''
             test -e "$validatedPinPolicy"
             bash ${./scripts/check-dependency-direction} \
-              ${self} ${rootMetadata} ${familySourceMap}
+              ${self} ${self}/flake.lock ${familySourceMap}
             bash ${./scripts/check-dependency-direction} \
-              --self-test ${self} ${rootMetadata} ${familySourceMap}
+              --self-test ${self} ${self}/flake.lock ${familySourceMap}
             touch "$out"
           '';
           publicTextSearchWitnessContract =
@@ -142,6 +136,7 @@
             spirit.checks.${system}.test-nota-text.overrideAttrs (_previous: {
               name = "spirit-public-text-search-exact-test";
               pname = "spirit-public-text-search-exact-test";
+              doInstallCargoArtifacts = false;
               checkPhase = ''
                 runHook preCheck
                 set -o pipefail
@@ -157,6 +152,14 @@
                   "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured;" \
                   exact-test.log
                 runHook postCheck
+              '';
+              installPhase = ''
+                runHook preInstall
+                mkdir -p "$out"
+                printf '%s\n' \
+                  "process_boundary::public_text_search_returns_direct_ranked_records passed" \
+                  > "$out/witness"
+                runHook postInstall
               '';
             });
           shellScripts = pkgs.runCommand "protos-engine-shell-scripts" {
@@ -194,8 +197,29 @@
               ${builtins.readFile ./scripts/run-public-text-search-witness}
             '';
           };
+          checkAllRunner = pkgs.writeShellApplication {
+            name = "protos-engine-check-all";
+            runtimeInputs = [
+              pkgs.coreutils
+              pkgs.gnused
+              pkgs.jq
+              pkgs.jujutsu
+              pkgs.nix
+            ];
+            text = ''
+              repository_root="''${PROTOS_ENGINE_REPOSITORY_ROOT:-${self}}"
+              bash ${./scripts/check-pin-policy} "$repository_root"
+              bash ${./scripts/check-pin-policy} --self-test "$repository_root"
+              nix flake check --print-build-logs "path:$repository_root"
+            '';
+          };
         in
         {
+          check-all = {
+            type = "app";
+            program = "${checkAllRunner}/bin/protos-engine-check-all";
+            meta.description = "Run live metadata policy, mutations, and all pure flake checks";
+          };
           public-text-search-witness = {
             type = "app";
             program = "${runner}/bin/protos-engine-public-text-search-witness";
