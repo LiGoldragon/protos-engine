@@ -97,10 +97,10 @@ validate_lock_policy() {
 repository_status() {
   local repository_root=$1
 
-  if [[ -d "$repository_root/.jj" || -f "$repository_root/.jj" ]]; then
+  if [[ -w "$repository_root/.jj" ]]; then
     jj --repository "$repository_root" status
   else
-    printf 'no-jujutsu-working-copy\n'
+    printf 'no-writable-jujutsu-working-copy\n'
   fi
 }
 
@@ -129,7 +129,7 @@ validate_live_policy() {
     echo "live pin policy requires flake.nix and flake.lock" >&2
     return 1
   }
-  if [[ -d "$repository_root/.jj" || -f "$repository_root/.jj" ]]; then
+  if [[ -w "$repository_root/.jj" ]]; then
     if ! jj --repository "$repository_root" diff --quiet -- flake.lock; then
       echo "flake.lock has uncommitted working-copy changes" >&2
       return 1
@@ -256,6 +256,7 @@ copy_flake_fixture() {
   cp "$repository_root/flake.lock" "$fixture/flake.lock"
   cp "$repository_root/flake.nix" "$fixture/flake.nix"
   cp "$repository_root/scripts/"* "$fixture/scripts/"
+  chmod -R u+w "$fixture"
   chmod +x "$fixture/scripts/"*
 }
 
