@@ -28,22 +28,37 @@ published repositories.
 ## PublicTextSearch witness
 
 The pinned Spirit repository contains
-`public_text_search_returns_direct_ranked_records`. That owner test creates a
-`TempDir`, places the Unix socket and database beneath it, launches the real
-Spirit daemon process, records temporary fixtures, and queries
-`PublicTextSearch`.
+`public_text_search_returns_direct_ranked_records`. That active, non-ignored
+owner test creates a `TempDir`, places the Unix socket and database beneath it,
+launches the real Spirit daemon process, records temporary fixtures, queries
+`PublicTextSearch`, and asserts the returned records.
 
 Spirit currently exports the containing `test-nota-text` suite as a Nix check
-but does not export the single named test. Consequently:
+but does not export the single named test. Consequently this repository
+narrows the pinned published test derivation's check phase without copying or
+reimplementing the test:
 
-- `public-text-search-witness-contract` verifies the named owner witness and
-  its temporary process boundary remain present at the pinned revision.
-- `public-text-search-owner-suite` re-exports the published owning Nix test
-  derivation.
-- `public-text-search-witness` is a generic runner for that same published
-  owner suite.
+- `public-text-search-witness-contract` verifies executable test membership,
+  assertions, and the temporary process boundary.
+- `public-text-search-exact-test` selects the `process_boundary` target and
+  exact function, requiring `1 passed; 0 failed` in the result.
+- `public-text-search-owner-suite` retains the complete published owning Nix
+  test derivation as a separate check.
+- `public-text-search-witness` runs the exact narrowed check.
 
 This is an integration limitation, not permission to add engine code here.
+
+## Lock policy
+
+Root source inputs are a closed set parsed from `flake.lock` and evaluated
+flake metadata. Every root original is a GitHub owner/repository/full-revision
+record; the locked record must repeat that revision and provide its `narHash`.
+Root branch, path, follows, and extra source inputs are invalid.
+
+A producer flake may retain branch metadata inside its transitive lock graph
+only when the transitive locked node still has an immutable full revision and
+`narHash`. Those transitive records are closure evidence from the exact pinned
+producer; they do not weaken the branch-free root policy.
 
 ## Pin advancement
 

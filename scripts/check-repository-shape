@@ -1,45 +1,156 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if (( $# != 1 )); then
-  echo "usage: check-repository-shape REPOSITORY_ROOT" >&2
-  exit 2
-fi
+readonly expected_top_level=$'AGENTS.md\nARCHITECTURE.md\nREADME.md\nflake.lock\nflake.nix\nscripts'
+readonly expected_scripts=$'check-dependency-direction\ncheck-pin-policy\ncheck-public-text-search-witness\ncheck-repository-shape\nrun-public-text-search-witness'
 
-repository_root=$1
+validate_repository_shape() {
+  local repository_root=$1
+  local actual_top_level
+  local actual_scripts
+  local script
 
-for entry in "$repository_root"/* "$repository_root"/.[!.]*; do
-  [[ -e "$entry" ]] || continue
-  name=${entry##*/}
-  case "$name" in
-    .git|.jj|AGENTS.md|ARCHITECTURE.md|README.md|flake.lock|flake.nix|scripts)
-      ;;
-    *)
-      echo "protos-engine top-level path is outside the source-free allowlist: $entry" >&2
-      exit 1
-      ;;
-  esac
-done
+  [[ -d "$repository_root" && ! -L "$repository_root" ]] || {
+    echo "repository root must be a real directory: $repository_root" >&2
+    return 1
+  }
 
-for forbidden_directory in src crates packages vendor vendor-sources; do
-  if [[ -e "$repository_root/$forbidden_directory" ]]; then
-    echo "protos-engine must not contain $forbidden_directory/" >&2
-    exit 1
+  actual_top_level=$(
+    find "$repository_root" -mindepth 1 -maxdepth 1 \
+      ! -name .git ! -name .jj -printf '%f\n' | LC_ALL=C sort
+  )
+  if [[ "$actual_top_level" != "$expected_top_level" ]]; then
+    echo "protos-engine top-level surface differs from the exact allowlist" >&2
+    diff -u <(printf '%s\n' "$expected_top_level") \
+      <(printf '%s\n' "$actual_top_level") >&2 || true
+    return 1
   fi
-done
 
-forbidden_files=$(
-  find "$repository_root" \
+  for script in AGENTS.md ARCHITECTURE.md README.md flake.lock flake.nix; do
+    if [[ ! -f "$repository_root/$script" || -L "$repository_root/$script" ]]; then
+      echo "allowed top-level file must be a regular non-symlink: $script" >&2
+      return 1
+    fi
+  done
+
+  if [[ ! -d "$repository_root/scripts" || -L "$repository_root/scripts" ]]; then
+    echo "scripts must be a real directory" >&2
+    return 1
+  fi
+
+  actual_scripts=$(
+    find "$repository_root/scripts" -mindepth 1 -maxdepth 1 -printf '%f\n' \
+      | LC_ALL=C sort
+  )
+  if [[ "$actual_scripts" != "$expected_scripts" ]]; then
+    echo "scripts surface differs from the exact five-name allowlist" >&2
+    diff -u <(printf '%s\n' "$expected_scripts") \
+      <(printf '%s\n' "$actual_scripts") >&2 || true
+    return 1
+  fi
+
+  if find "$repository_root/scripts" -mindepth 2 -print -quit | grep -q .; then
+    echo "scripts must not contain nested files or directories" >&2
+    return 1
+  fi
+
+  while IFS= read -r script; do
+    local script_path="$repository_root/scripts/$script"
+    local byte_count
+    local byte_count_without_nul
+
+    if [[ ! -f "$script_path" || -L "$script_path" || ! -x "$script_path" ]]; then
+      echo "allowed script must be a regular executable non-symlink: $script" >&2
+      return 1
+    fi
+    if [[ $(head -n 1 "$script_path") != '#!/usr/bin/env bash' ]]; then
+      echo "allowed script must use the expected Bash shebang: $script" >&2
+      return 1
+    fi
+    byte_count=$(wc -c < "$script_path")
+    byte_count_without_nul=$(tr -d '\000' < "$script_path" | wc -c)
+    if [[ "$byte_count" != "$byte_count_without_nul" ]]; then
+      echo "allowed script must be NUL-free text: $script" >&2
+      return 1
+    fi
+    if ! LC_ALL=C grep -Iq . "$script_path"; then
+      echo "allowed script must be non-binary text: $script" >&2
+      return 1
+    fi
+  done < <(printf '%s\n' "$expected_scripts")
+
+  if find "$repository_root" \
     \( -path "$repository_root/.git" -o -path "$repository_root/.jj" \) -prune -o \
-    -type f \
-    \( -name Cargo.toml -o -name Cargo.lock -o -name build.rs -o -name '*.rs' \) \
-    -print
-)
+    -type l -print -quit | grep -q .; then
+    echo "protos-engine source allowlist forbids symlinks" >&2
+    return 1
+  fi
+}
 
-if [[ -n "$forbidden_files" ]]; then
-  echo "protos-engine must not contain Cargo or Rust implementation files:" >&2
-  printf '%s\n' "$forbidden_files" >&2
-  exit 1
-fi
+make_shape_fixture() {
+  local fixture=$1
+  local script
 
-echo "repository shape is source-free"
+  mkdir -p "$fixture/scripts"
+  : > "$fixture/AGENTS.md"
+  : > "$fixture/ARCHITECTURE.md"
+  : > "$fixture/README.md"
+  printf '{}\n' > "$fixture/flake.lock"
+  printf '{}\n' > "$fixture/flake.nix"
+  while IFS= read -r script; do
+    printf '#!/usr/bin/env bash\nset -euo pipefail\n' > "$fixture/scripts/$script"
+    chmod +x "$fixture/scripts/$script"
+  done < <(printf '%s\n' "$expected_scripts")
+}
+
+expect_shape_rejection() {
+  local label=$1
+  local fixture=$2
+
+  if validate_repository_shape "$fixture" >/dev/null 2>&1; then
+    echo "shape mutation unexpectedly passed: $label" >&2
+    return 1
+  fi
+}
+
+run_self_test() {
+  local temporary_root
+
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+
+  make_shape_fixture "$temporary_root/python"
+  printf 'print("copied implementation")\n' > "$temporary_root/python/scripts/copied.py"
+  expect_shape_rejection "copied Python implementation" "$temporary_root/python"
+
+  make_shape_fixture "$temporary_root/binary"
+  printf '\000' >> "$temporary_root/binary/scripts/check-pin-policy"
+  expect_shape_rejection "binary script payload" "$temporary_root/binary"
+
+  make_shape_fixture "$temporary_root/symlink"
+  ln -s README.md "$temporary_root/symlink/copied-source"
+  expect_shape_rejection "foreign symlink" "$temporary_root/symlink"
+}
+
+case ${1:-} in
+  --self-test)
+    (( $# == 1 )) || {
+      echo "usage: check-repository-shape --self-test" >&2
+      exit 2
+    }
+    run_self_test
+    echo "repository-shape mutation tests reject copied and binary surfaces"
+    ;;
+  "")
+    echo "usage: check-repository-shape REPOSITORY_ROOT" >&2
+    exit 2
+    ;;
+  *)
+    (( $# == 1 )) || {
+      echo "usage: check-repository-shape REPOSITORY_ROOT" >&2
+      exit 2
+    }
+    validate_repository_shape "$1"
+    echo "repository shape matches the exact source-free allowlist"
+    ;;
+esac

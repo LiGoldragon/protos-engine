@@ -1,40 +1,158 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if (( $# != 2 )); then
-  echo "usage: check-public-text-search-witness SIGNAL_SPIRIT_SOURCE SPIRIT_SOURCE" >&2
-  exit 2
-fi
+readonly witness_name=public_text_search_returns_direct_ranked_records
 
-signal_spirit_source=$1
-spirit_source=$2
-signal_contract="$signal_spirit_source/schema/signal.schema"
-process_test="$spirit_source/tests/process_boundary.rs"
+extract_witness() {
+  local process_test=$1
+  local function_line
 
-[[ -f "$signal_contract" && -f "$process_test" ]] || {
-  echo "pinned Spirit sources do not contain the expected owner surfaces" >&2
-  exit 1
+  function_line=$(
+    LC_ALL=C grep -nE \
+      "^[[:space:]]*fn ${witness_name}[(][)][[:space:]]*[{][[:space:]]*$" \
+      "$process_test" | cut -d: -f1
+  )
+  if [[ -z "$function_line" || "$function_line" == *$'\n'* ]]; then
+    echo "owner process test must contain exactly one named witness" >&2
+    return 1
+  fi
+
+  if [[ $(sed -n "$((function_line - 1))p" "$process_test") != '#[test]' ]]; then
+    echo "named owner witness must be directly marked #[test]" >&2
+    return 1
+  fi
+  if sed -n "$((function_line - 3)),$((function_line + 1))p" "$process_test" \
+    | grep -Fq '#[ignore]'; then
+    echo "named owner witness must not be ignored" >&2
+    return 1
+  fi
+
+  tail -n +"$function_line" "$process_test" | sed -n '1,/^}/p'
 }
 
-grep -Fq "PublicTextSearch SearchText" "$signal_contract"
+validate_public_text_search_witness() {
+  local signal_spirit_source=$1
+  local spirit_source=$2
+  local signal_contract="$signal_spirit_source/schema/signal.schema"
+  local process_test="$spirit_source/tests/process_boundary.rs"
+  local witness
+  local assertion_count
 
-witness=$(
-  sed -n \
-    '/fn public_text_search_returns_direct_ranked_records()/,/^}/p' \
-    "$process_test"
-)
+  [[ -f "$signal_contract" && -f "$process_test" ]] || {
+    echo "pinned Spirit sources do not contain the expected owner surfaces" >&2
+    return 1
+  }
+  grep -Fq "PublicTextSearch SearchText" "$signal_contract" || {
+    echo "pinned signal contract lacks PublicTextSearch" >&2
+    return 1
+  }
 
-for required_surface in \
-  'TempDir::new()' \
-  'public-text-search.sock' \
-  'public-text-search.sema' \
-  'DaemonProcess::spawn' \
-  '(PublicTextSearch .criome)' \
-  '(PublicTextSearch [routing protocol])'; do
-  if [[ "$witness" != *"$required_surface"* ]]; then
-    echo "pinned owner witness is missing: $required_surface" >&2
-    exit 1
+  witness=$(extract_witness "$process_test")
+
+  grep -Eq '^[[:space:]]*let temp = TempDir::new[(][)][.]expect[(]"tempdir"[)][;][[:space:]]*$' \
+    <<< "$witness" || {
+    echo "owner witness does not construct its live TempDir in executable code" >&2
+    return 1
+  }
+  grep -Eq '^[[:space:]]*let socket_path = temp[.]path[(][)][.]join[(]"public-text-search[.]sock"[)][;][[:space:]]*$' \
+    <<< "$witness" || {
+    echo "owner witness socket is not derived from TempDir in executable code" >&2
+    return 1
+  }
+  grep -Eq '^[[:space:]]*let database_path = temp[.]path[(][)][.]join[(]"public-text-search[.]sema"[)][;][[:space:]]*$' \
+    <<< "$witness" || {
+    echo "owner witness database is not derived from TempDir in executable code" >&2
+    return 1
+  }
+  grep -Eq '^[[:space:]]*let _daemon = DaemonProcess::spawn[(]&socket_path, &database_path[)][;][[:space:]]*$' \
+    <<< "$witness" || {
+    echo "owner witness does not launch the real daemon in executable code" >&2
+    return 1
+  }
+  grep -Eq '^[[:space:]]*let suffix_results = run_cli[(]&socket_path, "[(]PublicTextSearch [.]criome[)]"[)][;][[:space:]]*$' \
+    <<< "$witness" || {
+    echo "owner witness does not execute the suffix PublicTextSearch call" >&2
+    return 1
+  }
+  grep -Eq '^[[:space:]]*let phrase_results = run_cli[(]&socket_path, "[(]PublicTextSearch \[routing protocol\][)]"[)][;][[:space:]]*$' \
+    <<< "$witness" || {
+    echo "owner witness does not execute the phrase PublicTextSearch call" >&2
+    return 1
+  }
+
+  assertion_count=$(
+    grep -Ec '^[[:space:]]*assert(_eq)?!' <<< "$witness"
+  )
+  if (( assertion_count < 4 )); then
+    echo "owner witness must retain executable result assertions" >&2
+    return 1
   fi
-done
+}
 
-echo "pinned PublicTextSearch owner witness uses an isolated real process boundary"
+expect_witness_rejection() {
+  local label=$1
+  local signal_spirit_source=$2
+  local spirit_source=$3
+
+  if validate_public_text_search_witness \
+    "$signal_spirit_source" "$spirit_source" >/dev/null 2>&1; then
+    echo "witness mutation unexpectedly passed: $label" >&2
+    return 1
+  fi
+}
+
+run_self_test() {
+  local signal_spirit_source=$1
+  local spirit_source=$2
+  local temporary_root
+
+  validate_public_text_search_witness "$signal_spirit_source" "$spirit_source"
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+
+  mkdir -p "$temporary_root/ignored/signal/schema" \
+    "$temporary_root/ignored/spirit/tests"
+  cp "$signal_spirit_source/schema/signal.schema" \
+    "$temporary_root/ignored/signal/schema/signal.schema"
+  cp "$spirit_source/tests/process_boundary.rs" \
+    "$temporary_root/ignored/spirit/tests/process_boundary.rs"
+  sed -i "/fn ${witness_name}()/i #[ignore]" \
+    "$temporary_root/ignored/spirit/tests/process_boundary.rs"
+  expect_witness_rejection "ignored exact test" \
+    "$temporary_root/ignored/signal" "$temporary_root/ignored/spirit"
+
+  mkdir -p "$temporary_root/comment/signal/schema" \
+    "$temporary_root/comment/spirit/tests"
+  cp "$signal_spirit_source/schema/signal.schema" \
+    "$temporary_root/comment/signal/schema/signal.schema"
+  cp "$spirit_source/tests/process_boundary.rs" \
+    "$temporary_root/comment/spirit/tests/process_boundary.rs"
+  sed -i \
+    's/^\([[:space:]]*\)let _daemon = DaemonProcess::spawn/\1\/\/ let _daemon = DaemonProcess::spawn/' \
+    "$temporary_root/comment/spirit/tests/process_boundary.rs"
+  expect_witness_rejection "comment-only daemon call" \
+    "$temporary_root/comment/signal" "$temporary_root/comment/spirit"
+}
+
+case ${1:-} in
+  --self-test)
+    (( $# == 3 )) || {
+      echo "usage: check-public-text-search-witness --self-test SIGNAL_SPIRIT_SOURCE SPIRIT_SOURCE" >&2
+      exit 2
+    }
+    run_self_test "$2" "$3"
+    echo "witness mutations reject ignored and comment-only membership"
+    ;;
+  "")
+    echo "usage: check-public-text-search-witness SIGNAL_SPIRIT_SOURCE SPIRIT_SOURCE" >&2
+    exit 2
+    ;;
+  *)
+    (( $# == 2 )) || {
+      echo "usage: check-public-text-search-witness SIGNAL_SPIRIT_SOURCE SPIRIT_SOURCE" >&2
+      exit 2
+    }
+    validate_public_text_search_witness "$1" "$2"
+    echo "pinned owner witness is executable, selected, and temp-backed"
+    ;;
+esac

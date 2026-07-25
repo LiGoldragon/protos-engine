@@ -65,6 +65,24 @@
       ];
       forAllSystems = function:
         nixpkgs.lib.genAttrs systems (system: function system);
+      lockData = builtins.fromJSON (builtins.readFile ./flake.lock);
+      rootMetadata = builtins.toFile "protos-engine-flake-metadata.json" (
+        builtins.toJSON {
+          locks = lockData;
+        }
+      );
+      familyInputs = builtins.removeAttrs inputs [
+        "nixpkgs"
+        "self"
+      ];
+      familySourceMap = builtins.toFile "protos-engine-root-family-sources.json" (
+        builtins.toJSON (
+          builtins.mapAttrs (
+            _name: source:
+            toString source.outPath
+          ) familyInputs
+        )
+      );
     in
     {
       checks = forAllSystems (
@@ -74,49 +92,38 @@
           scriptInputs = [
             pkgs.bash
             pkgs.coreutils
+            pkgs.diffutils
             pkgs.findutils
             pkgs.gnugrep
             pkgs.gnused
+            pkgs.jq
             pkgs.ripgrep
           ];
           repositoryShape = pkgs.runCommand "protos-engine-repository-shape" {
             nativeBuildInputs = scriptInputs;
           } ''
             bash ${./scripts/check-repository-shape} ${self}
+            bash ${./scripts/check-repository-shape} --self-test
             touch "$out"
           '';
-          exactPins =
-            assert nixpkgs.rev == "91cc1fdf6831e29b6c98768e721a72241f3d0797";
-            assert content-identity.rev == "ac0075842799b3ece8909ad0eb4b8a92b596b188";
-            assert name-table.rev == "a1705ef512efec28925ae3ffc9faa5a2aa4dc4a8";
-            assert raw-discovery.rev == "c27a9efabb1981c8b3d887c870fff82fc7daf49c";
-            assert structural-codec.rev == "e5fa1b3bbdde13f3dac205920b16a2e73f3d4487";
-            assert protos.rev == "c6fa54c066a1210bbba026d9d761bb3ef5b8af5f";
-            assert schema-language.rev == "9c217610c4b8d3bdaa9f95542e28c04424a593e3";
-            assert schema-rust.rev == "3721656b0a654d47d9abde31f14d89d01f9305cf";
-            assert signal-spirit.rev == "1cf7c010029de46369b742687da4fa1ca6def9a9";
-            assert meta-signal-spirit.rev == "0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3";
-            assert spirit.rev == "1049b8a1a9e3c2be7ece3553b89c7e3815939d43";
-            pkgs.runCommand "protos-engine-exact-pins" {
-              nativeBuildInputs = scriptInputs;
-            } ''
-              bash ${./scripts/check-pin-policy} ${self}
-              touch "$out"
-            '';
-          dependencyDirection = pkgs.runCommand "protos-engine-dependency-direction" {
+          exactPins = pkgs.runCommand "protos-engine-exact-pins" {
             nativeBuildInputs = scriptInputs;
           } ''
-            bash ${./scripts/check-dependency-direction} ${self} \
-              "content-identity=${content-identity}" \
-              "name-table=${name-table}" \
-              "raw-discovery=${raw-discovery}" \
-              "structural-codec=${structural-codec}" \
-              "protos=${protos}" \
-              "schema-language=${schema-language}" \
-              "schema-rust=${schema-rust}" \
-              "signal-spirit=${signal-spirit}" \
-              "meta-signal-spirit=${meta-signal-spirit}" \
-              "spirit=${spirit}"
+            bash ${./scripts/check-pin-policy} \
+              ${self}/flake.lock ${rootMetadata}
+            bash ${./scripts/check-pin-policy} \
+              --self-test ${self}/flake.lock ${rootMetadata}
+            touch "$out"
+          '';
+          dependencyDirection = pkgs.runCommand "protos-engine-dependency-direction" {
+            nativeBuildInputs = scriptInputs;
+            validatedPinPolicy = exactPins;
+          } ''
+            test -e "$validatedPinPolicy"
+            bash ${./scripts/check-dependency-direction} \
+              ${self} ${rootMetadata} ${familySourceMap}
+            bash ${./scripts/check-dependency-direction} \
+              --self-test ${self} ${rootMetadata} ${familySourceMap}
             touch "$out"
           '';
           publicTextSearchWitnessContract =
@@ -127,8 +134,31 @@
               ''
                 bash ${./scripts/check-public-text-search-witness} \
                   ${signal-spirit} ${spirit}
+                bash ${./scripts/check-public-text-search-witness} \
+                  --self-test ${signal-spirit} ${spirit}
                 touch "$out"
               '';
+          publicTextSearchExactTest =
+            spirit.checks.${system}.test-nota-text.overrideAttrs (_previous: {
+              name = "spirit-public-text-search-exact-test";
+              pname = "spirit-public-text-search-exact-test";
+              checkPhase = ''
+                runHook preCheck
+                set -o pipefail
+                cargoWithProfile test \
+                  --features nota-text \
+                  --test process_boundary \
+                  public_text_search_returns_direct_ranked_records \
+                  -- --exact 2>&1 | tee exact-test.log
+                grep -F \
+                  "test public_text_search_returns_direct_ranked_records ... ok" \
+                  exact-test.log
+                grep -F \
+                  "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured;" \
+                  exact-test.log
+                runHook postCheck
+              '';
+            });
           shellScripts = pkgs.runCommand "protos-engine-shell-scripts" {
             nativeBuildInputs = [ pkgs.shellcheck ];
           } ''
@@ -141,6 +171,7 @@
           exact-pins = exactPins;
           dependency-direction = dependencyDirection;
           public-text-search-witness-contract = publicTextSearchWitnessContract;
+          public-text-search-exact-test = publicTextSearchExactTest;
           shell-scripts = shellScripts;
           public-text-search-owner-suite =
             spirit.checks.${system}.test-nota-text;
@@ -159,6 +190,7 @@
             ];
             text = ''
               export PROTOS_ENGINE_SPIRIT_SYSTEM=${system}
+              export PROTOS_ENGINE_FLAKE_REFERENCE=${self}
               ${builtins.readFile ./scripts/run-public-text-search-witness}
             '';
           };
@@ -167,6 +199,7 @@
           public-text-search-witness = {
             type = "app";
             program = "${runner}/bin/protos-engine-public-text-search-witness";
+            meta.description = "Run the exact pinned Spirit PublicTextSearch process witness";
           };
         }
       );

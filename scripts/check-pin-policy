@@ -1,55 +1,209 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if (( $# != 1 )); then
-  echo "usage: check-pin-policy REPOSITORY_ROOT" >&2
-  exit 2
-fi
+readonly expected_pins=$'content-identity|LiGoldragon|content-identity|ac0075842799b3ece8909ad0eb4b8a92b596b188\nmeta-signal-spirit|LiGoldragon|meta-signal-spirit|0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3\nname-table|LiGoldragon|name-table|a1705ef512efec28925ae3ffc9faa5a2aa4dc4a8\nnixpkgs|NixOS|nixpkgs|91cc1fdf6831e29b6c98768e721a72241f3d0797\nprotos|LiGoldragon|protos|c6fa54c066a1210bbba026d9d761bb3ef5b8af5f\nraw-discovery|LiGoldragon|raw-discovery|c27a9efabb1981c8b3d887c870fff82fc7daf49c\nschema-language|LiGoldragon|schema-language|9c217610c4b8d3bdaa9f95542e28c04424a593e3\nschema-rust|LiGoldragon|schema-rust|3721656b0a654d47d9abde31f14d89d01f9305cf\nsignal-spirit|LiGoldragon|signal-spirit|1cf7c010029de46369b742687da4fa1ca6def9a9\nspirit|LiGoldragon|spirit|1049b8a1a9e3c2be7ece3553b89c7e3815939d43\nstructural-codec|LiGoldragon|structural-codec|e5fa1b3bbdde13f3dac205920b16a2e73f3d4487'
+readonly expected_input_names=$'content-identity\nmeta-signal-spirit\nname-table\nnixpkgs\nprotos\nraw-discovery\nschema-language\nschema-rust\nsignal-spirit\nspirit\nstructural-codec'
 
-repository_root=$1
-flake_file="$repository_root/flake.nix"
-lock_file="$repository_root/flake.lock"
+validate_pin_policy() {
+  local lock_file=$1
+  local metadata_file=$2
+  local actual_input_names
+  local input_name
+  local owner
+  local repository
+  local revision
+  local node_name
 
-[[ -f "$flake_file" ]] || {
-  echo "missing flake.nix" >&2
-  exit 1
-}
-[[ -f "$lock_file" ]] || {
-  echo "missing flake.lock" >&2
-  exit 1
-}
+  jq -e '
+    type == "object"
+    and (.version == 7)
+    and (.root | type == "string")
+    and (.nodes | type == "object")
+    and (.nodes[.root].inputs | type == "object")
+  ' "$lock_file" >/dev/null || {
+    echo "flake.lock does not have the expected structural root" >&2
+    return 1
+  }
 
-expected_pins=(
-  "NixOS/nixpkgs|91cc1fdf6831e29b6c98768e721a72241f3d0797"
-  "LiGoldragon/content-identity|ac0075842799b3ece8909ad0eb4b8a92b596b188"
-  "LiGoldragon/name-table|a1705ef512efec28925ae3ffc9faa5a2aa4dc4a8"
-  "LiGoldragon/raw-discovery|c27a9efabb1981c8b3d887c870fff82fc7daf49c"
-  "LiGoldragon/structural-codec|e5fa1b3bbdde13f3dac205920b16a2e73f3d4487"
-  "LiGoldragon/protos|c6fa54c066a1210bbba026d9d761bb3ef5b8af5f"
-  "LiGoldragon/schema-language|9c217610c4b8d3bdaa9f95542e28c04424a593e3"
-  "LiGoldragon/schema-rust|3721656b0a654d47d9abde31f14d89d01f9305cf"
-  "LiGoldragon/signal-spirit|1cf7c010029de46369b742687da4fa1ca6def9a9"
-  "LiGoldragon/meta-signal-spirit|0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3"
-  "LiGoldragon/spirit|1049b8a1a9e3c2be7ece3553b89c7e3815939d43"
-)
+  jq -e --slurp '
+    (.[1] | type == "object")
+    and (.[1].locks | type == "object")
+    and (.[0] == .[1].locks)
+  ' "$lock_file" "$metadata_file" >/dev/null || {
+    echo "flake metadata locks differ from flake.lock" >&2
+    return 1
+  }
 
-for pin in "${expected_pins[@]}"; do
-  repository=${pin%%|*}
-  revision=${pin##*|}
-  expected="github:$repository/$revision"
-  if ! grep -Fq "$expected" "$flake_file"; then
-    echo "missing exact repository pin: $expected" >&2
-    exit 1
+  actual_input_names=$(
+    jq -r '.root as $root | .nodes[$root].inputs | keys[]' "$lock_file"
+  )
+  if [[ "$actual_input_names" != "$expected_input_names" ]]; then
+    echo "root source-input names differ from the exact policy set" >&2
+    diff -u <(printf '%s\n' "$expected_input_names") \
+      <(printf '%s\n' "$actual_input_names") >&2 || true
+    return 1
   fi
-done
 
-while IFS= read -r input_url; do
-  if [[ ! "$input_url" =~ ^github:[^/]+/[^/]+/[0-9a-f]{40}$ ]]; then
-    echo "repository input is not pinned to a full Git revision: $input_url" >&2
-    exit 1
+  while IFS='|' read -r input_name owner repository revision; do
+    node_name=$(
+      jq -er --arg input_name "$input_name" '
+        .root as $root
+        | .nodes[$root].inputs[$input_name]
+        | select(type == "string")
+      ' "$lock_file"
+    ) || {
+      echo "root input is not a direct locked node: $input_name" >&2
+      return 1
+    }
+
+    jq -e \
+      --arg node_name "$node_name" \
+      --arg owner "$owner" \
+      --arg repository "$repository" \
+      --arg revision "$revision" '
+        .nodes[$node_name] as $node
+        | ($revision | test("^[0-9a-f]{40}$"))
+          and (($node.original | keys | sort) == ["owner", "repo", "rev", "type"])
+          and ($node.original.type == "github")
+          and ($node.original.owner == $owner)
+          and ($node.original.repo == $repository)
+          and ($node.original.rev == $revision)
+          and (($node.original.rev | test("^[0-9a-f]{40}$")))
+          and ($node.locked.type == "github")
+          and ($node.locked.owner == $owner)
+          and ($node.locked.repo == $repository)
+          and ($node.locked.rev == $revision)
+          and (($node.locked.rev | test("^[0-9a-f]{40}$")))
+          and ($node.locked.narHash | type == "string")
+          and ($node.locked.narHash | startswith("sha256-"))
+          and (($node.locked.narHash | length) > 8)
+          and (($node.locked | has("ref")) | not)
+          and (($node.locked | has("path")) | not)
+      ' "$lock_file" >/dev/null || {
+      echo "root input violates exact immutable pin policy: $input_name" >&2
+      return 1
+    }
+  done < <(printf '%s\n' "$expected_pins")
+
+  jq -e '
+    all(
+      .nodes[];
+      if ((.original? // {}) | has("ref")) then
+        (.locked.rev | type == "string")
+        and (.locked.rev | test("^[0-9a-f]{40}$"))
+        and (.locked.narHash | type == "string")
+        and (.locked.narHash | startswith("sha256-"))
+        and ((.locked.narHash | length) > 8)
+      else
+        true
+      end
+    )
+  ' "$lock_file" >/dev/null || {
+    echo "transitive branch metadata lacks an immutable locked revision and narHash" >&2
+    return 1
+  }
+}
+
+mutate_both() {
+  local lock_file=$1
+  local metadata_file=$2
+  local jq_program=$3
+  local mutated_lock=$4
+  local mutated_metadata=$5
+
+  jq "$jq_program" "$lock_file" > "$mutated_lock"
+  jq --slurp '.[0].locks = .[1] | .[0]' \
+    "$metadata_file" "$mutated_lock" > "$mutated_metadata"
+}
+
+expect_pin_rejection() {
+  local label=$1
+  local lock_file=$2
+  local metadata_file=$3
+
+  if validate_pin_policy "$lock_file" "$metadata_file" >/dev/null 2>&1; then
+    echo "pin mutation unexpectedly passed: $label" >&2
+    return 1
   fi
-done < <(
-  sed -nE 's/.*url = "(github:[^"]+)".*/\1/p' "$flake_file"
-)
+}
 
-echo "all repository inputs use exact full Git revisions"
+run_self_test() {
+  local lock_file=$1
+  local metadata_file=$2
+  local temporary_root
+  local node_expression
+
+  validate_pin_policy "$lock_file" "$metadata_file"
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+
+  # shellcheck disable=SC2016
+  node_expression='.root as $root
+    | .nodes[$root].inputs["content-identity"] as $node
+    | .nodes[$node].original = {
+        "type": "github",
+        "owner": "LiGoldragon",
+        "repo": "content-identity",
+        "ref": "main"
+      }'
+  mutate_both "$lock_file" "$metadata_file" "$node_expression" \
+    "$temporary_root/branch.lock" "$temporary_root/branch.metadata"
+  expect_pin_rejection "root branch input" \
+    "$temporary_root/branch.lock" "$temporary_root/branch.metadata"
+
+  # shellcheck disable=SC2016
+  node_expression='.root as $root
+    | .nodes[$root].inputs["content-identity"] as $node
+    | .nodes[$node].original = {
+        "type": "path",
+        "path": "../content-identity"
+      }'
+  mutate_both "$lock_file" "$metadata_file" "$node_expression" \
+    "$temporary_root/path.lock" "$temporary_root/path.metadata"
+  expect_pin_rejection "root path input" \
+    "$temporary_root/path.lock" "$temporary_root/path.metadata"
+
+  # shellcheck disable=SC2016
+  node_expression='.root as $root
+    | .nodes[$root].inputs["unexpected-engine"] = "content-identity"'
+  mutate_both "$lock_file" "$metadata_file" "$node_expression" \
+    "$temporary_root/extra.lock" "$temporary_root/extra.metadata"
+  expect_pin_rejection "extra root input" \
+    "$temporary_root/extra.lock" "$temporary_root/extra.metadata"
+
+  # shellcheck disable=SC2016
+  node_expression='first(
+      .nodes
+      | to_entries[]
+      | select(.value.original.ref? != null)
+      | .key
+    ) as $node
+    | del(.nodes[$node].locked.narHash)'
+  mutate_both "$lock_file" "$metadata_file" "$node_expression" \
+    "$temporary_root/transitive.lock" "$temporary_root/transitive.metadata"
+  expect_pin_rejection "unlocked transitive branch input" \
+    "$temporary_root/transitive.lock" "$temporary_root/transitive.metadata"
+}
+
+case ${1:-} in
+  --self-test)
+    (( $# == 3 )) || {
+      echo "usage: check-pin-policy --self-test FLAKE_LOCK METADATA_JSON" >&2
+      exit 2
+    }
+    run_self_test "$2" "$3"
+    echo "pin-policy mutations reject branch, path, extra-root, and unlocked transitive inputs"
+    ;;
+  "")
+    echo "usage: check-pin-policy FLAKE_LOCK METADATA_JSON" >&2
+    exit 2
+    ;;
+  *)
+    (( $# == 2 )) || {
+      echo "usage: check-pin-policy FLAKE_LOCK METADATA_JSON" >&2
+      exit 2
+    }
+    validate_pin_policy "$1" "$2"
+    echo "root metadata and lock use the exact immutable source-input set"
+    ;;
+esac

@@ -1,40 +1,160 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if (( $# < 2 )); then
-  echo "usage: check-dependency-direction REPOSITORY_ROOT NAME=SOURCE..." >&2
-  exit 2
-fi
+readonly forbidden_edge='protos[-_]engine|github[.]com[/:]ligoldragon/protos-engine|ligoldragon/protos-engine'
 
-repository_root=$1
-shift
+metadata_family_names() {
+  local metadata_file=$1
 
-if find "$repository_root" \
-  \( -path "$repository_root/.git" -o -path "$repository_root/.jj" \) -prune -o \
-  -type f \( -name Cargo.toml -o -name Cargo.lock -o -name build.rs \) \
-  -print -quit | grep -q .; then
-  echo "protos-engine must have no Cargo or build-script surface" >&2
-  exit 1
-fi
+  jq -r '
+    .locks.root as $root
+    | .locks.nodes[$root].inputs
+    | keys[]
+    | select(. != "nixpkgs")
+  ' "$metadata_file"
+}
 
-for source_specification in "$@"; do
-  source_name=${source_specification%%=*}
-  source_path=${source_specification#*=}
+validate_dependency_direction() {
+  local repository_root=$1
+  local metadata_file=$2
+  local source_map_file=$3
+  local expected_source_names
+  local actual_source_names
+  local source_name
+  local source_path
+  local manifest
 
-  if [[ "$source_name" == "$source_path" || ! -d "$source_path" ]]; then
-    echo "invalid pinned source specification: $source_specification" >&2
-    exit 2
+  [[ -d "$repository_root" ]] || {
+    echo "repository root is not a directory: $repository_root" >&2
+    return 1
+  }
+  jq -e '.locks.nodes[.locks.root].inputs | type == "object"' \
+    "$metadata_file" >/dev/null || {
+    echo "metadata lacks structural root inputs" >&2
+    return 1
+  }
+  jq -e 'type == "object" and all(.[]; type == "string")' \
+    "$source_map_file" >/dev/null || {
+    echo "root source map must be a JSON object of source paths" >&2
+    return 1
+  }
+
+  expected_source_names=$(metadata_family_names "$metadata_file")
+  actual_source_names=$(jq -r 'keys[]' "$source_map_file")
+  if [[ "$actual_source_names" != "$expected_source_names" ]]; then
+    echo "source map is not derived from the validated root family inputs" >&2
+    diff -u <(printf '%s\n' "$expected_source_names") \
+      <(printf '%s\n' "$actual_source_names") >&2 || true
+    return 1
   fi
 
-  while IFS= read -r -d '' manifest; do
-    if grep -nE 'protos[-_]engine|LiGoldragon/protos-engine' "$manifest"; then
-      echo "forbidden component-to-sink dependency edge in $source_name: $manifest" >&2
-      exit 1
-    fi
-  done < <(
-    find "$source_path" -type f \
-      \( -name Cargo.toml -o -name flake.nix \) -print0
-  )
-done
+  if find "$repository_root" \
+    \( -path "$repository_root/.git" -o -path "$repository_root/.jj" \) -prune -o \
+    -type f \( -name Cargo.toml -o -name Cargo.lock -o -name build.rs \) \
+    -print -quit | grep -q .; then
+    echo "protos-engine must have no Cargo or build-script surface" >&2
+    return 1
+  fi
 
-echo "no pinned component imports protos-engine"
+  while IFS= read -r source_name; do
+    source_path=$(jq -er --arg name "$source_name" '.[$name]' "$source_map_file")
+    if [[ ! -d "$source_path" ]]; then
+      echo "root family source is not a directory: $source_name=$source_path" >&2
+      return 1
+    fi
+
+    while IFS= read -r -d '' manifest; do
+      if LC_ALL=C grep -niE "$forbidden_edge" "$manifest"; then
+        echo "forbidden component-to-sink edge in $source_name: $manifest" >&2
+        return 1
+      fi
+    done < <(
+      find "$source_path" -type f \
+        \( -name Cargo.toml -o -name flake.nix \) -print0
+    )
+  done < <(printf '%s\n' "$expected_source_names")
+}
+
+expect_direction_rejection() {
+  local label=$1
+  local repository_root=$2
+  local metadata_file=$3
+  local source_map_file=$4
+
+  if validate_dependency_direction \
+    "$repository_root" "$metadata_file" "$source_map_file" >/dev/null 2>&1; then
+    echo "dependency-direction mutation unexpectedly passed: $label" >&2
+    return 1
+  fi
+}
+
+run_self_test() {
+  local repository_root=$1
+  local metadata_file=$2
+  local temporary_root
+  local source_name
+  local source_map='{}'
+
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+  mkdir -p "$temporary_root/repository"
+
+  while IFS= read -r source_name; do
+    mkdir -p "$temporary_root/sources/$source_name"
+    printf '[package]\nname = "fixture"\n' \
+      > "$temporary_root/sources/$source_name/Cargo.toml"
+    source_map=$(
+      jq -cn \
+        --argjson source_map "$source_map" \
+        --arg name "$source_name" \
+        --arg path "$temporary_root/sources/$source_name" \
+        '$source_map + {($name): $path}'
+    )
+  done < <(metadata_family_names "$metadata_file")
+  printf '%s\n' "$source_map" > "$temporary_root/source-map.json"
+
+  validate_dependency_direction "$temporary_root/repository" \
+    "$metadata_file" "$temporary_root/source-map.json"
+
+  source_name=$(metadata_family_names "$metadata_file" | head -n 1)
+  printf '%s\n' \
+    '[dependencies]' \
+    'PrOtOs_EnGiNe = { git = "https://GitHub.com/LiGoldragon/Protos-Engine" }' \
+    > "$temporary_root/sources/$source_name/Cargo.toml"
+  expect_direction_rejection "mixed-case inbound dependency" \
+    "$temporary_root/repository" "$metadata_file" \
+    "$temporary_root/source-map.json"
+
+  printf '[package]\nname = "fixture"\n' \
+    > "$temporary_root/sources/$source_name/Cargo.toml"
+  jq '
+    .locks.root as $root
+    | .locks.nodes[$root].inputs["new-family"] = "content-identity"
+  ' "$metadata_file" > "$temporary_root/extra-input.metadata.json"
+  expect_direction_rejection "new root family input without a derived source" \
+    "$temporary_root/repository" "$temporary_root/extra-input.metadata.json" \
+    "$temporary_root/source-map.json"
+}
+
+case ${1:-} in
+  --self-test)
+    (( $# == 4 )) || {
+      echo "usage: check-dependency-direction --self-test REPOSITORY_ROOT METADATA_JSON SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    run_self_test "$2" "$3"
+    echo "dependency-direction mutations reject mixed-case and new-input edges"
+    ;;
+  "")
+    echo "usage: check-dependency-direction REPOSITORY_ROOT METADATA_JSON SOURCE_MAP_JSON" >&2
+    exit 2
+    ;;
+  *)
+    (( $# == 3 )) || {
+      echo "usage: check-dependency-direction REPOSITORY_ROOT METADATA_JSON SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    validate_dependency_direction "$1" "$2" "$3"
+    echo "validated root family sources contain no component-to-sink edge"
+    ;;
+esac

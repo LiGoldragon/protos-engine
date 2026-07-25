@@ -22,9 +22,11 @@ No Cargo or path edge may flow back:
 component repository -X-> protos-engine
 ```
 
-`scripts/check-dependency-direction` scans the pinned family manifests and
-flake inputs for that forbidden reverse edge. `scripts/check-repository-shape`
-keeps this repository source-free.
+`scripts/check-dependency-direction` derives its source map from the validated
+root lock input set, then scans every pinned family `Cargo.toml` and
+`flake.nix` for that forbidden reverse edge. The match is case-insensitive.
+`scripts/check-repository-shape` keeps the recursively exact repository
+allowlist source-free.
 
 ## Pinned family
 
@@ -47,6 +49,17 @@ The three Spirit-family pins retain the existing `PublicTextSearch` process
 witness until its successor feature revisions are independently audited and
 published.
 
+`scripts/check-pin-policy` parses both `flake.lock` and the evaluated flake
+metadata. Root inputs must be exactly the table above plus the pinned Nixpkgs
+input; each root original and locked record must agree on a full 40-hex
+revision and the locked record must carry a `narHash`. Root branch, path, and
+extra inputs are rejected.
+
+Transitive inputs belong to the immutable pinned Spirit flake closure. Their
+locked originals may retain branch metadata from the producer only when the
+lock also records an immutable full revision and `narHash`; the stricter
+branch-free rule applies to this repository's root inputs.
+
 ## Checks
 
 Run the reproducible evaluation and check surface:
@@ -58,10 +71,16 @@ nix flake check --print-build-logs
 
 The current Spirit flake does not export its exact
 `public_text_search_returns_direct_ranked_records` test as a standalone output.
-The `public-text-search-owner-suite` check therefore delegates to Spirit's
-published `test-nota-text` owner suite, which includes that test. A separate
-structural check proves the pinned suite still launches the real daemon with
-socket and database paths beneath a `TempDir`.
+`public-text-search-exact-test` therefore narrows Spirit's pinned published
+test derivation to the `process_boundary` target and that exact test name. The
+check requires both the named success line and the Cargo result
+`1 passed; 0 failed`, so ignored, filtered-out, or non-member tests cannot
+satisfy it. The test implementation stays in Spirit.
+
+`public-text-search-witness-contract` also proves the pinned function is an
+active `#[test]`, is not ignored, and retains executable TempDir, daemon,
+query, and assertion statements. `public-text-search-owner-suite` preserves
+the producer's broader published suite as a separate closure check.
 
 Run the same owning published suite explicitly with:
 
