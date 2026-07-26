@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly expected_top_level=$'AGENTS.md\nARCHITECTURE.md\nREADME.md\nflake.lock\nflake.nix\nscripts'
+readonly expected_top_level=$'AGENTS.md\nARCHITECTURE.md\nREADME.md\ndesign\nflake.lock\nflake.nix\nscripts'
 readonly expected_scripts=$'check-dependency-direction\ncheck-pin-policy\ncheck-public-text-search-witness\ncheck-repository-shape\nrun-public-text-search-witness'
 
 validate_repository_shape() {
