@@ -999,3 +999,100 @@ domain, with generic `ShortDisplay<D>` only a matter name. A Capsule stores its
 full content-addressed hash and complete composed `NameTree` pin. The Protos
 `ShortIdentifier` getter is retired. There is no adaptation to stored kind
 codes.
+
+## Secondary-provenance block-model rulings and fidelity correction — 2026-07-26
+
+**Provenance correction — not psyche words:** This compilation is a secondary
+record for rulings A through D below. Their source is
+`/home/li/primary/reports/CodexCorrection-2026-07-26-second.md`; it does not
+establish a firsthand session record here. For every overlapping capsule,
+short-identifier, and short-display entry, the firsthand
+`design/ProtosEngine/ShapeAndSliceRulings-2026-07-26.md` controls the exact
+agent wording and Psyche text. The earlier shortened or rephrased renderings in
+this compilation remain unchanged as historical secondary renderings; this
+append neither rewrites nor removes them.
+
+For R1 through R5, this corrects the earlier provenance claim that the
+`Subsequent rulings` entries in this compilation were live-session records.
+They are secondhand here; the Shape and Slice log is the firsthand record.
+This is a provenance correction, not a later Psyche ruling, and therefore does
+not give this compilation's wording recency priority. R5 remains a
+confirmation of the original design outside the numbered ruling series.
+
+### Ruling A — the block model (2026-07-26)
+
+> **Agent 07-26:** none — Psyche initiated
+>
+> **Psyche 07-26:** Okay, so let's go over this together. In all languages
+> there's blocks. And these blocks can be represented by typed data, which is
+> what we have, the encoded form. Plus their names, right? The capsule. So in a
+> protose language, the delimiters are very straightforward. And all one has to
+> do is balance them out to find the beginning and the end of blocks, along
+> with, I would say, the prefix to the opening delimiter, right? Which we have
+> the dotted prefix. So the first pass, and I actually wanted to do this, and
+> I've talked about this before, and I thought, well, I don't assume that my
+> designs are being implemented anymore. But in my mind, because agents have
+> proven that they can't follow my instructions yet, I think because my system
+> isn't complete enough yet, not because the models are not capable, but because
+> the ontology isn't there yet, and the structure, and the memory system, and
+> everything isn't properly set up. So we're doing a lot of this by hand. I'm
+> repeating myself now, but I'm going to go deeper. So there's a logic to
+> finding the beginning and the end of each blocks. And so we could say that we
+> have different variants of block delimiters, of finding the beginning and the
+> end of a block. And I know that Rust is more particular because there's a lot
+> more rules that are involved in balancing out, so to speak, the delimiters.
+> They don't really have delimiters, but there's inclusive and exclusive
+> delimiters, I would say. So when we look at a Rust block, let's say it starts
+> with struct. Struct is the beginning cue, right? It's the cue that there's a
+> struct block that begins here. And to find the end, we have to follow all of
+> the parsing rules that apply inside of a struct, that could possibly apply
+> inside of a struct, to find the final semicolon. Meaning if we come across
+> certain things, then there's a certain number of semicolons that have to be
+> skipped, right? So we could say this is an inclusive, meaning the struct
+> keyword is part of the block. It's an inclusive complex block. And then we
+> have exclusive. On the other side of the spectrum, we have exclusive simple
+> blocks, in which the delimiter is not really part of the block in the sense
+> that when we want to parse the inside of it, we don't need to look at the
+> delimiters, which are parentheses and braces and square brackets. But we do
+> have the prefix, which is a bit of a trick, because actually we could say that
+> there's no such thing as an exclusive block because of the dotted prefix. The
+> dotted prefix, the word, the prefix word is part of the data of the block. So
+> we should just look at it as a whole, including the parentheses and the square
+> brackets and so on. It's just the logic for finding the end of the block is
+> different. And that inside logic, which can also, by the way, find the inner
+> blocks. Because as it looks for clues to tell it that it needs to skip some
+> more closing delimiters, it also finds other blocks. So we could have sort of
+> this recursive block beginning and ending pass, which has different logic for
+> different languages, which is really simple for the Protus family of
+> languages. And then with that pass done, then we can do the typed parsing,
+> because we've found the blocks. It's a lot easier to just pass these strings
+> now, which are limited to only their content, and parse them through the
+> structural typed parsing step.
+
+### Ruling B — the block tree is a trait (2026-07-26)
+
+> **Agent 07-26:** The block tree itself can be one universal shape — bounds,
+> cue/prefix, children — because it carries no typing at all
+>
+> **Psyche 07-26:** so it should be a trait. we love traits; they make agents
+> smarter by giving them an ontology (that could go in standards, in a better
+> presented form)
+
+### Ruling C — pass-1 opacity (2026-07-26)
+
+> **Agent 07-26:** In pass 1 for Rust, the scan must still treat strings and
+> comments as opaque (a ';' inside a string literal terminates nothing)?
+>
+> **Psyche 07-26:** yes
+
+### Ruling D — source bounds (2026-07-26)
+
+> **Agent 07-26:** The block tree keeps source bounds so every later error can
+> point at bytes?
+>
+> **Psyche 07-26:** yes
+
+**Scope note — not psyche words:** Ruling B's parenthetical identifies traits
+as a standards candidate only. It authorizes no standards change. The
+firsthand Shape and Slice log already records the short-display rulings, so no
+short-display ruling is duplicated here.
