@@ -873,3 +873,42 @@ remain unruled as of the last entry above.
    files to namespaces — was not settled in the read source.
 6. **reify/reflect: eventually derived?** Not addressed in the read
    source.
+
+## Subsequent rulings
+
+### Capsule composed-nametree pin
+
+> **Agent:** did he rule the complete composition?
+>
+> **Psyche:** yes
+
+**Derived status — not psyche words:** The complete composed nametree pin is
+now ratified and is removed from the open set by this appended answer. Schema
+and Logos capsules are the first production Capsule implementors using real
+composed NameTree slices. rust-logos has no capsule, only the fixed
+TextualForm association.
+
+### Rust structural rule vocabulary
+
+> **Agent:**
+>
+> ```
+> Private = Product["struct", name, (...), ";"]
+> Public = Product["pub", "struct", name, (...), ";"]
+> ```
+>
+> **Psyche:** wtf is this garbage? Thats a vector of strings, not typed data! it should be fully typed struct.
+
+> **Agent:** (1) typed rule records in a custom structuretree vocabulary vs (2) keep generic protos forms and teach the prover positional comparison
+>
+> **Psyche:** 1
+
+**Derived status — not psyche words:** Rust structural rules are typed records
+in a custom StructureTree vocabulary. Newtype positions are typed Attributes,
+Visibility, ItemKeyword, TypeName, Parenthesized(TypeReference), Terminator;
+no homogeneous Vec<StructuralForm>, literal indexes, or position counting. The
+shared evaluator runs this vocabulary; it is not a parallel engine.
+Disjointness compares typed positions conservatively. Rust item grouping is a
+typed boundary rule, boundary-first through terminator/balanced braces. Protos
+primitive tables retain their existing prover behavior. Spellings are data on
+typed rule entries, never bare strings in a sequence.
