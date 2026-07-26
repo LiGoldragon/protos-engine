@@ -912,3 +912,40 @@ Disjointness compares typed positions conservatively. Rust item grouping is a
 typed boundary rule, boundary-first through terminator/balanced braces. Protos
 primitive tables retain their existing prover behavior. Spellings are data on
 typed rule entries, never bare strings in a sequence.
+
+### R3 — Kernel typed positions
+
+> **Agent:** Should `Product(Vec<StructuralForm>)` / `PositionalSignature`
+> become typed positions, accepting the content-hash/layout bump now while
+> the digests have zero consumers? I recommend yes.
+>
+> **Psyche:** if you think it's a good idea, then yes.
+
+**Derived status — not psyche words:** `Product(Vec<StructuralForm>)` /
+`PositionalSignature` are typed positions. There is one deliberate layout bump
+now, before Slice 1 gives the hashes consumers.
+
+### R4 — Identifier-family scope
+
+> **Agent:** I recommend three scoped outcomes: `ScopedEncodedTypeId` /
+> `EncodedConstructorId` become language-variant-wrapped `u16`, like
+> `Identifier`; signal-frame `ContractId` does not change; `ShortCode` gains a
+> capsule-kind dimension.
+>
+> **Psyche:** ok.
+
+**Derived status — not psyche words:** The three-family scope is exact:
+`ScopedEncodedTypeId` and `EncodedConstructorId` are language-variant-wrapped
+`u16` identifiers; signal-frame `ContractId` remains unchanged; and `ShortCode`
+has a capsule-kind dimension.
+
+### R5 — Name projections are the original design
+
+> **Agent:** derived text becomes a typed algebra over identifiers, evaluated
+> only at textualform time.
+>
+> **Psyche:** I thought that's what I had designed.
+
+**Derived status — not psyche words:** This confirms the original design; it
+does not create a new vision. No derived spelling is evaluated before
+TextualForm, and Nomos constructs typed projections.
