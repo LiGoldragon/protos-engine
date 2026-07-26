@@ -949,3 +949,53 @@ has a capsule-kind dimension.
 **Derived status — not psyche words:** This confirms the original design; it
 does not create a new vision. No derived spelling is evaluated before
 TextualForm, and Nomos constructs typed projections.
+
+## Fidelity corrections and later live rulings — 2026-07-26
+
+**Provenance and date correction — not psyche words:** The entries under
+`Subsequent rulings` are live-session rulings, not material drawn from the
+transcript files named by the original header. The established session date is
+2026-07-26; it applies to those appended entries and to the entries below.
+The source does not establish individual times, so none are supplied. This
+restores the missing date labels without changing the earlier bytes.
+
+### Capsule composed-nametree pin — fidelity correction (2026-07-26)
+
+> **Agent (2026-07-26):** did you actually rule 'the complete composition'?
+>
+> **Psyche (2026-07-26):** yes
+
+**Derived status — not psyche words:** This exact agent question supersedes
+the earlier paraphrase for fidelity. The earlier statement that Schema and
+Logos capsules are already production Capsule implementors is an obligation,
+not an implementation-status assertion by this log.
+
+### R5 classification correction (2026-07-26)
+
+**Status correction — not psyche words:** `I thought that's what I had
+designed.` confirms the original design. It is outside the numbered ruling
+series and supersedes its earlier enrollment as numbered R5.
+
+### Short identifiers are display projections (2026-07-26)
+
+> **Agent (2026-07-26):** every capsule carries a short identifier
+>
+> **Psyche (2026-07-26):** no, it's a full content-addressed hash. the short
+> identifiers is for common display operations, which will use a method on the
+> hash which solves for the 4 or more chars shortened version that doesnt
+> conflict in the db
+
+### Short-identifier result kind safety (2026-07-26)
+
+> **Agent (2026-07-26):** whether a schema capsule's short code and a nomos
+> capsule's short code may share a Rust type.
+>
+> **Psyche (2026-07-26):** they should be a different type for sure.
+
+**Derived status — not psyche words:** Later word retires the stored
+`ShortCode`/mint/archive model. The short form is a resolver-scoped display
+projection on `ContentHash`, not stored state; its result inherits the hash
+domain, with generic `ShortDisplay<D>` only a matter name. A Capsule stores its
+full content-addressed hash and complete composed `NameTree` pin. The Protos
+`ShortIdentifier` getter is retired. There is no adaptation to stored kind
+codes.
