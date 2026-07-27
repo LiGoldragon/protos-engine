@@ -110,3 +110,27 @@ capsule's short code were the same Rust type.
 Composed with entry 6: the display projection's result type carries
 the hash's domain tag — one generic definition, distinct types per
 capsule kind by construction.
+
+## 8. Confirmation of five previously unsourced rulings
+
+**Agent (Claude):** asked the psyche about five passages that
+circulate in summaries as his verbatim words but were found in no
+design log, standing prompt, or report after a full provenance sweep:
+(1) the spirit-port acceptance test — "porting spirit to the new
+engine, and having a working system with a copy of production
+database", with normal operations responding normally against an
+isolated migrated copy of production data, zero build or runtime
+dependency on schema-rust, no compatibility adapters; (2) TextualForm
+and EncodedForm — "one is a view on the other"; (3) "transformers are
+data"; (4) let statements as "semi-anonymous (very private) types";
+(5) "Exactness is structural. Values that matter semantically must
+have exact representations… Errors are also structural values."
+
+**Psyche 2026-07-27, verbatim:** yes, those are my words
+
+Provenance note (log-authored, not psyche words): the original turns
+remain unlocated in the read sources; the fragments above are quoted
+as they circulated, and some are partial renderings of longer turns
+whose full text is not recoverable; this entry establishes them as
+psyche-confirmed rulings by his 2026-07-27 confirmation, not as
+firsthand transcripts.
