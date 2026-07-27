@@ -199,3 +199,21 @@ existing digests move — fold into the one bump train with fresh locks.
 Whole-logos becomes its own variant kind; decision 5's "preserving
 existing individual-item identities" holds at the identity level while
 their digest bytes move with the scheme change.
+
+## 9. Confirmation of the strict-invariant sentence
+
+**Agent (Claude):** a full provenance sweep (design logs, all of
+reports/, every repo under the ghq root) found no source for the
+sentence that heads every summary of this system: "nametree and
+structural tree from the protos library drive all the decoding and
+encoding to/from text with DATA - strict invariant. nothing else will
+do." The substance is corroborated by his verified words ("this drives
+all textual en/decoding, including rust"), but the sentence itself was
+unlocated. Asked whether those are his words.
+
+**Psyche 2026-07-27, verbatim:** yes. those are my words
+
+Provenance note (log-authored, not psyche words): the original turn
+remains unlocated in the read sources; the sentence is quoted as it
+circulated; this entry establishes it as a psyche-confirmed ruling by
+his 2026-07-27 confirmation, not as a firsthand transcript.
