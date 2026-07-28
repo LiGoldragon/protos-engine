@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly expected_top_level=$'AGENTS.md\nARCHITECTURE.md\nREADME.md\ndesign\nflake.lock\nflake.nix\nscripts'
+readonly expected_top_level=$'.beads\n.gitignore\nAGENTS.md\nARCHITECTURE.md\nREADME.md\ndesign\nflake.lock\nflake.nix\nscripts'
 readonly expected_scripts=$'check-dependency-direction\ncheck-pin-policy\ncheck-public-text-search-witness\ncheck-repository-shape\nrun-public-text-search-witness'
 
 validate_repository_shape() {
@@ -26,12 +26,17 @@ validate_repository_shape() {
     return 1
   fi
 
-  for script in AGENTS.md ARCHITECTURE.md README.md flake.lock flake.nix; do
+  for script in .gitignore AGENTS.md ARCHITECTURE.md README.md flake.lock flake.nix; do
     if [[ ! -f "$repository_root/$script" || -L "$repository_root/$script" ]]; then
       echo "allowed top-level file must be a regular non-symlink: $script" >&2
       return 1
     fi
   done
+
+  if [[ ! -d "$repository_root/.beads" || -L "$repository_root/.beads" ]]; then
+    echo ".beads must be a real directory" >&2
+    return 1
+  fi
 
   if [[ ! -d "$repository_root/scripts" || -L "$repository_root/scripts" ]]; then
     echo "scripts must be a real directory" >&2
@@ -91,7 +96,8 @@ make_shape_fixture() {
   local fixture=$1
   local script
 
-  mkdir -p "$fixture/scripts"
+  mkdir -p "$fixture/.beads" "$fixture/scripts"
+  : > "$fixture/.gitignore"
   : > "$fixture/AGENTS.md"
   : > "$fixture/ARCHITECTURE.md"
   : > "$fixture/README.md"

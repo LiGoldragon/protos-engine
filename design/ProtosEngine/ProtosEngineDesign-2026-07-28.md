@@ -10,7 +10,7 @@ earlier ones, and where this document and a log disagree, the log wins.
 
 Firsthand logs, in authority order (newest controls its session's wording):
 
-1. `DesignReviewRulings-2026-07-28.md` — the naming/identity review, entries 1–11.
+1. `DesignReviewRulings-2026-07-28.md` — the naming/identity review, entries 1–14.
 2. `SliceOneRulings-2026-07-27.md` — the slice-1 decisions, entries 1–11.
 3. `ShapeAndSliceRulings-2026-07-26.md` — including entry 8's confirmations.
 
@@ -19,6 +19,10 @@ Provenance marks, on every claim:
 - **[ruled]** — verbatim psyche words, character-exact from a source.
 - **[confirmed]** — a restatement the psyche confirmed as his; substance
   carries his authority, wording may be an agent's.
+- **[delegated assent]** — an agent-proposed mechanism the psyche authorized
+  from its explanation without reading the underlying proposal. It may be
+  implemented, but is never cited back as his independent conviction and must
+  be re-explained on request.
 - **[derived]** — agent-formalized standing doctrine, consistent with rulings
   but not his words. Never cited back to him as a ruling.
 
@@ -128,7 +132,7 @@ permitted as MVP — "sure, if you think that's a good first MVP".
 
 ## 5. Names and identity — the current model (2026-07-28)
 
-The model of DesignReviewRulings entries 1–11, which supersedes every earlier
+The model of DesignReviewRulings entries 1–14, which supersedes every earlier
 naming rendering (the per-component tables of 07-19, the flat unified table
 reading of 07-27, and the flat global lexicon reading of earlier 07-28
 entries).
@@ -170,21 +174,26 @@ billing's table              tasks' table
   references never move. The endgame frame: **[ruled]** "you're not going to
   be editing text. You're going to be doing operational editing. You're going
   to send operations, and it'll all be atomically edited in the daemon. And
-  that's when we'll have the renaming operation." **[ruled]** (entry 12) a
-  rename performed by editing text is accepted as identity-breaking — the
-  next seal mints a fresh encodedID and orphans the old entry; only the
-  operational rename preserves identity; the translator code carries a note
-  of this mechanic at the allocation site.
+  that's when we'll have the renaming operation." **[ruled]** (entry 12)
+  "accept it, and make a note of it in the code." **[derived]** From that
+  ruled choice, a rename performed by editing text is identity-breaking: the next
+  seal allocates a fresh encodedID and leaves the old entry allocated but
+  orphaned. The operational rename is the sole identity-preserving path at
+  member and module level. A textual module rename therefore re-mints its
+  descendant subtree. The allocation site carries a description of this
+  behavior, never a claim that a ruling is satisfied.
 - **Kinds of names** (entry 4): **[ruled]** "it's not a conflict if you have a
   variant in front of the ID, because they're not the same nametable." The
   split criterion is vocabulary sharedness; translator-based renaming can only
   operate on universally shared vocabulary. Words-as-values — language
   vocabulary (Rust keywords, std names) and dynamic-enum value words — never
   rename: their spelling is their substance. The variant set is undesigned
-  matter. **[ruled]** (entry 13) mutability is per table, a field in each
-  table's top-level struct: "we have no control over rusts internal names, so
-  they are immutable… yes, mutability per table." Rename against an immutable
-  table fails typed, before any entry lookup.
+  matter. **[ruled]** (entry 13) "we have no control over rusts internal
+  names, so they are immutable… yes, mutability per table." The psyche's
+  "it could be a field in a top level struct of each table" is a leaning on
+  placement, not the grade of the per-table ruling. **[confirmed]** In the
+  approved implementation mechanism, `ModuleTableHead` carries that field.
+  Rename against an immutable table fails typed before any entry lookup.
 - **Exactness** (entry 2): the tables are exact and case-sensitive —
   **[ruled]** `17 <-> "public"`, `18 <-> "Public"`: different entries. No
   canonicalization, casing, or normalization in any table; all derivation
@@ -207,9 +216,10 @@ billing's table              tasks' table
   as possible"; mitigations (regenerated doc comments) are matter.
 - **Content hashing** (entry 8): **[ruled]** only hashing "the entire capsule
   after it is fully encoded" was ever discussed; recursive leaf-first
-  per-thing hashing "would be great, but we never discussed it" — unruled, do
-  not build. core-logos's per-item `content_identity()` stands on
-  implementation, not ruling; reconcile in the identity-train proposal.
+  per-thing hashing "would be great, but we never discussed it" — undiscussed,
+  neither approved nor rejected; do not foreclose it. core-logos's per-item
+  `content_identity()` stands on implementation, not ruling; reconcile in the
+  identity-train proposal without claiming the possibility was rejected.
   Capsule-level identity is **[ruled]** `Variant.ContentAddressedHash`,
   **[ruled]** "Variant-only": kind solely in the outer variant, pure-content
   preimage; digests move on the one bump train.
@@ -249,25 +259,92 @@ sema-translator — a leaning, not a fixed name; the durable identity-authority
 laws (never re-mint, never rebind) reseat into it; sema-storage's
 stateless-client architecture is dead law and the repo cannot keep its name.
 
-**The translator-daemon proposal state (2026-07-28):** the operational frame
-is approved — sole writer, atomic idempotent universe sealing, typed
-authorization and failures, no distributed transaction, engines caching
-verified immutable snapshots, spelling-identity distinct from declared-type
-identity. Its stored-state model must be revised to the nested module tables
-and encodedID chains of section 5 before code, with the rename operation in
-the contract and module-scoped lookup replacing name-table's flat word→ID
-index (`NameIndexCollision` is off-model; do not fix it in place). The revised
-stored-state section returns as a design proposal before implementation.
+**[confirmed] Translator mechanism approved 2026-07-28.** The operational
+frame and the revised stored-state and implementation mechanisms are approved:
+sole writer; atomic idempotent universe sealing; typed authorization and
+failures; no distributed transaction; verified immutable snapshot caching;
+variant-fronted nested module-owned nametables; full encodedID chains as
+durable identity; module-scoped allocation and uniqueness; and an atomic
+spelling-only operational rename that leaves every chain unchanged. There is
+no distinct spelling identity or declared-type identity beside the encodedID
+chain.
 
-**Ruled 2026-07-28 (entries 12–14):** the revised stored-state model and the
-implementation mechanism are approved. Text-edit renames are accepted as
-identity-breaking, noted in code at the allocation site (entry 12).
-Mutability is a per-table field in each table's top-level struct; rename
-against an immutable table fails typed before lookup (entry 13). First
-allocations within one table in one seal use canonical exact-byte spelling
-order — delegated assent, re-explain on request (entry 14). Ratified
-mechanism readings: declarations allocate, references only resolve; identity
-continuity across seals is keyed by spelling-within-module.
+**[derived] Approved generic state and ownership:**
+
+- `name-table` becomes the pure nested-table library, generic over the
+  still-open root-variant set. It is proven first with at least two unrelated
+  fixture root enums. The eventual signal contract and daemon instantiate the
+  production roots only after that separate proposal is approved.
+- `LocalEncodedId(u16)` is allocated within one table. `TableAddress<Root>` is
+  a root plus zero or more module IDs; `EncodedId<Root>` is a root plus one or
+  more IDs. A child table's address is the full encodedID of the module that
+  owns it.
+- Each `ModuleTableHead` stores its address, per-table mutability, generation,
+  explicit next-or-exhausted allocation cursor, and current immutable
+  snapshot. Each snapshot stores the ordered local-ID-to-exact-spelling
+  entries and an integrity digest; its reverse index is derived within that
+  table only. Snapshot hashing is integrity metadata, not a per-thing identity
+  ruling.
+- Successful seal and rename receipts store their idempotency key, request
+  digest, changed tables or target, resulting generations, and committed
+  database marker. Heads, snapshots, cursors, and receipts share one atomic
+  authority transaction.
+- No active, retired, tombstoned, or orphaned flag is invented. An orphan is
+  an allocated entry absent from later authored text; it remains allocated and
+  resolvable. Retirement remains open.
+
+**[confirmed]** Mechanism readings: declarations allocate while references
+only resolve, and continuity across re-seals is keyed by exact
+spelling-within-module. Seals process parents before children, resolve
+references against committed plus staged declarations, and write everything
+or nothing. They contain no identity-continuation mechanism. **[delegated
+assent]** fresh spellings introduced to one table by one seal are allocated in
+canonical exact-byte spelling order, and the request digest uses the same
+canonical nested graph. This ordering was approved from the agent's summary,
+not read by the psyche; re-explain it on request and never cite it as his
+independent conviction.
+
+**[derived] Approved operational rename** targets one full chain
+and a new exact spelling. The translator loads the owning table and checks its
+mutability before any entry lookup. Immutable tables fail typed. A mutable
+table refuses a spelling already held by any entry in that same table,
+publishes one new immutable snapshot, advances only that table generation, and
+returns the unchanged chain. It cannot express move, deletion, retirement,
+aliasing, freezing, thawing, or mutability changes. Rust-vocabulary tables are
+provisioned immutable; authored module tables are mutable. Production
+provisioning belongs to the root-variant proposal.
+
+**[derived] Approved sharing and failure mechanism:** the translator is the
+only writer and one actor serializes its embedded sema database. Verified
+historical snapshots remain readable while it is unavailable; seals and
+renames fail closed. Expected markers and table generations detect concurrent
+staleness; idempotent receipts recover a lost reply after commit. Startup
+validates every parent chain, child relationship, cursor, bijection, snapshot
+digest, and receipt. Malformed graphs, duplicate declarations, unresolved
+references, unknown paths or IDs, immutable tables, spelling collisions,
+stale markers, idempotency conflicts, per-table exhaustion, corruption,
+inconsistent ancestry, and commit failure are typed no-write failures.
+
+The translator witnesses include, distinctly:
+
+- sibling modules may hold the same exact spelling with different chains;
+- one submitted module table containing the same exact declaration spelling
+  twice refuses the seal as redefinition;
+- case-distinct spellings remain distinct;
+- declarations allocate while unresolved references do not;
+- text-edit rename breaks identity and preserves the old allocation, including
+  module rename re-minting the descendant subtree;
+- operational member and module renames preserve every affected chain;
+- immutable-table refusal occurs before target lookup;
+- the same declaration set submitted in different traversal orders produces
+  identical allocations and an identical request digest;
+- rollback, idempotent replay, restart recovery, historical snapshots,
+  corruption refusal, per-table exhaustion, and two unrelated fixture root
+  enums are all proven.
+
+Still open and not inferred here: the root variants; emitted chain encoding;
+move; Capsule-pin composition; dynamic-enum member identity; retirement; and
+the daemon's final name.
 
 ## 7. The sema vision — intent
 
@@ -431,45 +508,49 @@ no-strings rule), `sema-storage/ARCHITECTURE.md` and
 
 ```mermaid
 flowchart TD
-  S1[1. engine epic + dependency graph — done: protos-engine-po1] --> S2[2. design proposals to the psyche]
-  S1 --> S3[3. Ethos terminology train]
-  S2 -->|revised translator ruling| S4[4. identity + Capsule bump train, one landing]
-  S3 --> S4
-  S4 --> S5[5. slice-1 vertical build]
-  S5 --> S6[6. gate: port language-engine-witness e2e]
-  S6 --> S7[7. CL5 rehomed or retired]
-  S7 --> S8[8. slice 2: field-naming rule to the psyche]
-  S6 --> S9[9. Spirit port, then staged storage migration]
+  S1[1. correct poisoned active docs and stale tracker] --> S2[2. root-variant proposal]
+  S2 --> S3[3. daemon-name proposal]
+  S1 --> S4[4. generic nested-table library on fixture roots]
+  S3 --> S5[5. identity + Capsule bump train, one landing]
+  S4 --> S5
+  S5 --> S6[6. slice-1 vertical build]
+  S6 --> S7[7. gate: compile and run generated Rust]
+  S7 --> S8[8. CL5 rehomed or retired]
+  S8 --> S9[9. slice 2: field-naming rule to the psyche]
+  S7 --> S10[10. Spirit port, then staged storage migration]
 ```
 
-1. Groundwork is done and verified: workspaces synced, Spirit commit
-   bookmarked, epic `protos-engine-po1` (11 children) published.
-2. Design proposals before code, one at a time, each explained in practice
-   (storage, sharing, failure paths — SliceOneRulings entry 10): the revised
-   translator stored-state (nested tables, chains, rename operation), the
-   root table's variant set, staged sema-storage dissolution (including the
-   dead-law doc corrections).
-3. Behavior-free Ethos terminology train (~590 occurrences, plus cross-repo
-   pins), before new work deepens the residue.
-4. One identity + Capsule bump train: content-identity Variant-only retype
+1. Before implementation agents read them, correct the active poisoned
+   architecture documents and stale tracker claims. Archive documents stay
+   untouched.
+2. Bring the two remaining proposals one at a time, each explained in
+   practice (storage, sharing, failure paths — SliceOneRulings entry 10):
+   first the root table's variant set, then the daemon's final name.
+3. In parallel after the active-doc correction, prove the approved generic
+   nested-table library on fixture roots; it does not infer the production
+   root variants or daemon name.
+4. Complete the behavior-free Ethos terminology train (~590 occurrences, plus
+   cross-repo pins) before the coordinated identity landing deepens residue.
+5. One identity + Capsule bump train: content-identity Variant-only retype
    (pure-content preimage, composed-nametree preimage, whole-logos variant) →
    translator contract → protos generic-struct Capsule (Rust-capsule
    enforcement stays) → core repins + first implementors → fresh digest
    locks, one landing, producer-first.
-5. Slice-1 vertical: Rust cue-to-termination discovery → typed Rust
+6. Slice-1 vertical: Rust cue-to-termination discovery → typed Rust
    descriptors (same shared evaluator) → rust-logos (no syn/quote/
    prettyplease on the slice path) → Ethos six-slot newtype with builtin
    priors → direct string-free core-nomos converter (never through
    NameTableBoundary, macros, prelude, renderer, projection, ordinals) →
    whole-logos identity → structural Rust emission by encodedID encoding.
-6. Gate: port the language-engine-witness e2e into protos-engine's check-all;
+7. Gate: port the language-engine-witness e2e into protos-engine's check-all;
    keep the old PublicTextSearch witness until the Spirit port lands.
-7. Conformance Law 5: rehome or retire by ruling before the slice closes.
-8. Slice 2 opens by presenting the deterministic field-naming rule for
+8. Conformance Law 5: rehome or retire by ruling before the slice closes.
+9. Slice 2 opens by presenting the deterministic field-naming rule for
    ratification; the projection algebra is the vocabulary, not the answer.
-9. Spirit port after the gate passes; storage migration one daemon at a time;
-   old topology retired last. Sequencing judgment (naming authority early,
-   storage migration late) is agent judgment the psyche has not ruled.
+10. Spirit port after the gate passes; approve the sema-storage dissolution
+    mechanism before its implementation, migrate storage one daemon at a time,
+    and retire the old topology last. Sequencing judgment (naming authority
+    early, storage migration late) is agent judgment the psyche has not ruled.
 
 ## 16. Conduct and authority
 
