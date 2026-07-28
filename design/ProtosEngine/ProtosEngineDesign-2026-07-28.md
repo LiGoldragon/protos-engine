@@ -181,7 +181,10 @@ billing's table              tasks' table
   operate on universally shared vocabulary. Words-as-values — language
   vocabulary (Rust keywords, std names) and dynamic-enum value words — never
   rename: their spelling is their substance. The variant set is undesigned
-  matter.
+  matter. **[ruled]** (entry 13) mutability is per table, a field in each
+  table's top-level struct: "we have no control over rusts internal names, so
+  they are immutable… yes, mutability per table." Rename against an immutable
+  table fails typed, before any entry lookup.
 - **Exactness** (entry 2): the tables are exact and case-sensitive —
   **[ruled]** `17 <-> "public"`, `18 <-> "Public"`: different entries. No
   canonicalization, casing, or normalization in any table; all derivation

@@ -394,3 +394,27 @@ identity-preserving path; the seal contract gains no continuation
 mechanism. The translator implementation carries a note at the
 allocation site describing this mechanic — a description of
 behavior, never a ruling-satisfied claim, per standing conduct.
+
+## 13. Mutability is per table — a field in each table's top-level struct
+
+**Agent (Claude):** explained the renameability question: names of
+things rename, words-as-values never do; option A encodes
+renameability in the root variant so a rename into a fixed root is
+structurally impossible; option B carries it as per-entry data
+enforced by checks. Recommended A, noting Rust's vocabulary is not
+ours to rename.
+
+**Psyche 2026-07-28, verbatim:**
+"ahh yes, we have no control over rusts internal names, so they are
+immutable. good catch. yes, mutability per table. it could be a
+field in a top level struct of each table"
+
+Log note (log-authored, not psyche words): mutability is a
+**per-table** property, carried as a field in each table's top-level
+struct — finer-grained than the variant-level option the agent
+offered: every nested module table carries the field, so mutability
+need not be uniform across a root variant. Rename against an
+immutable table fails typed, before any entry lookup.
+Rust-vocabulary tables are immutable; authored module tables are
+mutable. "it could be a field" marks the struct placement as his
+leaning; the per-table scope of mutability is the ruling.
