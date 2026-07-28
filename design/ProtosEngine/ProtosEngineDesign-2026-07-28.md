@@ -10,7 +10,7 @@ earlier ones, and where this document and a log disagree, the log wins.
 
 Firsthand logs, in authority order (newest controls its session's wording):
 
-1. `DesignReviewRulings-2026-07-28.md` — the naming/identity review, entries 1–14.
+1. `DesignReviewRulings-2026-07-28.md` — the naming/identity review, entries 1–16.
 2. `SliceOneRulings-2026-07-27.md` — the slice-1 decisions, entries 1–11.
 3. `ShapeAndSliceRulings-2026-07-26.md` — including entry 8's confirmations.
 
@@ -132,7 +132,7 @@ permitted as MVP — "sure, if you think that's a good first MVP".
 
 ## 5. Names and identity — the current model (2026-07-28)
 
-The model of DesignReviewRulings entries 1–14, which supersedes every earlier
+The model of DesignReviewRulings entries 1–16, which supersedes every earlier
 naming rendering (the per-component tables of 07-19, the flat unified table
 reading of 07-27, and the flat global lexicon reading of earlier 07-28
 entries).
@@ -254,10 +254,12 @@ mistaken, or the implementation is. each daemon is stateful". The 2026-07-17
 "seat it centrally in sema" was overruled and mis-voiced — "I shouldnt have
 said "in sema", since all daemon state lives in *its* sema db. There can be no
 sema-storage daemon". **[ruled]** the nametable authority is its own small
-daemon ("a, its own small daemon"). **[derived]** working name
-sema-translator — a leaning, not a fixed name; the durable identity-authority
-laws (never re-mint, never rebind) reseat into it; sema-storage's
-stateless-client architecture is dead law and the repo cannot keep its name.
+daemon ("a, its own small daemon"). **[ruled] 2026-07-28 (entry 16)** its
+final repository and package name is `sema-translator`, and its typed signal
+contract's is `signal-sema-translator`. They are new repositories, not renames
+of `sema-storage` or `signal-sema-storage`; the old repositories remain frozen
+donors until their separately designed dissolution. `sema-storage`'s
+stateless-client architecture is dead law and the repo cannot keep its role.
 
 **[confirmed] Translator mechanism approved 2026-07-28.** The operational
 frame and the revised stored-state and implementation mechanisms are approved:
@@ -271,10 +273,10 @@ chain.
 
 **[derived] Approved generic state and ownership:**
 
-- `name-table` becomes the pure nested-table library, generic over the
-  still-open root-variant set. It is proven first with at least two unrelated
-  fixture root enums. The eventual signal contract and daemon instantiate the
-  production roots only after that separate proposal is approved.
+- `name-table` is the pure nested-table library, generic over caller-supplied
+  root types. It is proven with at least two unrelated fixture root enums.
+  `signal-sema-translator` and `sema-translator` instantiate the approved
+  production roots separately from that generic substrate.
 - `LocalEncodedId(u16)` is allocated within one table. `TableAddress<Root>` is
   a root plus zero or more module IDs; `EncodedId<Root>` is a root plus one or
   more IDs. A child table's address is the full encodedID of the module that
@@ -357,9 +359,17 @@ test-only; future language vocabularies gain new production roots only with
 explicit wire/archive version changes. The larger sema-vision word space
 remains future design.
 
+**[derived] Approved entry-16 surfaces:** the Rust library is
+`sema_translator`; daemon binary `sema-translator-daemon`; service
+`sema-translator-daemon.service`; runtime directory `sema-translator`; socket
+`sema-translator.sock`; and owned database `sema-translator.sema`. The
+contract library is `signal_sema_translator`. The new daemon and contract have
+distinct socket, database, archive, and typed wire surfaces, with no
+old-socket alias, adapter, redirect, multiplexing, or fallback. Mixed or
+legacy contracts fail typed before request decoding or writes.
+
 Still open and not inferred here: emitted chain encoding; move; Capsule-pin
-composition; dynamic-enum member identity; retirement; and the daemon's
-final name.
+composition; dynamic-enum member identity; and retirement.
 
 ## 7. The sema vision — intent
 
@@ -523,8 +533,8 @@ no-strings rule), `sema-storage/ARCHITECTURE.md` and
 
 ```mermaid
 flowchart TD
-  S1[1. correct poisoned active docs and stale tracker] --> S2[2. root-variant proposal]
-  S2 --> S3[3. daemon-name proposal]
+  S1[1. correct poisoned active docs and stale tracker] --> S2[2. root variants approved]
+  S2 --> S3[3. daemon names approved]
   S1 --> S4[4. generic nested-table library on fixture roots]
   S3 --> S5[5. identity + Capsule bump train, one landing]
   S4 --> S5
@@ -538,9 +548,10 @@ flowchart TD
 1. Before implementation agents read them, correct the active poisoned
    architecture documents and stale tracker claims. Archive documents stay
    untouched.
-2. Bring the two remaining proposals one at a time, each explained in
-   practice (storage, sharing, failure paths — SliceOneRulings entry 10):
-   first the root table's variant set, then the daemon's final name.
+2. The two proposals were brought one at a time and are closed: entry 15
+   approved `VocabularyRoot::{Universal, Rust}`; entry 16 approved
+   `sema-translator` and `signal-sema-translator` with distinct new repository
+   and runtime surfaces.
 3. In parallel after the active-doc correction, prove the approved generic
    nested-table library on fixture roots; it does not infer the production
    root variants or daemon name.
@@ -593,7 +604,9 @@ flowchart TD
 
 Closed this session: the global longest-match law (now law, token level); the
 identity crux (the encodedID is the durable identity; nested module tables);
-the homonym/conflict question (dissolved by the nested model).
+the homonym/conflict question (dissolved by the nested model); the production
+root set (`VocabularyRoot::{Universal, Rust}`); and the naming authority names
+(`sema-translator`, `signal-sema-translator`).
 
 1. Function-parameter and let-binding names (nearest word: let statements are
    "semi-anonymous (very private) types").
@@ -607,16 +620,12 @@ the homonym/conflict question (dissolved by the nested model).
    logos? (Standing law until answered: no Rust capsule.)
 8. What "otherwise" excepted in the item-schema ratification.
 9. ID retirement policy.
-10. The translator daemon's final name. (The root table's production variant
-    set was ruled 2026-07-28, entry 15: `VocabularyRoot::{Universal, Rust}`;
-    the larger sema-vision word-space root design, where schema.org borrowing
-    was floated, remains future.)
-11. The encodedID chain encoding scheme for emitted Rust.
-12. The **move** operation (re-parenting between modules) — follows from
+10. The encodedID chain encoding scheme for emitted Rust.
+11. The **move** operation (re-parenting between modules) — follows from
     operational editing; unruled.
-13. Module ↔ capsule relation; capsule identity minted or derived.
-14. Whether dynamic-enum members become things with their own encodedIDs.
-15. The final term for the container ("module" is the working term).
+12. Module ↔ capsule relation; capsule identity minted or derived.
+13. Whether dynamic-enum members become things with their own encodedIDs.
+14. The final term for the container ("module" is the working term).
 
 ## 18. Carried facts and registers
 
