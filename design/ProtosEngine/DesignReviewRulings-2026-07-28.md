@@ -297,3 +297,26 @@ unruled. Consequence: core-logos's per-item `content_identity()`
 stands on implementation, not on ruling, and must be reconciled in
 the identity-train proposal rather than assumed. The agent's
 restatement of the resulting table model awaits his confirmation.
+
+## 9. EncodedIDs are by module; the module has an encodedID
+
+**Agent (Claude):** presented a flat table model — globally-keyed
+rows written as invented identifiers (E41, E87, E17) with spellings
+as values and module membership as an attribute — and asked whether
+declarations always allocate while references only resolve.
+
+**Psyche 2026-07-28, verbatim:**
+"Where your question seems to imply that you've abandoned the
+concept of module and then the names that this module contains. So
+that name, I mean encoded IDs are by module which the module also
+has an encoded ID. And I don't understand what you mean by E41,
+E87, E17. So you've lost me there. We don't seem to be on the same
+page anymore."
+
+Log note (log-authored, not psyche words): the flat rendering is
+rejected as off-model. EncodedIDs are allocated **by module**: a
+module contains the names of its members, and the module itself has
+an encodedID in its containing module — the recursive namespaced
+nametable of entries 5 and 6, structural containment rather than a
+membership attribute on flat rows. The agent's redrawn nested-table
+restatement awaits his confirmation.
