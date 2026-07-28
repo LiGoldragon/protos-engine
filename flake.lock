@@ -910,17 +910,17 @@
     "structural-codec": {
       "flake": false,
       "locked": {
-        "lastModified": 1785004193,
-        "narHash": "sha256-sipENQo5Vy19LLEtfe7Ec8QN11W7zh1iWXVvSe91LA8=",
+        "lastModified": 1785275610,
+        "narHash": "sha256-zLGouX6xpiPjqDqRhiB95OEwneccb+4GEiLqa3Prf+k=",
         "owner": "LiGoldragon",
         "repo": "structural-codec",
-        "rev": "e5fa1b3bbdde13f3dac205920b16a2e73f3d4487",
+        "rev": "38c037d83ad4a1a275295442e2978a8130d0ae4c",
         "type": "github"
       },
       "original": {
         "owner": "LiGoldragon",
         "repo": "structural-codec",
-        "rev": "e5fa1b3bbdde13f3dac205920b16a2e73f3d4487",
+        "rev": "38c037d83ad4a1a275295442e2978a8130d0ae4c",
         "type": "github"
       }
     },

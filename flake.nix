@@ -17,7 +17,7 @@
       flake = false;
     };
     structural-codec = {
-      url = "github:LiGoldragon/structural-codec/e5fa1b3bbdde13f3dac205920b16a2e73f3d4487";
+      url = "github:LiGoldragon/structural-codec/38c037d83ad4a1a275295442e2978a8130d0ae4c";
       flake = false;
     };
     protos = {

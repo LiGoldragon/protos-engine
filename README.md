@@ -37,7 +37,7 @@ Every repository input uses a full, published Git revision:
 | content-identity | `ac0075842799b3ece8909ad0eb4b8a92b596b188` |
 | name-table | `a1705ef512efec28925ae3ffc9faa5a2aa4dc4a8` |
 | raw-discovery | `c27a9efabb1981c8b3d887c870fff82fc7daf49c` |
-| structural-codec | `e5fa1b3bbdde13f3dac205920b16a2e73f3d4487` |
+| structural-codec | `38c037d83ad4a1a275295442e2978a8130d0ae4c` |
 | protos | `c6fa54c066a1210bbba026d9d761bb3ef5b8af5f` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
 | schema-rust | `3721656b0a654d47d9abde31f14d89d01f9305cf` |
