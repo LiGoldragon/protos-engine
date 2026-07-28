@@ -139,3 +139,72 @@ itself (which kinds of names exist) remains undesigned matter; his
 turn is partly exploratory ("might", "Do you understand what I
 mean?"). This entry supersedes entry 2's flat-table reading: one
 correspondence mechanism, but not one flat table.
+
+## 5. The real problem is programmatic rename — step back and rethink encoded-form namespacing
+
+**Agent (Claude):** restated the kinds model back (variant-fronted ID
+naming which nametable; sharedness as the split criterion), then
+asked the remaining case: two capsules each define a local type
+spelled `Status` — are capsule-local names kept apart, or do all
+user names share one nametable so the second definition is refused
+at seal?
+
+**Psyche 2026-07-28, verbatim in full:**
+"Well, I can see a problem but you haven't actually found it. The
+thing you're talking about is not actually the problem. The problem
+is, and what I think you're trying to get at maybe you just haven't
+put your finger on it, is that let's say those two statuses are
+different things, but they don't necessarily clash in the way that
+the language resolves things. The problem is if one of those later
+wants a rename, a programmatic rename, which would change status for
+everything. So we're talking about statuses that are not the same
+status, but both use the name status, right? Which means we need to
+understand... It's all about understanding. I know agents, and
+especially new models, are getting dumber and dumber every day
+because they're not trying to understand anything. And step back. We
+have to step back and think, okay, let's forget everything we know,
+which you can't do because you're a machine, but I can. And look at
+it from the outside. What are we doing here? We're talking about a
+status from a different domain. So do we introduce the concept of
+domain in the name table? In which case we get a kind of a
+recursive, a namespaced name table, if you will. And the domain
+themselves also use the same mechanism of having their... So this
+introduces a new concept also in the code, in the encoded form of
+domains, of namespaces. So then a core ID becomes a complex thing.
+It's more than one thing. But we already had a variant in front of
+it. Now we have a variant. And then potentially, depending on the
+variant, we have a domain. Like obviously the Rust built-ins don't
+clash, right? So they don't need domains. Although maybe they do, I
+don't know. Like is there two statuses in Rust's standard library
+that mean different things? I don't know. But outside of that, in
+our own authorship, we may run into the problem of a status in two
+different domains. And it wouldn't be a problem if none of them
+would ever want to do a rename or a programmatic rename, which
+eventually all of the coding... When this actually starts running
+well, you're not going to be editing text. You're going to be doing
+operational editing. You're going to send operations, and it'll all
+be atomically edited in the daemon. And that's when we'll have the
+renaming operation. So we need to step way the fuck back now and
+rethink the entire concept of how we namespace the encoded form. Or
+look at what kind of concept overlaps the concept that I'm
+describing here. And I don't know if you're able to do this, but I
+would like you to override the model that you use for subagents to
+be Opus 4.6."
+
+Log note (log-authored, not psyche words): the cross-capsule
+resolution case the agent posed is a non-problem — languages resolve
+it. The real problem is the eventual programmatic rename: two
+different things sharing one spelling make a shared-row rename touch
+both. Renaming is an operation on one thing. The endgame is
+operational editing — no text editing; operations sent to the
+daemon, applied atomically; rename is one such operation. Whether
+domains enter the nametable — a recursive, namespaced nametable,
+domains named by the same mechanism, the concept also entering the
+encoded form, the coreID becoming complex (variant, then possibly
+domain depending on the variant) — is the question he ordered
+stepped back on and rethought, or matched against an overlapping
+existing concept. Rust builtins likely need no domains (his
+uncertainty recorded). Nothing in this entry is a settled ruling on
+the mechanism; it is the problem statement and the directive. The
+closing subagent-model instruction is operational context, kept for
+verbatim fidelity.
