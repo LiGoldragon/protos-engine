@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "protos_engine",
+  "project_id": "dea2b160-5aed-41ea-b322-650a7bd9f6d0"
+}
