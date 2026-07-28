@@ -217,3 +217,62 @@ Provenance note (log-authored, not psyche words): the original turn
 remains unlocated in the read sources; the sentence is quoted as it
 circulated; this entry establishes it as a psyche-confirmed ruling by
 his 2026-07-27 confirmation, not as a firsthand transcript.
+
+## 10. How questions are brought — conduct rulings
+
+Appended 2026-07-28 from a re-mining of the same 2026-07-27 session
+transcript (session 49d0a8e0). These turns precede entry 2
+chronologically; they are appended here because the log had carried
+their consequence only as derived text in the handover ("every
+question put to the psyche must be explained in practice"). The
+firsthand words follow.
+
+**Agent (Claude):** presented Codex's slice-1 decision 2 as "decoding
+receives an explicit assignment map (e.g. CommitSequence ->
+Schema(u16))", recommending yes.
+
+**Psyche 2026-07-27** (excerpt; an operational line about worker tiers
+omitted): am I supposed to understand this? Do you? Like *actually
+understand* what that means in practice?
+
+**Agent (Claude):** re-explained decision 2 in plain terms —
+parse-order numbering versus a durable assignment map — and asked
+"Yes to the map?"
+
+**Psyche 2026-07-27:** that still doesnt explain anything about this
+"stored tabe" - where is it stored? how is it shared between the 3
+daemons? How are stale entries dealt with? probably more questions I
+havent thought of
+
+**Agent (Claude):** in the same message answered by entry 7's "yes,
+ethos", asked for a ruling on Codex's decision 5 (whole-logos
+content-hash domain). The third line of that psyche message, omitted
+from entry 7, was:
+
+**Psyche 2026-07-27:** 5. explain
+
+Log note (log-authored, not psyche words): the ruling on decision 5
+came only after the mechanism was made concrete, and came as a
+reshaping (entry 8), not as the yes/no that was posed. Together these
+turns ground the standing conduct law firsthand: a question is
+explained in practice — where a thing is stored, how it is shared,
+what happens on failure paths — before a ruling is asked; a yes/no
+wrapped around an undesigned mechanism gets sent back.
+
+## 11. Naming-exercise constraints
+
+Appended 2026-07-28 from the same re-mining. This turn opens the
+naming exercise recorded in entry 7 and precedes its quoted
+rejections.
+
+**Agent (Claude):** proposed "Eidos" for the schema language,
+completing a Greek -os triad (Eidos, Nomos, Logos), with three
+alternatives, all Greek.
+
+**Psyche 2026-07-27:** look for more candidate, the -os isnt a
+constraint, and a new name for NOTA as well
+
+Log note (log-authored, not psyche words): the -os suffix is not a
+constraint on family names. The request for a NOTA rename was
+reversed within the same exercise by entry 7's "nota is fine";
+recency gives the reversal the floor.
