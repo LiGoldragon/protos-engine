@@ -370,3 +370,27 @@ with in order to get to the future interface." Under the
 operational-editing endgame the constraint is in principle
 renegotiable; do not treat it as a deep invariant, and do not build
 anything that depends on it being one.
+
+## 12. Text-edit renames mint new identities — accepted, noted in code
+
+**Agent (Claude):** reviewing Codex's revised translator stored-state
+proposal, posed the interim gap: until operational editing exists, an
+author renames by editing Ethos text; at the next seal the new
+spelling is unseen in that module's table, so the translator mints a
+fresh encodedID and the old entry stays allocated but orphaned — the
+thing silently becomes a different thing. Offered two handlings:
+accept it (a text rename is a new thing; identity preservation is
+what the operational rename is for), or add an explicit continuation
+declaration to the seal contract so a deliberate text rename can
+preserve identity.
+
+**Psyche 2026-07-28, verbatim:** accept it, and make a note of it in
+the code
+
+Log note (log-authored, not psyche words): text-edit renames are
+accepted as identity-breaking — consistent with 07-17's "if it got
+re-ID'ed then its not the same"; the operational rename is the sole
+identity-preserving path; the seal contract gains no continuation
+mechanism. The translator implementation carries a note at the
+allocation site describing this mechanic — a description of
+behavior, never a ruling-satisfied claim, per standing conduct.
