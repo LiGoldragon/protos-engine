@@ -265,3 +265,35 @@ durable spelling-independent identity — under word-keyed identity a
 rename changes the ID and the emitted encoding with it, so this
 ruling presupposes a yes on the standing crux question (does the
 thing get its own durable identity distinct from word and hash).
+
+## 8. The durable identity is the encodedID; only whole-capsule hashing was ever discussed
+
+**Agent (Claude):** put the crux question: does a declaration — and
+a module, identically — get its own durable identity, separate from
+both its word's coreID and its content hash?
+
+**Psyche 2026-07-28, verbatim in full:**
+"I didnt think of the durable identity as separate from its coreID,
+which I should have called encodedID (I dont know what the code
+currently calles it, but since its encodedform, encodedID is
+appropriate)
+
+if we want to content hash everything, it'll take several passes to
+first resolve the leaf nodes, with their encodedID, and then come
+out recursively. it would be great, but we never discussed it, we
+only discussed hashing the entire capsule after it is fully encoded"
+
+Log note (log-authored, not psyche words): terminology — the concept
+called coreID in this session's earlier entries should be
+**encodedID**: it is the ID of the encodedform. The code currently
+calls it `Identifier` (name-table's `Schema(u16)`-family). The
+durable identity is not a third thing beside the encodedID; the
+encodedID is the durable identity, matching 07-22's "encoded
+identity is the only durable one". On content hashing: only hashing
+the entire capsule after it is fully encoded was ever discussed;
+recursive leaf-first per-thing hashing ("several passes… come out
+recursively") is attractive to him but explicitly undiscussed and
+unruled. Consequence: core-logos's per-item `content_identity()`
+stands on implementation, not on ruling, and must be reconciled in
+the identity-train proposal rather than assumed. The agent's
+restatement of the resulting table model awaits his confirmation.
