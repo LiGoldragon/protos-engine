@@ -259,6 +259,16 @@ the contract and module-scoped lookup replacing name-table's flat word→ID
 index (`NameIndexCollision` is off-model; do not fix it in place). The revised
 stored-state section returns as a design proposal before implementation.
 
+**Ruled 2026-07-28 (entries 12–14):** the revised stored-state model and the
+implementation mechanism are approved. Text-edit renames are accepted as
+identity-breaking, noted in code at the allocation site (entry 12).
+Mutability is a per-table field in each table's top-level struct; rename
+against an immutable table fails typed before lookup (entry 13). First
+allocations within one table in one seal use canonical exact-byte spelling
+order — delegated assent, re-explain on request (entry 14). Ratified
+mechanism readings: declarations allocate, references only resolve; identity
+continuity across seals is keyed by spelling-within-module.
+
 ## 7. The sema vision — intent
 
 **[ruled] 2026-07-27**, psyche-initiated (verbatim in full in SliceOneRulings

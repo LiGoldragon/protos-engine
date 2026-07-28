@@ -418,3 +418,23 @@ immutable table fails typed, before any entry lookup.
 Rust-vocabulary tables are immutable; authored module tables are
 mutable. "it could be a field" marks the struct placement as his
 leaning; the per-table scope of mutability is the ruling.
+
+## 14. Canonical allocation order approved — delegated assent
+
+**Agent (Claude):** reviewed Codex's translator implementation
+proposal and put its one new decision: when one seal introduces
+several new spellings into one table, first allocations use canonical
+exact-byte spelling order rather than source order, so parse order
+can never decide identity and the idempotency digest matches content
+rather than traversal. Recommended approval.
+
+**Psyche 2026-07-28, verbatim:** yes, but I havent read it, so make a
+note that I might need to be explained this later
+
+Log note (log-authored, not psyche words): canonical exact-byte
+first-allocation order is approved. The assent is **delegated** — he
+approved on the agent's explanation without reading the proposal. Do
+not cite this ordering back to him as an independent psyche
+conviction, and be prepared to re-explain it on his request. Same
+grade as the 07-26 kernel-reach ruling "if you think it's a good
+idea, then yes".
