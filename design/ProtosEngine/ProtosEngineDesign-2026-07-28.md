@@ -342,9 +342,24 @@ The translator witnesses include, distinctly:
   corruption refusal, per-table exhaustion, and two unrelated fixture root
   enums are all proven.
 
-Still open and not inferred here: the root variants; emitted chain encoding;
-move; Capsule-pin composition; dynamic-enum member identity; retirement; and
-the daemon's final name.
+**[ruled] 2026-07-28 (entry 15) — the production root set:**
+`VocabularyRoot::{Universal, Rust}`. Universal is mutable and holds the
+builtin priors and authored top-level modules; Ethos declarations allocate
+there; Nomos and Logos carry the same chains — no component-owned roots.
+Builtins are uniformly renameable entries, gated by authorization, never
+special-cased. Rust is immutable and holds Rust-owned vocabulary in nested
+immutable tables; a trusted versioned vocabulary release may append
+previously unknown words but never alter, remove, or rebind an entry.
+`Universal/Integer` and `Rust/u64` are different identities related by typed
+transformation data. The root is an address-space tag in the translator's one
+embedded database; lookup never falls back between roots. Fixture stays
+test-only; future language vocabularies gain new production roots only with
+explicit wire/archive version changes. The larger sema-vision word space
+remains future design.
+
+Still open and not inferred here: emitted chain encoding; move; Capsule-pin
+composition; dynamic-enum member identity; retirement; and the daemon's
+final name.
 
 ## 7. The sema vision — intent
 
@@ -592,8 +607,10 @@ the homonym/conflict question (dissolved by the nested model).
    logos? (Standing law until answered: no Rust capsule.)
 8. What "otherwise" excepted in the item-schema ratification.
 9. ID retirement policy.
-10. The translator daemon's final name; the root table's variant set (schema.org
-    borrowing floated).
+10. The translator daemon's final name. (The root table's production variant
+    set was ruled 2026-07-28, entry 15: `VocabularyRoot::{Universal, Rust}`;
+    the larger sema-vision word-space root design, where schema.org borrowing
+    was floated, remains future.)
 11. The encodedID chain encoding scheme for emitted Rust.
 12. The **move** operation (re-parenting between modules) — follows from
     operational editing; unruled.

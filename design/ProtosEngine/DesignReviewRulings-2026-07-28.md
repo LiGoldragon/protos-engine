@@ -438,3 +438,36 @@ not cite this ordering back to him as an independent psyche
 conviction, and be prepared to re-explain it on his request. Same
 grade as the 07-26 kernel-reach ruling "if you think it's a good
 idea, then yes".
+
+## 15. The production root set — VocabularyRoot::{Universal, Rust}
+
+**Agent (Claude):** presented Codex's root-variant proposal for
+ruling: `VocabularyRoot::{Universal, Rust}` — Universal mutable,
+holding the builtin priors (Integer, String) and authored top-level
+modules, with Ethos, Nomos, and Logos carrying the same chains and no
+component-owned roots; Rust immutable, holding Rust-owned vocabulary
+in nested immutable tables, rename failing typed, and a trusted
+versioned vocabulary release able only to append, never to alter,
+remove, or rebind. The one surfaced decision: builtins sit in the
+mutable Universal table, so Integer is uniformly renameable like any
+authored name, gated by authorization rather than special-cased; the
+alternative — builtins as immutable words-as-values — would need a
+separate immutable root and a second mechanics. Recommended approval
+on uniformity and on the standing "builtins are ordinary prior
+entries" ruling. Asked: "Do you approve VocabularyRoot::{Universal,
+Rust} with builtins uniformly renameable?"
+
+**Psyche 2026-07-28, verbatim:** yes.
+
+Log note (log-authored, not psyche words): the production root set is
+`VocabularyRoot::{Universal, Rust}`. Builtins are uniformly
+renameable entries of the mutable Universal table, protected by
+authorization. Rust-root tables are spelling-immutable and
+append-only via the trusted versioned release. The root is an
+address-space tag in the translator's one embedded database; lookup
+never falls back between roots; future language vocabularies gain new
+production roots only with explicit wire/archive version changes. The
+larger sema-vision word space — all human language, dynamic-enum
+vocabularies, where schema.org borrowing was floated — remains future
+design and is not foreclosed. The root-variant half of the standing
+open question closes; the daemon's final name remains open.
