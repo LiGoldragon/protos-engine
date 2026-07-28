@@ -85,3 +85,57 @@ level. His reply amended only the case example and raised no
 objection to the rest of the restatement; the restatement's other
 clauses stand as agent text he was shown, not as his words. Seal-time
 declaration redefinition remains ruled law, untouched.
+
+## 3. Nothing declares the coreID — the translator allocates it
+
+**Agent (Claude):** explaining the declaration-layer conflict, wrote:
+"A declaration creates a **thing**: typed data with its own durable
+ID."
+
+**Psyche 2026-07-28:** no, nothing declares the coreID, the coreID is
+allocated by the translator on receiving an unallocated word
+
+Log note (log-authored, not psyche words): no minting act exists
+anywhere in the system. The translator allocates a coreID when it
+receives a word it has not seen; a known word returns its existing
+coreID; that is the only way an ID comes into being. The agent's
+follow-up restatement — a definition creates no identity but attaches
+typed structure to the coreID its word resolves to, and "define
+something already defined" means a second definition arriving for a
+coreID that already carries one, refused at seal — was the text shown
+to him; his reply (entry 4) raised no objection to it and moved to
+the vocabulary distinction. That restatement stands as agent text,
+not his words.
+
+## 4. Kinds of names — a variant in front of the ID; nametables cannot conflict
+
+**Agent (Claude):** posed the cross-capsule case: two different
+capsules each define a local type wearing the word `Status`; same
+word gives both the same coreID, so seal sees two definitions of one
+ID — against the capsule dictation's "the potential name conflicts
+are dealt with at each layer". Asked whether what the translator
+receives carries the capsule, or the word is truly global and the
+second definition is refused.
+
+**Psyche 2026-07-28, verbatim in full:**
+"Although there is a distinction to be made because some of the
+vocabulary is not shared between the languages. So translator-based
+renaming, which is something we'll do eventually, could only be done
+on universally shared vocabulary, which means we might have more...
+It might not be just a single flat nametable. It might be kinds of
+names. Like if it's a... Oh, maybe this is what you meant by the
+conflict, but it's not a conflict if you have a variant in front of
+the ID, because they're not the same nametable. Do you understand
+what I mean?"
+
+Log note (log-authored, not psyche words): the full ID is
+variant-fronted — the variant names which nametable the integer
+belongs to; the same spelling under two different variants is two
+entries in two nametables and cannot conflict. The stated criterion
+for the kinds split is vocabulary sharedness between the languages:
+translator-based renaming — an eventual feature, not current work —
+can only operate on universally shared vocabulary. The variant set
+itself (which kinds of names exist) remains undesigned matter; his
+turn is partly exploratory ("might", "Do you understand what I
+mean?"). This entry supersedes entry 2's flat-table reading: one
+correspondence mechanism, but not one flat table.
