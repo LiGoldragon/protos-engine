@@ -346,3 +346,27 @@ allocation being by module means the homonym case never reaches a
 conflict; redefinition-at-seal means the same spelling twice in one
 module's table; per-table u16 capacity suffices because no table
 holds all of language.
+
+## 11. Per-module uniqueness is inherited from the interface, not intrinsic
+
+**Agent turn:** none — psyche-initiated, elaborating entry 10's
+confirmation.
+
+**Psyche 2026-07-28, verbatim:**
+"We're basically matching how the parser of a standard programming
+language works, which is, it's not going to accept the same name for
+two different things in one module, one file, basically. So we're
+just matching that so that, because that's what we're going to and
+from. So it's not because the model is constrained like that
+necessarily, it's just because that's what we're constrained by, by
+virtue of what we're trying to go to and from."
+
+Log note (log-authored, not psyche words): the per-module
+spelling-uniqueness rule exists to match the parsers of the standard
+languages being bridged — it is inherited from the textual interface,
+not intrinsic to the model. Consistent with 07-21's "text is the
+current standard programming interface; it is what we *must* work
+with in order to get to the future interface." Under the
+operational-editing endgame the constraint is in principle
+renegotiable; do not treat it as a deep invariant, and do not build
+anything that depends on it being one.
