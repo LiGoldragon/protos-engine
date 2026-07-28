@@ -208,3 +208,30 @@ uncertainty recorded). Nothing in this entry is a settled ruling on
 the mechanism; it is the problem statement and the directive. The
 closing subagent-model instruction is operational context, kept for
 verbatim fidelity.
+
+## 6. Renaming is recursive — the module renames like its members
+
+**Agent (Claude):** presented the step-back analysis: the rename
+operation defines what the ID must identify — the table row must be
+keyed by the thing's ID with the spelling as its changeable value;
+domains contain that answer one level down; the capsule may already
+be the domain concept; the kinds-of-names variant may fall on the
+boundary between names-of-things (renameable, thing-keyed rows) and
+words-as-values (keywords, dynamic-enum words — the word is the
+thing, fixed rows).
+
+**Psyche 2026-07-28, verbatim:**
+"And then the same concept of programmatic renaming becomes possible
+for the domain too. And maybe the domain is not the right term,
+namespace or module, so that we get the free renaming both on the
+specific string in that module and the module name itself."
+
+Log note (log-authored, not psyche words): renaming extends
+recursively to the container level. The module/namespace is itself a
+thing whose name is a thing-keyed row like any member's; one rename
+operation serves both levels — the specific string in the module and
+the module's own name. "Domain" may be the wrong term; his candidate
+terms are namespace or module; the final term is matter, undesigned.
+Consequence (agent-derived): a thing's full address is a chain of
+IDs with every spelling an attribute along it, so rename at any
+level never touches identity at any level.
