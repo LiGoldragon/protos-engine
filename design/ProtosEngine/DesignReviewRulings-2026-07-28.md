@@ -235,3 +235,33 @@ terms are namespace or module; the final term is matter, undesigned.
 Consequence (agent-derived): a thing's full address is a chain of
 IDs with every spelling an attribute along it, so rename at any
 level never touches identity at any level.
+
+## 7. Emitted Rust names things by their coreID
+
+**Agent (Claude):** presented the emission-boundary asymmetry from
+the concept survey: under thing-keyed naming, renaming the root
+module is one field write internally but "rewrites the fully
+qualified path of every item in the emitted Rust externally", so the
+emission boundary would need its own deliberate mechanism.
+
+**Psyche 2026-07-28, verbatim:**
+"not if we use the coreID for the emitted rust (a textual version of
+it - some kind of textual binary encoding which is friendly to
+rustc)"
+
+Log note (log-authored, not psyche words): emitted Rust identifies
+our things by a textual encoding of the identity itself, not by
+projected human names; renames then touch nothing in the emitted
+artifact, and external captures of emitted names hold the identity —
+rename-proof by construction. Rust's own vocabulary (keywords, std
+names) keeps Rust's spellings. The encoding scheme is matter,
+undesigned (rustc identifier rules: letter or underscore first, then
+alphanumerics and underscores). Recorded tension, not resolved: his
+07-23 "it would be good to keep the generated artifacts as
+accessible as possible" — mitigation candidates such as regenerated
+doc comments carrying projected names are matter. Agent observation:
+rename-proof emission requires the emitted ID to be the thing's
+durable spelling-independent identity — under word-keyed identity a
+rename changes the ID and the emitted encoding with it, so this
+ruling presupposes a yes on the standing crux question (does the
+thing get its own durable identity distinct from word and hash).
