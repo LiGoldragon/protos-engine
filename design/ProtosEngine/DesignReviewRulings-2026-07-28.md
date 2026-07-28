@@ -320,3 +320,29 @@ an encodedID in its containing module — the recursive namespaced
 nametable of entries 5 and 6, structural containment rather than a
 membership attribute on flat rows. The agent's redrawn nested-table
 restatement awaits his confirmation.
+
+## 10. The nested-table model confirmed
+
+**Agent (Claude):** redrew the model as nested module-owned tables —
+a root table whose entries are modules and builtins, each module
+owning the table of its own members, billing's Status as chain 1.1
+and tasks' Status as chain 2.1 — and asked: is this the picture —
+identity as the chain of module-allocated encodedIDs, one nametable
+per module, rename as a one-entry edit in whichever table owns the
+spelling?
+
+**Psyche 2026-07-28, verbatim:** thats more like it
+
+Log note (log-authored, not psyche words): confirmation of the
+restated model — [confirmed] grade: the substance carries his
+authority, the wording is the agent's. The confirmed clauses as
+shown to him: one nametable per module; a module's members receive
+their encodedIDs from their own module's table; the module itself is
+an entry in its container's table, recursively; a thing's full
+identity and every encodedform reference is the chain of encodedIDs;
+emitted Rust encodes the chain; rename is a one-entry spelling edit
+in the owning table, identical at member and module level;
+allocation being by module means the homonym case never reaches a
+conflict; redefinition-at-seal means the same spelling twice in one
+module's table; per-table u16 capacity suffices because no table
+holds all of language.
