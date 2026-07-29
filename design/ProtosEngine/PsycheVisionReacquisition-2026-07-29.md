@@ -51,3 +51,22 @@ rename. Unchanged boundaries: frozen donors keep their historical names (they
 die under their old names); literal code identifiers, package names, and file
 paths that still exist under old names stay accurate as literals; the
 firsthand rulings logs remain append-only and unedited.
+
+## Entry 3 — the textual style is named protos
+
+Agent text answered: the manager's chat distillation of the TextualNomos
+design described the proposed syntax as written "in the NOTA family's
+existing boundary style".
+
+Psyche:
+
+> Protos - the style is called protos - That could go in a few places.
+
+Reading (agent interpretation, not psyche wording): the boundary/document
+textual style shared by the language family is named protos — consistent with
+the protos library's ruled role as the sole driver of all decoding and
+encoding between text and data. Documents describing that style should name
+it protos rather than "NOTA family style" or similar circumlocutions, and the
+naming belongs in the several doc surfaces that describe the style. Where
+"NOTA" names the concrete record notation itself, that name stands; it is the
+style of the family's textual documents that is named protos.
