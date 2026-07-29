@@ -9,8 +9,8 @@
     };
     core-ethos.url = "github:LiGoldragon/core-ethos/0840dbd96d250b15b750b5b17a3a7c86bacfb7ee";
     core-logos.url = "github:LiGoldragon/core-logos/e4cefc413cfafbe589e64d961fba34457d214316";
-    core-nomos.url = "github:LiGoldragon/core-nomos/f7071fb9f8879d17cd2436ed14894799958e9b08";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/a0e1d7a7ab4fd7e156439df9e9a18e80605ff0d8";
+    core-nomos.url = "github:LiGoldragon/core-nomos/55e72e3bd6de11325d6e4e7ea6dc29566bccc68d";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/c6bb69e9ba9286994a386ec7a75f7aad4519fdb3";
     name-table = {
       url = "github:LiGoldragon/name-table/50cb4bb53ae2dc4f2516f6912be328ef98ae49f8";
     };
