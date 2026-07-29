@@ -115,7 +115,7 @@ complete direct producer set; and the published
 language-engine-witness's eight Slice One aliases. Its mutation suite rejects
 revision drift, repository drift, alias package drift, duplicate direct
 declarations, durable-chain drift, and removal of restart coverage. The core
-surfaces carry one structural-codec 0.17 dependency universe; the witness's
+surfaces carry one structural-codec 0.18 dependency universe; the witness's
 separate daemon closure remains outside that authored-language carrier graph.
 
 ## Checks
