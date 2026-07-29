@@ -105,6 +105,17 @@ require_source_pattern() {
   fi
 }
 
+reject_source_pattern() {
+  local source_file=$1
+  local label=$2
+  local pattern=$3
+
+  if LC_ALL=C grep -Eq "$pattern" "$source_file"; then
+    echo "Slice One behavior witness retains refused evidence: $label" >&2
+    return 1
+  fi
+}
+
 validate_behavior_witness() {
   local source_map_file=$1
   local witness_root
@@ -167,7 +178,7 @@ validate_behavior_witness() {
     '^[[:space:]]*"3 42\\n"'
 
   require_source_pattern "$spirit_domain_test" "complete Spirit domain test" \
-    '^fn complete_spirit_domain_reaches_durable_logos_and_structural_rust[(][)]'
+    '^fn complete_spirit_domain_reaches_durable_logos_and_production_rust[(][)]'
   require_source_pattern "$spirit_domain_test" "41-item Spirit inventory" \
     'assert_eq![(]inventory[.]items[(][)][.]len[(][)], 41[)][;]'
   require_source_pattern "$spirit_domain_test" "38-enum Spirit inventory" \
@@ -182,14 +193,22 @@ validate_behavior_witness() {
     'assert_eq![(]inventory[.]application_count[(]"ScopeOf"[)], 1[)][;]'
   require_source_pattern "$spirit_domain_test" "complete Spirit Ethos archive recovery" \
     'WholeEthos::from_archive_bytes[(]&ethos_archive[)]'
+  require_source_pattern "$spirit_domain_test" "typed Universal Vector to Rust Vec mapping" \
+    'SliceOneVocabularyReferenceMapping::new[(]'
   require_source_pattern "$spirit_domain_test" "complete direct Nomos lowering" \
-    'SliceOneTransformation::new[(][)][.]lower[(]&restored_ethos[)]'
+    'slice_transformation[(]&identities[)][.]lower[(]&restored_ethos[)]'
   require_source_pattern "$spirit_domain_test" "complete Spirit Logos archive recovery" \
     'WholeLogos::from_archive_bytes[(]&logos_archive[)]'
-  require_source_pattern "$spirit_domain_test" "complete structural Rust emission" \
-    '[.]emit_fixture[(]&restored_logos, &projections[.]table[)]'
-  require_source_pattern "$spirit_domain_test" "complete structural Rust decode" \
-    '&emitted_bindings[(]&emitted, &restored_logos, &projections[)]'
+  require_source_pattern "$spirit_domain_test" "complete production Rust emission" \
+    '[.]emit[(]&restored_logos, &bindings[)]'
+  require_source_pattern "$spirit_domain_test" "canonical encodedID spelling" \
+    'RustEncodedIdCodec::encode[(]&identities[.]scope_of[)]'
+  require_source_pattern "$spirit_domain_test" "immutable Rust Vec spelling" \
+    'assert![(]emitted[.]contains[(]"Vec"[)][)][;]'
+  require_source_pattern "$spirit_domain_test" "complete production Rust decode" \
+    '&emitted_bindings[(]&emitted, &restored_logos, &spellings[)]'
+  reject_source_pattern "$spirit_domain_test" "fixture emission on the Spirit completion path" \
+    '[.]emit_fixture[(]'
   require_source_pattern "$spirit_domain_test" "369-variant scratch behavior" \
     '^[[:space:]]*"369\\n"'
   require_source_pattern "$spirit_domain_test" "typed ScopeOf boundary" \
@@ -348,6 +367,16 @@ run_self_test() {
   expect_coherence_rejection "Spirit domain inventory drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/spirit_domain.rs" \
+    "$witness_spirit_domain_test"
+  sed -i \
+    's/[.]emit[(]&restored_logos, &bindings[)]/.emit_fixture(\\&restored_logos, \\&bindings)/' \
+    "$witness_spirit_domain_test"
+  expect_coherence_rejection "Spirit production emission replacement" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/spirit_domain.rs" \
+    "$witness_spirit_domain_test"
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/slice_one.rs" \
     "$witness_slice_test"
   sed -i \
