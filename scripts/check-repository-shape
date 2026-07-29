@@ -2,7 +2,7 @@
 set -euo pipefail
 
 readonly expected_top_level=$'.beads\n.gitignore\nAGENTS.md\nARCHITECTURE.md\nREADME.md\ndesign\nflake.lock\nflake.nix\nscripts'
-readonly expected_scripts=$'check-dependency-direction\ncheck-pin-policy\ncheck-public-text-search-witness\ncheck-repository-shape\nrun-public-text-search-witness'
+readonly expected_scripts=$'check-dependency-direction\ncheck-identity-capsule-coherence\ncheck-pin-policy\ncheck-public-text-search-witness\ncheck-repository-shape\nrun-public-text-search-witness'
 
 validate_repository_shape() {
   local repository_root=$1
@@ -48,7 +48,7 @@ validate_repository_shape() {
       | LC_ALL=C sort
   )
   if [[ "$actual_scripts" != "$expected_scripts" ]]; then
-    echo "scripts surface differs from the exact five-name allowlist" >&2
+    echo "scripts surface differs from the exact six-name allowlist" >&2
     diff -u <(printf '%s\n' "$expected_scripts") \
       <(printf '%s\n' "$actual_scripts") >&2 || true
     return 1

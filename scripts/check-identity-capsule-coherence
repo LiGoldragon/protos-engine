@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Only edges changed by the identity/Capsule train belong here. The direct
+# legacy content-identity and flat name-table edges in the core repositories
+# are intentionally outside this table until their encodedID-chain migration.
+readonly expected_edges=$'name-table|content-identity|content-identity|\nsignal-sema-translator|name-table|name-table|\nsema-translator|name-table|name-table|\nsema-translator|signal-sema-translator|signal-sema-translator|\nprotos|content-identity|content-identity|\ncore-ethos|capsule-content-identity|content-identity|content-identity\ncore-ethos|protos|protos|\ncore-logos|capsule-content-identity|content-identity|content-identity\ncore-logos|protos|protos|\ncore-logos|core-ethos|core-ethos|\ntextual-rust|core-logos|core-logos|\ncore-nomos|capsule-content-identity|content-identity|content-identity\ncore-nomos|protos|protos|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|textual-rust|textual-rust|'
+
+root_revision() {
+  local lock_file=$1
+  local input_name=$2
+
+  jq -er --arg input_name "$input_name" '
+    .root as $root
+    | .nodes[$root].inputs[$input_name] as $node_name
+    | select($node_name | type == "string")
+    | .nodes[$node_name].locked.rev
+    | select(type == "string" and test("^[0-9a-f]{40}$"))
+  ' "$lock_file"
+}
+
+source_path() {
+  local source_map_file=$1
+  local source_name=$2
+
+  jq -er --arg source_name "$source_name" '
+    .[$source_name]
+    | select(type == "string" and length > 0)
+  ' "$source_map_file"
+}
+
+dependency_declaration() {
+  local manifest=$1
+  local dependency_name=$2
+  local declarations
+
+  declarations=$(
+    LC_ALL=C grep -E \
+      "^[[:space:]]*${dependency_name}[[:space:]]*=" "$manifest" || true
+  )
+  if [[ $(printf '%s\n' "$declarations" | sed '/^$/d' | wc -l) -ne 1 ]]; then
+    echo "expected exactly one direct dependency declaration: $manifest:$dependency_name" >&2
+    return 1
+  fi
+  printf '%s\n' "$declarations"
+}
+
+validate_direct_edge() {
+  local source_map_file=$1
+  local lock_file=$2
+  local source_name=$3
+  local dependency_name=$4
+  local target_name=$5
+  local package_name=$6
+  local source_root
+  local manifest
+  local target_revision
+  local target_git
+  local declaration
+  local compact_declaration
+
+  source_root=$(source_path "$source_map_file" "$source_name") || {
+    echo "affected source is absent from the root source map: $source_name" >&2
+    return 1
+  }
+  manifest="$source_root/Cargo.toml"
+  [[ -f "$manifest" && ! -L "$manifest" ]] || {
+    echo "affected source lacks a regular Cargo.toml: $source_name" >&2
+    return 1
+  }
+
+  target_revision=$(root_revision "$lock_file" "$target_name") || {
+    echo "affected target is not an exact direct root pin: $target_name" >&2
+    return 1
+  }
+  target_git="https://github.com/LiGoldragon/${target_name}.git"
+  declaration=$(dependency_declaration "$manifest" "$dependency_name") ||
+    return 1
+  compact_declaration=$(printf '%s\n' "$declaration" | tr -d '[:space:]')
+
+  if [[ "$compact_declaration" != *"git=\"$target_git\""* ]]; then
+    echo "affected edge targets the wrong repository: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+  if [[ "$compact_declaration" != *"rev=\"$target_revision\""* ]]; then
+    echo "affected edge differs from the exact root revision: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+  if [[ -n "$package_name" &&
+    "$compact_declaration" != *"package=\"$package_name\""* ]]; then
+    echo "dependency alias targets the wrong package: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+}
+
+validate_coherence() {
+  local lock_file=$1
+  local source_map_file=$2
+  local source_name
+  local dependency_name
+  local target_name
+  local package_name
+
+  jq -e '
+    type == "object"
+    and all(to_entries[]; (.key | type == "string") and (.value | type == "string"))
+  ' "$source_map_file" >/dev/null || {
+    echo "root source map must be a JSON object of source paths" >&2
+    return 1
+  }
+
+  while IFS='|' read -r \
+    source_name dependency_name target_name package_name; do
+    validate_direct_edge "$source_map_file" "$lock_file" \
+      "$source_name" "$dependency_name" "$target_name" "$package_name" ||
+      return 1
+  done < <(printf '%s\n' "$expected_edges")
+}
+
+copy_affected_manifests() {
+  local source_map_file=$1
+  local fixture_root=$2
+  local fixture_map='{}'
+  local source_name
+  local source_root
+
+  while IFS= read -r source_name; do
+    source_root=$(source_path "$source_map_file" "$source_name")
+    mkdir -p "$fixture_root/sources/$source_name"
+    cp "$source_root/Cargo.toml" \
+      "$fixture_root/sources/$source_name/Cargo.toml"
+    chmod u+w "$fixture_root/sources/$source_name/Cargo.toml"
+    fixture_map=$(
+      jq -cn \
+        --argjson fixture_map "$fixture_map" \
+        --arg source_name "$source_name" \
+        --arg source_path "$fixture_root/sources/$source_name" \
+        '$fixture_map + {($source_name): $source_path}'
+    )
+  done < <(
+    printf '%s\n' "$expected_edges" |
+      cut -d '|' -f 1 |
+      LC_ALL=C sort -u
+  )
+  printf '%s\n' "$fixture_map" > "$fixture_root/source-map.json"
+}
+
+expect_coherence_rejection() {
+  local label=$1
+  local lock_file=$2
+  local source_map_file=$3
+
+  if validate_coherence "$lock_file" "$source_map_file" >/dev/null 2>&1; then
+    echo "coherence mutation unexpectedly passed: $label" >&2
+    return 1
+  fi
+}
+
+run_self_test() {
+  local lock_file=$1
+  local source_map_file=$2
+  local temporary_root
+  local core_nomos_manifest
+  local textual_rust_revision
+
+  validate_coherence "$lock_file" "$source_map_file"
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+  copy_affected_manifests "$source_map_file" "$temporary_root"
+  core_nomos_manifest="$temporary_root/sources/core-nomos/Cargo.toml"
+  textual_rust_revision=$(root_revision "$lock_file" textual-rust)
+
+  sed -i \
+    '/^[[:space:]]*capsule-content-identity[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
+    "$core_nomos_manifest"
+  expect_coherence_rejection "affected revision drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" core-nomos)/Cargo.toml" \
+    "$core_nomos_manifest"
+  sed -i \
+    '/^[[:space:]]*textual-rust[[:space:]]*=/s#LiGoldragon/textual-rust.git#LiGoldragon/core-logos.git#' \
+    "$core_nomos_manifest"
+  expect_coherence_rejection "affected repository drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" core-nomos)/Cargo.toml" \
+    "$core_nomos_manifest"
+  printf \
+    'textual-rust = { git = "https://github.com/LiGoldragon/textual-rust.git", rev = "%s" }\n' \
+    "$textual_rust_revision" >> "$core_nomos_manifest"
+  expect_coherence_rejection "duplicate affected dependency" \
+    "$lock_file" "$temporary_root/source-map.json"
+}
+
+case ${1:-} in
+  --self-test)
+    (( $# == 3 )) || {
+      echo "usage: check-identity-capsule-coherence --self-test FLAKE_LOCK SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    run_self_test "$2" "$3"
+    echo "coherence mutations reject affected revision, repository, and duplicate edges"
+    ;;
+  "")
+    echo "usage: check-identity-capsule-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
+    exit 2
+    ;;
+  *)
+    (( $# == 2 )) || {
+      echo "usage: check-identity-capsule-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    validate_coherence "$1" "$2"
+    echo "affected direct identity and Capsule edges match their exact root pins"
+    ;;
+esac
