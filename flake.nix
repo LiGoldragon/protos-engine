@@ -7,10 +7,10 @@
     content-identity = {
       url = "github:LiGoldragon/content-identity/fdf2db1d5a9e8ea52d24d39a03833c3e6885c355";
     };
-    core-ethos.url = "github:LiGoldragon/core-ethos/700310a0778d164b151a8301cccb4f53bc6fbde1";
-    core-logos.url = "github:LiGoldragon/core-logos/13e600ec74532f3037850f5d9985c05905456a20";
-    core-nomos.url = "github:LiGoldragon/core-nomos/de2518cdff686b463ecaf88cc1241fbf28a27dfe";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/c6f3649502ce196be64a635bf0c76673be4440cb";
+    core-ethos.url = "github:LiGoldragon/core-ethos/47c866f101c0e830ecff70451e92f7bdc0ade4e7";
+    core-logos.url = "github:LiGoldragon/core-logos/918869938402a099c3d8cd5d599b2488d0317c15";
+    core-nomos.url = "github:LiGoldragon/core-nomos/4e8d71103612ecff683bb7db5407a24f97dbc095";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/2784e1362fe5d6f974ac028f55a81d57fb4f8a22";
     name-table = {
       url = "github:LiGoldragon/name-table/50cb4bb53ae2dc4f2516f6912be328ef98ae49f8";
     };
@@ -19,12 +19,12 @@
       flake = false;
     };
     structural-codec = {
-      url = "github:LiGoldragon/structural-codec/6769015f5a040dd158f0a76b3962f31ee8e4f16e";
+      url = "github:LiGoldragon/structural-codec/1485c1f8edcb9c988492c6eb0378c10a3599d665";
       flake = false;
     };
     protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
-    sema-translator.url = "github:LiGoldragon/sema-translator/7e9e85bb9d199f24b968bcd49a351e910469f5b5";
-    signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/dd8e7b5656833f640e49c099ab3be6f09881f9c5";
+    sema-translator.url = "github:LiGoldragon/sema-translator/6df830ab1ec9f315a5b50e40ffc393b48ea3d412";
+    signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/51c02c4a7b6f67d9dad095f11986085d7d65785b";
     schema-language = {
       url = "github:LiGoldragon/schema-language/9c217610c4b8d3bdaa9f95542e28c04424a593e3";
       flake = false;
@@ -42,7 +42,7 @@
       flake = false;
     };
     spirit.url = "github:LiGoldragon/spirit/1049b8a1a9e3c2be7ece3553b89c7e3815939d43";
-    rust-logos.url = "github:LiGoldragon/rust-logos/b96a474ee0ec6e7782c18f247d17f112b25ffbaa";
+    rust-logos.url = "github:LiGoldragon/rust-logos/ed6665d50bae56f5e26a764a1fd2f4dc6231a251";
   };
 
   outputs =
