@@ -36,14 +36,14 @@ Every repository input uses a full, published Git revision:
 | --- | --- |
 | content-identity | `fdf2db1d5a9e8ea52d24d39a03833c3e6885c355` |
 | name-table | `50cb4bb53ae2dc4f2516f6912be328ef98ae49f8` |
-| signal-sema-translator | `8c504ba7aa8dbdc5edf7daadbb862bbdaa5613be` |
-| sema-translator | `2e152787f9fd191a3f5f4d391bd832d12e1c341a` |
+| signal-sema-translator | `dd8e7b5656833f640e49c099ab3be6f09881f9c5` |
+| sema-translator | `7e9e85bb9d199f24b968bcd49a351e910469f5b5` |
 | protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
-| core-ethos | `bbeca83c6980cc8a415f46fffc6e403fedf10b6b` |
-| core-logos | `3e4ae814f684b44c0aa45d5887c09a7d61d75db6` |
-| rust-logos | `c1a62852569457af423acc633c4ab392aca7e498` |
-| core-nomos | `46ea00dba9b03bce525e03266f1262ae693d4902` |
-| language-engine-witness | `9540d5dd697f3c6ffec0103376df073d7674c2b7` |
+| core-ethos | `f7e4d127a8393e9ad4754e3cce79d1fca1a9e8c9` |
+| core-logos | `749408b13f5af64284dd9c596271232a89cc758b` |
+| rust-logos | `9fc8427f11c624dd08ce684a224df1575bb540de` |
+| core-nomos | `c8ae55678572b98cff88c08ab3a86b9b8cdcb0ee` |
+| language-engine-witness | `298ffabf4c2aaa41557fe6a58f0fd1404c3cc79f` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
 | structural-codec | `5c11e1fb7f58444cd860207803d8f705e7415d71` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
@@ -93,9 +93,9 @@ the script's own `expected_edges` table confirms it carries no rust-logos or
 textual-rust row. The chain-based rust-logos producer edges are checked
 separately by `scripts/check-slice-one-coherence` below (rust-logos is the
 data-driven structuretree replacement for the older hand-written textual-rust
-bypass crate, per the 2026-07-23 design session; `textual-rust` itself
-remains a separate, still-pinned Cargo.lock dependency of some cores as
-unmigrated legacy residue, not the same repository under an old name). It
+bypass crate, per the 2026-07-23 design session; the historical
+`textual-rust` package remains an isolated projection dependency at its
+published maintenance revision, with no structural-codec dependency). It
 deliberately does not demand universal
 transitive equality: the cores' direct legacy per-item identity/archive and
 flat name-table dependencies remain on their established typed revisions.
@@ -109,14 +109,14 @@ verification, complete-pin verification, or module-table/Capsule composition.
 
 `scripts/check-slice-one-coherence` separately validates every chain-based
 Slice One producer edge against the exact root revisions. It covers
-structural-codec's raw-discovery and name-table producers; core-ethos's
-chain-based raw/structural aliases; core-nomos's chain-based Ethos/Logos
-aliases; rust-logos's complete direct producer set; and the published
+structural-codec's raw-discovery and name-table producers; core-ethos,
+core-logos, and core-nomos's canonical chain-based dependencies; rust-logos's
+complete direct producer set; and the published
 language-engine-witness's eight Slice One aliases. Its mutation suite rejects
 revision drift, repository drift, alias package drift, duplicate direct
-declarations, durable-chain drift, and removal of restart coverage. The older
-flat API dependencies remain isolated from these checked aliases and are not
-represented as a migrated type universe.
+declarations, durable-chain drift, and removal of restart coverage. The core
+surfaces carry one structural-codec 0.8 dependency universe; the witness's
+separate daemon closure remains outside that authored-language carrier graph.
 
 ## Checks
 

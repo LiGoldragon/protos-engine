@@ -7,10 +7,10 @@
     content-identity = {
       url = "github:LiGoldragon/content-identity/fdf2db1d5a9e8ea52d24d39a03833c3e6885c355";
     };
-    core-ethos.url = "github:LiGoldragon/core-ethos/bbeca83c6980cc8a415f46fffc6e403fedf10b6b";
-    core-logos.url = "github:LiGoldragon/core-logos/997e1595601be851ad14617384302e3ee61a658f";
-    core-nomos.url = "github:LiGoldragon/core-nomos/98aa5f69eae269a4a7503388858d18108c99ac83";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/ecc5c3dbd9e58b6ce515aacda6793269561c72cf";
+    core-ethos.url = "github:LiGoldragon/core-ethos/f7e4d127a8393e9ad4754e3cce79d1fca1a9e8c9";
+    core-logos.url = "github:LiGoldragon/core-logos/749408b13f5af64284dd9c596271232a89cc758b";
+    core-nomos.url = "github:LiGoldragon/core-nomos/c8ae55678572b98cff88c08ab3a86b9b8cdcb0ee";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/298ffabf4c2aaa41557fe6a58f0fd1404c3cc79f";
     name-table = {
       url = "github:LiGoldragon/name-table/50cb4bb53ae2dc4f2516f6912be328ef98ae49f8";
     };
@@ -23,8 +23,8 @@
       flake = false;
     };
     protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
-    sema-translator.url = "github:LiGoldragon/sema-translator/2e152787f9fd191a3f5f4d391bd832d12e1c341a";
-    signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/8c504ba7aa8dbdc5edf7daadbb862bbdaa5613be";
+    sema-translator.url = "github:LiGoldragon/sema-translator/7e9e85bb9d199f24b968bcd49a351e910469f5b5";
+    signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/dd8e7b5656833f640e49c099ab3be6f09881f9c5";
     schema-language = {
       url = "github:LiGoldragon/schema-language/9c217610c4b8d3bdaa9f95542e28c04424a593e3";
       flake = false;
@@ -42,7 +42,7 @@
       flake = false;
     };
     spirit.url = "github:LiGoldragon/spirit/1049b8a1a9e3c2be7ece3553b89c7e3815939d43";
-    rust-logos.url = "github:LiGoldragon/rust-logos/cdd9c23b793a8687a9ce2f9a7431879a1d3830a2";
+    rust-logos.url = "github:LiGoldragon/rust-logos/9fc8427f11c624dd08ce684a224df1575bb540de";
   };
 
   outputs =

@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# These are the complete chain-based Slice One producer edges, including the
-# published behavior witness's direct aliases. The core repositories still
-# contain explicitly isolated legacy graphs; those are not allowed to stand
-# in for the slice aliases checked here.
-readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|slice-raw-discovery|raw-discovery|raw-discovery\ncore-ethos|slice-structural-codec|structural-codec|structural-codec\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|slice-core-ethos|core-ethos|core-ethos\ncore-nomos|slice-core-logos|core-logos|core-logos\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
+# These are the complete chain-based Slice One producer edges. The canonical
+# core surfaces use their ordinary dependency names; only the integration
+# witness aliases production packages away from its daemon dependency graph.
+readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|structural-codec|structural-codec|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
 
 root_revision() {
   local lock_file=$1
@@ -308,6 +307,7 @@ run_self_test() {
   local source_map_file=$2
   local temporary_root
   local core_ethos_manifest
+  local witness_manifest
   local witness_e2e_test
   local witness_slice_test
   local witness_spirit_domain_test
@@ -319,6 +319,7 @@ run_self_test() {
   trap 'rm -rf "$temporary_root"' RETURN
   copy_affected_manifests "$source_map_file" "$temporary_root"
   core_ethos_manifest="$temporary_root/sources/core-ethos/Cargo.toml"
+  witness_manifest="$temporary_root/sources/language-engine-witness/Cargo.toml"
   witness_e2e_test="$temporary_root/sources/language-engine-witness/tests/e2e.rs"
   witness_slice_test="$temporary_root/sources/language-engine-witness/tests/slice_one.rs"
   witness_spirit_domain_test="$temporary_root/sources/language-engine-witness/tests/spirit_domain.rs"
@@ -326,9 +327,9 @@ run_self_test() {
   structural_codec_revision=$(root_revision "$lock_file" structural-codec)
 
   sed -i \
-    '/^[[:space:]]*slice-structural-codec[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
+    '/^[[:space:]]*structural-codec[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
     "$core_ethos_manifest"
-  expect_coherence_rejection "slice alias revision drift" \
+  expect_coherence_rejection "canonical producer revision drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" rust-logos)/Cargo.toml" \
@@ -339,11 +340,11 @@ run_self_test() {
   expect_coherence_rejection "producer repository drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
-  cp "$(source_path "$source_map_file" core-ethos)/Cargo.toml" \
-    "$core_ethos_manifest"
+  cp "$(source_path "$source_map_file" language-engine-witness)/Cargo.toml" \
+    "$witness_manifest"
   sed -i \
-    '/^[[:space:]]*slice-structural-codec[[:space:]]*=/s/package = "structural-codec"/package = "raw-discovery"/' \
-    "$core_ethos_manifest"
+    '/^[[:space:]]*slice-structural-codec[[:space:]]*=/s/package[[:space:]]*=[[:space:]]*"structural-codec"/package="raw-discovery"/' \
+    "$witness_manifest"
   expect_coherence_rejection "alias package drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
