@@ -1,3 +1,7 @@
+**Superseded** by `ProtosEngineDesign-2026-07-28.md` (itself now superseded by
+`ProtosEngineDesign-2026-07-29.md`). Kept as quote-carrying archive. Never edit,
+never delete.
+
 # Protos Engine — Design Log — 2026-07-26
 
 Source: psyche turns paired with the agent text each answered, drawn from
