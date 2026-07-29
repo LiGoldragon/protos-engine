@@ -1,21 +1,23 @@
-**Superseded** by `ProtosEngineDesign-2026-07-29.md`. Kept as quote-carrying
-archive. Never edit, never delete.
-
-# Protos Engine Design — compiled 2026-07-28
+# Protos Engine Design — compiled 2026-07-29
 
 The agglomerated current design. This document absorbs and supersedes the
-derived design documents of 2026-07-26 through 2026-07-28: the 2026-07-26
-compiled log's still-current substance, `CodexContextHandover-2026-07-27.md`,
-`DesignVision-2026-07-28.md`, `CodexWayForward-2026-07-28.md`, and
-`NamingModelBrief-2026-07-28.md`. It is a compilation, not an authority: the
-firsthand design logs control every psyche wording, later statements govern
-earlier ones, and where this document and a log disagree, the log wins.
+2026-07-28 compilation and integrates the recovered nomos authoring vision,
+the triple-language vision statement, the transformer crux rulings, and the
+Template(X) delegated assent of 2026-07-29. It is a compilation, not an
+authority: the firsthand design logs control every psyche wording, later
+statements govern earlier ones, and where this document and a log disagree,
+the log wins.
 
 Firsthand logs, in authority order (newest controls its session's wording):
 
-1. `DesignReviewRulings-2026-07-28.md` — the naming/identity review, entries 1–17.
-2. `SliceOneRulings-2026-07-27.md` — the slice-1 decisions, entries 1–11.
-3. `ShapeAndSliceRulings-2026-07-26.md` — including entry 8's confirmations.
+1. `PsycheVisionReacquisition-2026-07-29.md` — the 07-29 session, entries 1-6.
+2. `DesignReviewRulings-2026-07-28.md` — the naming/identity review, entries 1-17
+   (session 07-28, with entry 17 continued 07-29).
+3. `SliceOneRulings-2026-07-27.md` — the slice-1 decisions, entries 1-11.
+4. `ShapeAndSliceRulings-2026-07-26.md` — including entry 8's confirmations.
+5. `RecoveredNomosVision-2026-07-29.md` — recovered firsthand quotes (original
+   sessions 07-11 through 07-22, compiled 07-29); the oldest material,
+   governing only where no later log addresses the same question.
 
 Provenance marks, on every claim:
 
@@ -31,19 +33,34 @@ Provenance marks, on every claim:
 
 ## The vision, in one paragraph
 
-A family of engines — **Ethos** (the schema language, the sweet syntax),
-**Nomos** (the string-free transformer), **Logos** (the encoded program) — over
-one shared protos substrate, in which programs exist as **typed encoded data**:
-identity is integers, never spelling; there are no field names; text —
-including Rust — is only the interim interface, produced and consumed
-exclusively through the name tree and the structure tree; Rust is treated as an
-assembly language. Each engine is a stateful daemon with its own embedded sema
-db; one small translator daemon owns naming and identity allocation. The
-endgame is **operational editing** — no text editing; operations sent to the
-daemon and applied atomically — and the long arc is the sema vision: a way of
-thinking about data that eventually contains no strings at all. **[ruled]**
-"the ultimate computer language cannot use strings, since they are an extremely
-inefficient way of representing a set (which language is)".
+Three languages — **Ethos** (the sweet syntax, the declaration surface),
+**Nomos** (the transformer language), **Logos** (the encoded program, the
+assembly truth) — over one shared **protos** substrate, in which programs
+exist as **typed encoded data**: identity is integers, never spelling; there
+are no field names; text — including Rust — is only the interim interface,
+produced and consumed exclusively through the name tree and the structure
+tree; Rust is treated as an assembly language. All three languages, plus NOTA
+as the foundational fourth, use the same protos mechanism to load to and from
+textual form into encoded form; they have their own syntax but look similar —
+they are all protos-family languages. The textual style shared by the family
+is named **protos** (PsycheVisionReacquisition entry 3). Each engine is a
+stateful daemon with its own embedded sema db; one small translator daemon
+owns naming and identity allocation. Nomos is there to create the sugar
+syntax of Ethos, and Logos is there to give a true representation of the
+assembly language; the entire reason Nomos exists is so that the
+transformation can be modified using the Nomos language. **[ruled]**
+(PsycheVisionReacquisition entry 4):
+
+> "the entire reason why we have nomos is so that we can modify the
+> transformation using the nomos language. So if the nomos language was never
+> implemented, then the entire engine is currently a failure because the whole
+> point of creating nomos was to be able to modify."
+
+The endgame is **operational editing** — no text editing; operations sent to
+the daemon and applied atomically — and the long arc is the sema vision: a
+way of thinking about data that eventually contains no strings at all.
+**[ruled]** "the ultimate computer language cannot use strings, since they are
+an extremely inefficient way of representing a set (which language is)".
 
 ## 1. Two organs, and text as the interim interface
 
@@ -135,7 +152,7 @@ permitted as MVP — "sure, if you think that's a good first MVP".
 
 ## 5. Names and identity — the current model (2026-07-28)
 
-The model of DesignReviewRulings entries 1–17, which supersedes every earlier
+The model of DesignReviewRulings entries 1-17, which supersedes every earlier
 naming rendering (the per-component tables of 07-19, the flat unified table
 reading of 07-27, and the flat global lexicon reading of earlier 07-28
 entries).
@@ -167,7 +184,7 @@ billing's table              tasks' table
   allocated by the translator on receiving an unallocated word" — refined by
   the nested model: unallocated *in that module's table*. No other minting
   act exists. **[ruled] 07-17** "if it got re-ID'ed then its not the same".
-- **Rename** (entries 5–6): **[ruled]** the real naming problem is
+- **Rename** (entries 5-6): **[ruled]** the real naming problem is
   programmatic rename — "we're talking about statuses that are not the same
   status, but both use the name status"; **[ruled]** renaming extends to the
   container: "the same concept of programmatic renaming becomes possible for
@@ -428,33 +445,197 @@ derived — decisive for parts of the capsule contract; unruled.
 ## 9. Ethos — the names
 
 **[ruled] 2026-07-27** the schema language is **Ethos** ("yes, ethos"):
-Ethos → Nomos → Logos. Repo renames directed and executed, verified on disk:
+Ethos -> Nomos -> Logos. Repo renames directed and executed, verified on disk:
 core-ethos, ethos-engine, signal-ethos, tree-sitter-ethos; GitHub redirects
 live; crate/type/pin renames ride the correction train. **[ruled]** NOTA keeps
 its name ("nota is fine"). Naming constraints from the exercise: "the -os isnt
 a constraint", "we arent tied to greek", "no, not english", "eidos isnt very
 evocative for english speakers".
 
-## 10. Pipeline
+## 10. Nomos — the transformer language
 
-**[ruled]** "schema is the sugar, sweet syntax" — a dedicated declaration
-surface. **Recorded contradiction, unreconciled:** the same day's "make them
-the same thing - exceptions are symptoms of bad design". Recency gives sugar
-the floor; do not resolve by inference.
+**[ruled]** Nomos is its own language with its own syntax, its own files, its
+own EncodedForm, nametable, and structural table, loaded through the same
+protos TextualForm mechanism that Ethos and Logos use. The psyche's vision
+existed from the founding era and was lost from the design surface; it is
+restored in `RecoveredNomosVision-2026-07-29.md`, which controls this section
+on any conflict. **[ruled] 2026-07-29** (PsycheVisionReacquisition entry 4,
+the triple-language dictation):
+
+> "We have three languages, ethos, nomos, and logos. And all three use the
+> same mechanism to load to and from textual form into encoded form. They
+> have their own syntax. Well, they look very similar. They're all protos
+> family languages, like NOTA is actually, you could say, the fourth language
+> in the foundation."
+
+**[ruled] 2026-07-11** (session 0fd2d07c line 402): "actually, we should keep
+nomos, because it is its own language syntax. logos is a rust-equivalent, but
+our macros will not be rust macros."
+
+**[ruled] 2026-07-17** (textual-form-vision-design-v1.md lines 78-80): Nomos
+gets a structural table so plain raw NOTA decodes into transformers first,
+with the dollar-sigil / double-angle template spelling coming later as a
+second form ("we can do that"). Two TextualForms for Nomos over one
+EncodedForm: a plain-NOTA base door and a richer `$`/`<<>>` sibling.
+
+**[ruled] 2026-07-13** (session 0fd2d07c line 572): escape positions must be
+visually distinguished — "we should use a structural syntax, since this will
+be hard to tell from the rest of the syntax; it just looks the same as
+everything else, which is why macros conventions use `$` or `#` type prefix."
+The base-door textualform satisfies this through reserved keyword applications
+(`Realize.<binding>`, `Splice.<binding>`, `Invoke.<transformer>`), using
+vocabulary and position rather than a new glyph trigger. The `$`/`#` sigil
+convention named as precedent is the second textualform's job.
+
+**[ruled] 2026-07-13** recursive transformer invocation is required: "We also
+need to be able to call more macros recursively."
+
+**[ruled] 2026-07-22** (session bc636bdb line 444, the most detailed
+load-path statement): nomos loading uses a manifest for dependency resolution
+and an entry-point file; the nomos daemon runs slotted, versioned
+transformers addressed by the short-addressable ID concept ("it should be able
+to run several versions"); and the Ethos transformation request uses the
+slotted nomos transformer by addressing it, sending its own encodedform +
+nametree. The "possibly, but not necessarily" hedge on file parsing preserves
+the operational-editing endgame where files are bypassed.
+
+**Logos source:** **[ruled] 2026-07-20** (recorded in
+protos-engine-psyche-handover-2026-07-21.md): "There isnt really a logos
+source; logos is all generated from a nomos transform on [ethos]
+(encodedform)." But hand-written logos is permitted for testing: "we might
+hand-write some logo to test stuff in logos." And **[ruled] 2026-07-29**
+(PsycheVisionReacquisition entry 4): "while some logos may be written as in
+not generated through the nomos transformer from ethos, most logos will be
+generated, if not all of it, from ethos through a nomos transformation." The
+standing position is therefore: logos is ordinarily generated, but direct
+logos authoring is permitted though most or all will be generated.
+
+**[ruled]** the `.nomos` extension is agent convention, never psyche-ruled;
+the principle of own files is ruled, the extension is matter.
+
+The detailed specification of the TextualNomos syntax, load path, and
+Template(Logos) derivation lives in `NomosAuthoredRulesDesign-2026-07-29.md`;
+this compilation carries the design summary and controls framing on conflict,
+while that document remains the detailed spec for the implementation train.
+
+## 11. The transformer crux
+
+**[ruled] 2026-07-29** (PsycheVisionReacquisition entry 5, dictated in full):
+the unit of authored transformation is named **transformer**, not macro —
+"I'm going to use the word transformer instead of macro because I think macro
+is overloaded and it doesn't... I think agents associate it too much with
+string transformation, and this is really a type transformation." Existing
+Rust identifiers (`MacroDefinition`, `MacroPackage`, `MacroIdentity`,
+`MacroKind`) predate this ruling and stay accurate as code literals.
+
+**[ruled]** transformation is strictly encoded-form to encoded-form type
+conversion; string templates are ruled out: "I was originally asking, and I
+still want the transformation to be strictly through the encoded form. So
+there's strictly no string manipulation of any kind, or like if we talk about
+template, I think you mean string templates, in which case that's not at all
+what I'm looking for." Every occurrence of "template" in the design —
+`ResultTemplate`, the running examples — means a typed Logos skeleton: typed
+encoded data with typed placeholder (escape) positions, never text.
+
+**[ruled]** encoded form may also be called **the true form**: "All of our
+three languages, well, four if we include Noto, have textual form and encoded
+form, which we could also refer to as the true form." This is a naming
+option, not a replacement; "encoded form" remains the working term.
+
+**[ruled]** the Nomos engine's runtime scope is the complete Ethos and Logos
+type universes: "Obviously, Nomos is going to have to load all of the Logos
+types into its runtime because it has to convert into them, and it's going to
+have to load all of the Ethos type, obviously, too, because it's going to
+convert them. So the Nomos engine knows about everything. Well, not Rust,
+obviously, but it knows about the three languages." Placeholders key the
+movement of typed values from Ethos input into generated Logos output —
+plural output types, including positional insertion into specific vector
+slots.
+
+**[ruled, as a requirement on the architecture]** transformation may depend
+on the entire Ethos payload — cross-declaration, compiler-grade analysis:
+"the transformation happens for the entire payload, the entire Ethos payload.
+Some transformers might be affected by what other declarations say about
+objects that are involved in a particular transformation. Kind of like how
+the Rust compiler has to take so many things into account before it can decide
+that, okay, yes, the lifetimes are correct, the ownership is correct, the
+types are correct." This is a real requirement on the architecture, not a
+feature the current v1 implements; nothing should foreclose it.
+
+**[ruled, long-term direction]** Nomos becomes the most load-bearing
+component: "we might make Nomos, or we will eventually make Nomos the most
+load-bearing part that could do all of the correctness verification or more
+than what the Rust compiler actually does today. So it has to become an
+extremely capable and extendable system." And: "we could have logos actually
+compile into assembly language through LLVM." This is the psyche's own
+framing of the difficulty, paired with an acknowledgment that the difficulty
+was underestimated and that rulings will come incrementally as vertical slices
+reveal behavior. Agents are invited to research prior art for typed,
+placeholder-driven program transformation; the ranked findings live in
+`TransformerPriorArt-2026-07-29.md`.
+
+**Template(X): [delegated assent] 2026-07-29** (PsycheVisionReacquisition
+entry 6). The Template(X) derivation — one fixed function walking the Logos
+grammar rules and type declarations together, widening every term position to
+value-or-future-value, yielding both the lifted parsing rules and the
+computed landing types, with no handwritten type per transformer or per Logos
+type — is approved for implementation: "fine, I dont quite understand but we
+can implement it and then Ill have actual code for you and I to actually look
+at." This grade means: implementation is authorized so that concrete,
+reviewable code exists for joint psyche-agent review; the psyche explicitly
+does not yet fully understand the design and retains full authority to
+redirect once real behavior is visible. No agent may cite this entry as
+psyche conviction that Template(X) is correct. The psyche challenged the
+hidden assumption before assenting: "what will write the type with the
+placeholding future type? I bet if I hadnt asked, they would be handwritten
+in rust." The computed-twin answer resolved the challenge; his acknowledgment
+en route: "ahh, so every placeholder is value-or-future-value, so there is no
+handwritten type per transformer."
+
+## 12. Pipeline
+
+**[ruled]** "[ethos] is the sugar, sweet syntax" — a dedicated declaration
+surface. **[ruled] 2026-07-22** (session 496a4870 line 54, the connecting
+statement): "that's why [ethos] uses nomos; to create the abstraction in a
+transformation that creates an adaptable syntax with nomos transformers."
+
+**Context restored, contradiction dissolved.** The 2026-07-28 compilation
+recorded an "unreconciled contradiction" between the sugar ruling and "make
+them the same thing - exceptions are symptoms of bad design" from the same day.
+Recovery located the original context (session bc636bdb line 360, 2026-07-22
+12:31 UTC): the agent had presented the grammar rule "bare name = any
+PascalCase atom except the keywords," and the psyche replied: "to me, this
+screams of 'make them the same thing' - exceptions are symptoms of bad
+design." "Them" was bare names and keywords in the grammar — builtins are
+prior definitions, not grammar-level keyword exceptions. The sugar ruling
+eight hours later answered a different question (declaration heads vs the item
+envelope). The two rulings address different layers and do not conflict. The
+contradiction entry is dissolved by restored context, not by inference.
 
 **[ruled]** the no-strings nomos invariant: "in the nomos transformation
-(schema to logos), there shall be *no string manipulation/introduction/reading
+([ethos] to logos), there shall be *no string manipulation/introduction/reading
 of any kind*", with walkers at the boundary ("that is necessary.").
 **[confirmed]** "transformers are data".
 
 **[ruled]** the manifest is a nota config associating files to top-level
 namespaces with rust-like directory resolution rules — his own open flag: "we
-can generate rust with modern syntax schema? <- big question actually".
+can generate rust with modern syntax [ethos]? <- big question actually".
 
-**[derived]** there is no logos source: logos is produced by nomos from ethos,
-never authored as text.
+**Logos source, corrected:** the ordinary case is that logos is generated from
+ethos through a nomos transformation; direct logos authoring is permitted
+though most or all will be generated. See section 10 for the full ruling
+chain. The 2026-07-28 compilation's "[derived] there is no logos source: logos
+is produced by nomos from ethos, never authored as text" overstated — the
+psyche's own words permit hand-written logos for testing and do not rule out
+all direct authoring.
 
-## 11. The ratified item schema
+**Pipeline ownership:** Nomos owns the expansion. Ethos stores declarations
+as sugar; typed, string-free Nomos expands them into complete ordinary Logos
+data; rust-logos transcribes. This is the ruled shape per the recovered vision
+and section 10 above: Ethos carries the authored surface, Nomos carries the
+transformation, Logos carries the result.
+
+## 13. The ratified item schema
 
 The full typed item block (reproduced exactly in the 2026-07-27 handover
 sources and ratified 07-22) stands under **[ruled]** "otherwise I like the
@@ -465,7 +646,16 @@ first field is the identifying subject, realized positionally; `Field` carries
 no name; the escape set is closed at two primitives (`$x` realizes, `$@xs`
 splices — "agreed").
 
-## 12. Topology
+The escape-set ruling names the sigil spellings (`$x`, `$@xs`) because that
+is how the question was put to the psyche; the ruling is about the count and
+kind of escapes (two primitives plus Invoke as the recursion mechanism), not
+about the sigil glyphs. In the base-door textualform (section 10), these
+are spelled as reserved keyword applications (`Realize.<binding>`,
+`Splice.<binding>`, `Invoke.<transformer>`). The `$`/`$@` sigil spelling
+belongs to the ruled second textualform (section 10), which has not yet been
+built.
+
+## 14. Topology
 
 **[ruled]** micro-repos only: "we dont use the monorepo style", "the
 consolidation was never approved". **[ruled]** protos.git holds the common
@@ -475,7 +665,7 @@ nothing links against protos-engine; its micro-repo deps are published git
 revs, never path deps. Repositories live at the ghq root; standards live in
 LiGoldragon/standards.
 
-## 13. Acceptance
+## 15. Acceptance
 
 **[ruled]** "I dont care about byte-exactness. get rid of that. working
 programs is what we want." **[ruled]** "near roadmap is getting everything
@@ -486,54 +676,78 @@ compatibility adapters. **[derived]** vertical slices, each compiling and
 running the generated Rust; witness oracle — scratch crate, real cargo
 compile, behavior round-trips, no byte-golden.
 
-## 14. Implementation state — verified 2026-07-28
+## 16. Implementation state — verified 2026-07-29
 
-Verified against published mains (read `origin/main`; working trees were
-synced to main by Codex on 2026-07-28).
+Verified by independent audit with tests actually executed, 2026-07-29.
 
-Standing gaps (all confirmed):
+**po2 train (Nomos transformer):** 6/15 closed, all closures wired with
+evidence.
 
-- content-identity hashes a domain context and LayoutVersion into the
-  preimage — Variant-only unimplemented; the composed-nametree preimage moves
-  in the same retype.
-- protos has a closed `CapsuleKind` enum and trait-with-KIND, not the ruled
-  generic struct. The Rust-capsule foreclosure (`compile_fail` doctest) is
-  **correct** under the standing 07-25 ruling — do not remove it while open
-  question 7 stands.
-- No core component implements Capsule; core repos pin protos revisions
-  predating the Capsule crate — repin precedes implementation.
-- No whole-logos identity kind exists.
-- textual-rust uses syn/quote/prettyplease on production paths.
-- core-nomos routes every apply through string-bearing machinery
-  (NameTableBoundary, case builders, ordinal words, prelude render); the
-  no-strings law is honored exactly one file deep. `SameTypeOrdinal`
-  (English number-words disambiguating same-typed fields by spelling) is the
-  clearest violation of the projection design. Early interning of derived
-  spellings makes rename structurally impossible — the projection algebra is
-  a prerequisite.
-- raw-discovery has no Rust cue-to-termination variant; seed it from the live
-  `discover_delimited_with` / `BlockCue` machinery (the balanced-scan core is
-  live; only the public wrapper is test-only). ~970 lines of the superseded
-  span-free recognizer still ship, unused.
-- The two-pass decode path itself is clean: all four refusal grounds of the
-  old recognizer are gone; refusal is proven at table-seal time. One dirty
-  spot: core-ethos's document splitter (positional `roots[i]` against
-  `DOCUMENT_SLOTS=6`, literal `source.trim() == "{}"` check) — a missing
-  typed document grammar.
-- protos-engine's gate proves only the old Spirit PublicTextSearch witness.
-  A working proof of the new chain exists in `language-engine-witness`
-  (e2e: decode → Nomos → Logos → emit → compile → run, with durability
-  pass) — the gate work is porting it, not building from scratch.
-- Ethos rename residue: ~590 "schema" occurrences across four repos; crate
-  names, types, and cross-repo pins still carry old names.
-- Conformance Law 5 remains homeless — carry in every slice report until
-  rehomed or retired by ruling.
-- Spirit's corrected harness commit is preserved under
-  `preserve/new-schema-port-acceptance-harness-20260728`.
+- po2.1 CLOSED wired: TextualNomos (core-nomos 0.17.0 ddbd7c5a,
+  src/textual.rs 1488 lines, sha256 verified vs closure note). `.nomos`
+  decodes via Standard seven-trigger profile (`$` forbidden by test), zero
+  string ops, keyword-application escapes; round-trip decode-encode-decode
+  full equality. CAVEAT (recorded on bead): the decoded-vs-fixture oracle
+  comparison is a coarse fingerprint (fragment cardinality + escape-kind
+  sequence + literal count) — names, input signatures, escape
+  payloads/targets, positions, literal content NOT compared. Full structural
+  fixture equivalence transferred to po2.5's hardened acceptance (gates
+  po2.6).
+- po2.11 CLOSED wired: phase-stable AuthoredTransformerDeclaration carrier,
+  VocabularyEncodedId chains, Invoke retains durable identity, no flat-ID
+  adapters; 4 tests pass incl. source-scan asserting no parallel authored
+  Logos universe.
+- po2.12 CLOSED wired: structural-codec 0.8 convergence; 21/21
+  protos-engine checks pass.
+- po2.13 CLOSED wired: textual-rust projection edge retired; core-nomos now
+  consumes rust-logos package under the textual-rust dep key.
+- po2.14 CLOSED wired: traversable Logos grammar + landing declarations;
+  Template(Logos) derived generically (one DerivedTemplateRecord); the
+  earlier 878-line handwritten authored universe was DELETED intra-day after
+  Entry 6 (self-initiated), two source-scanning tests guard against twin
+  reintroduction.
+- po2.15 CLOSED wired: typed pre-evaluation refusal for futures whose output
+  cannot inhabit the widened landing position.
+- po2.2 IN PROGRESS, genuinely blocked on protos-engine-4ph (allocation-free
+  planning surface: decode API needs translator assignments that don't exist
+  pre-decode). 4ph producer side landed (structural-codec 0.17.0 planning
+  API, 23 tests pass); consumer integration pending.
+- po2.3-.6, .8-.10 open, correctly sequenced. po2.7 (ScopeOf) blocked on two
+  psyche rulings (helper identity; recursion mechanism). Epic reparented:
+  15 formal children, 6/15, not eligible for close.
 
-Stale claims — plan no work for these: the protos↔content-identity ShortCode
-break (closed by the earlier bump train) and the 29-file unpushed commit
-(none exists).
+**Tests executed:** core-nomos 56/56, structural-codec 23/23, core-logos
+13/13, protos-engine check-all 21/21. language-engine-witness 1/2 (e2e needs
+daemon binaries; equivalent passes inside the Nix gate).
+
+**Law conformance clean:** no string manipulation in transformation paths, no
+adapters, positional fields in new shapes, no syn/quote/prettyplease
+introduced, no escape-vocabulary growth (Fold not smuggled), computed twins
+enforced by test.
+
+**Stop-line honesty strong:** 6 prerequisite obstacles each surfaced as beads
+before proceeding.
+
+**po1 train:** 14/21 complete; po1.10 in progress; nomos-engine c679660
+adopted the Ethos contract (0.2.0).
+
+**Standing morning-audit findings:** sema-storage still live as write
+authority outside naming (dissolution beads open); schema-rust still pinned
+in protos-engine flake for spirit's not-yet-ported build; core-nomos legacy
+string-bearing modules quarantined not removed, prettyplease transitively via
+textual-rust pin (bead po2.13 changed the consumer edge; verify current
+framing); syn/quote transitive via rkyv/thiserror everywhere (law-scope
+question open with psyche).
+
+**Conformance Law 5** (interpreter equivalent to codegen,
+up-close-design-v1.md section 4.6): Law 5 has a repository-level home —
+structural-codec tests/conformance_harness.rs since commit 38c037d8 (closing
+bead protos-engine-po1.8), later expanded. However, protos-engine's
+check-all gate does NOT run structural-codec's tests: structural-codec and
+raw-discovery are absent from flake.nix's
+`identityCapsuleProducerChecks`. Bead acceptance required repo AND engine
+gate; only the repo half is verifiable. Law 5 is homed but not
+gate-enforced.
 
 **Poisoned documents — correct before subagents read them:**
 `raw-discovery/ARCHITECTURE.md` ("Structure is span-free" presents the
@@ -542,7 +756,14 @@ refused model as canon), `core-nomos/ARCHITECTURE.md` (relabels 1,892-line
 no-strings rule), `sema-storage/ARCHITECTURE.md` and
 `ethos-engine/ARCHITECTURE.md`/`AGENTS.md` (overruled central-daemon law).
 
-## 15. The way forward
+Stale claims — plan no work for these: the protos-content-identity ShortCode
+break (closed by the earlier bump train) and the 29-file unpushed commit
+(none exists).
+
+Spirit's corrected harness commit is preserved under
+`preserve/new-schema-port-acceptance-harness-20260728`.
+
+## 17. The way forward
 
 ```mermaid
 flowchart TD
@@ -553,7 +774,7 @@ flowchart TD
   S4 --> S5
   S5 --> S6[6. slice-1 vertical build]
   S6 --> S7[7. gate: compile and run generated Rust]
-  S7 --> S8[8. CL5 rehomed or retired]
+  S7 --> S8[8. CL5 gate-enforced in check-all]
   S8 --> S9[9. slice 2: field-naming rule to the psyche]
   S7 --> S10[10. Spirit port, then staged storage migration]
 ```
@@ -573,19 +794,23 @@ flowchart TD
 4. Complete the behavior-free Ethos terminology train (~590 occurrences, plus
    cross-repo pins) before the coordinated identity landing deepens residue.
 5. One identity + Capsule bump train: content-identity Variant-only retype
-   (pure-content preimage, composed-nametree preimage, whole-logos variant) →
-   translator contract → protos generic-struct Capsule (Rust-capsule
-   enforcement stays) → core repins + first implementors → fresh digest
+   (pure-content preimage, composed-nametree preimage, whole-logos variant) ->
+   translator contract -> protos generic-struct Capsule (Rust-capsule
+   enforcement stays) -> core repins + first implementors -> fresh digest
    locks, one landing, producer-first.
-6. Slice-1 vertical: Rust cue-to-termination discovery → typed Rust
-   descriptors (same shared evaluator) → rust-logos (no syn/quote/
-   prettyplease on the slice path) → Ethos six-slot newtype with builtin
-   priors → direct string-free core-nomos converter (never through
-   NameTableBoundary, macros, prelude, renderer, projection, ordinals) →
-   whole-logos identity → structural Rust emission by encodedID encoding.
+6. Slice-1 vertical: Rust cue-to-termination discovery -> typed Rust
+   descriptors (same shared evaluator) -> rust-logos (no syn/quote/
+   prettyplease on the slice path) -> Ethos six-slot newtype with builtin
+   priors -> direct string-free core-nomos converter (never through
+   NameTableBoundary, macros, prelude, renderer, projection, ordinals) ->
+   whole-logos identity -> structural Rust emission by encodedID encoding.
 7. Gate: port the language-engine-witness e2e into protos-engine's check-all;
    keep the old PublicTextSearch witness until the Spirit port lands.
-8. Conformance Law 5: rehome or retire by ruling before the slice closes.
+8. Conformance Law 5: Law 5 is homed in structural-codec but not
+   gate-enforced in protos-engine's check-all (structural-codec and
+   raw-discovery absent from `identityCapsuleProducerChecks` in flake.nix).
+   Wire structural-codec's conformance tests into the engine gate before
+   the slice closes.
 9. Slice 2 opens by presenting the deterministic field-naming rule for
    ratification; the projection algebra is the vocabulary, not the answer.
 10. Spirit port after the gate passes; approve the sema-storage dissolution
@@ -593,7 +818,7 @@ flowchart TD
     and retire the old topology last. Sequencing judgment (naming authority
     early, storage migration late) is agent judgment the psyche has not ruled.
 
-## 16. Conduct and authority
+## 18. Conduct and authority
 
 - Psyche words are design and are never edited. Logs are append-only;
   supersede by appending. Later statements govern earlier ones.
@@ -615,16 +840,21 @@ flowchart TD
   worktrees, the Spirit worktree and published feature branches,
   structural-codec-derive, signal-frame wire primitives.
 
-## 17. Open questions — do not infer
+## 19. Open questions — do not infer
 
-Closed this session: the global longest-match law (now law, token level); the
-identity crux (the encodedID is the durable identity; nested module tables);
-the homonym/conflict question (dissolved by the nested model); the production
-root set (`VocabularyRoot::{Universal, Rust}`); and the naming authority names
-(`sema-translator`, `signal-sema-translator`). Entry 17 closes the mistaken
-psyche-level emitted-chain format question: the direction is textual-binary,
-rustc-friendly, compact, readable, and accessible; the exact codec is
-implementation matter.
+Closed by the 07-28 session: the global longest-match law (now law, token
+level); the identity crux (the encodedID is the durable identity; nested
+module tables); the homonym/conflict question (dissolved by the nested model);
+the production root set (`VocabularyRoot::{Universal, Rust}`); and the naming
+authority names (`sema-translator`, `signal-sema-translator`). Entry 17
+closes the mistaken psyche-level emitted-chain format question: the direction
+is textual-binary, rustc-friendly, compact, readable, and accessible; the
+exact codec is implementation matter.
+
+Closed by the 07-29 session: the transformer vocabulary (transformer, not
+macro); the triple-language vision (Nomos as its own language, own files,
+same protos mechanism); the "make them the same thing" contradiction
+(dissolved by restored context — different layers, no conflict).
 
 1. Function-parameter and let-binding names (nearest word: let statements are
    "semi-anonymous (very private) types").
@@ -640,11 +870,36 @@ implementation matter.
 9. ID retirement policy.
 10. The **move** operation (re-parenting between modules) — follows from
     operational editing; unruled.
-11. Module ↔ capsule relation; capsule identity minted or derived.
+11. Module-capsule relation; capsule identity minted or derived.
 12. Whether dynamic-enum members become things with their own encodedIDs.
 13. The final term for the container ("module" is the working term).
+14. Escape-vocabulary growth: the ruled escape set is closed at two primitives
+    plus Invoke for recursion. Tree-shaped recursion (ScopeOf's walk over a
+    variable-depth Domain tree, binding fresh parameters at each level) and
+    targeted positional insertion into a specific vector slot (the psyche's "a
+    particular spot in a vector where a certain item gets inserted") are real
+    requirements the current algebra does not express. Whether to grow the
+    algebra (a fourth escape variant, Fold) or add a separate mechanism is
+    unruled.
+15. ScopeOf helper identity: when Nomos expands a single authored ScopeOf
+    declaration into dozens of ordinary types, do those intermediate types get
+    their own durable encodedIDs (Option A) or are they implementation
+    structure under the one authored identity, represented by typed
+    source-encodedID paths (Option B)? Pending with the psyche; briefing in
+    `ScopeOfIdentityBriefing-2026-07-29.md`.
+16. Cross-package Invoke resolution: a transformer in one package invoking a
+    transformer in another package needs a resolution mechanism at a higher
+    level than the within-package seal.
+17. Law-scope rulings pending with the psyche: positional-fields
+    source-vs-wire scope, alias scope, transitive syn/quote (via
+    rkyv/thiserror everywhere), StoreSchema compatibility tests.
+18. sema-engine ARCHITECTURE.md carries "macro" usage for the unrelated redb
+    table-descriptor generator — whether that is in scope for the transformer
+    naming ruling is unresolved.
+19. Whether anything indirectly gates structural-codec's conformance tests
+    (not found, not exhaustively ruled out).
 
-## 18. Carried facts and registers
+## 20. Carried facts and registers
 
 Substance absorbed from the eliminated documents that lives nowhere else
 current.
@@ -689,7 +944,7 @@ drawn from the builtin priors, never manufactured from the text "Integer";
 the one-newtype conversion transfers the declaration identifier, maps item
 visibility, and emits empty attributes; generated Rust may be attribute-free;
 the behavior crate may define `type Integer = u64` and round-trip through
-`.0`; the production schema source is the six-slot document decoding one
+`.0`; the production Ethos source is the six-slot document decoding one
 newtype wrapping builtin Integer.
 
 **Codex-root conduct**: the root session coordinates only — repository work
@@ -721,26 +976,39 @@ psyche vision".
 
 **Live register, kept, not absorbed**:
 `reports/BadDataShapesRegister-2026-07-26.md` — ~65 defect entries plus bugs
-L1–L8 with locations and typed replacements, mostly unfixed, reproduced
+L1-L8 with locations and typed replacements, mostly unfixed, reproduced
 nowhere else. Its tier sequencing is stale; the register is not.
 
-## 19. References
+## 21. References
 
-Firsthand authority, in order: `DesignReviewRulings-2026-07-28.md`,
-`SliceOneRulings-2026-07-27.md`, `ShapeAndSliceRulings-2026-07-26.md`.
+Firsthand authority, in order: `PsycheVisionReacquisition-2026-07-29.md`,
+`DesignReviewRulings-2026-07-28.md`, `SliceOneRulings-2026-07-27.md`,
+`ShapeAndSliceRulings-2026-07-26.md`, `RecoveredNomosVision-2026-07-29.md`.
 
 Kept as quote-carrying archive (never edit, never delete):
-`ProtosEngineDesign-2026-07-26.md` — the prior compilation, sole carrier of
-the ratified item schema block and the 07-19→25 ruling era; and the whole of
-`/home/li/primary/reports/logos/` and `/home/li/primary/reports/schema/` —
-the firsthand archive of the 2026-07-11→21 design era (the three psyche
-handovers, `textual-form-vision-design-v1.md`,
-`samples/v2-psyche-base.logos`, and ~25 further files carrying only-carrier
-psyche verbatim). This document supersedes the 07-26 compilation as the
-current compilation without replacing it as an archive.
+`ProtosEngineDesign-2026-07-28.md` — the prior compilation;
+`ProtosEngineDesign-2026-07-26.md` — the founding-era compilation, sole
+carrier of the ratified item schema block and the 07-19-to-25 ruling era; and
+the whole of `/home/li/primary/reports/logos/` and
+`/home/li/primary/reports/schema/` — the firsthand archive of the
+2026-07-11-to-21 design era (the three psyche handovers,
+`textual-form-vision-design-v1.md`, `samples/v2-psyche-base.logos`, and ~25
+further files carrying only-carrier psyche verbatim). This document supersedes
+the 07-28 compilation as the current compilation without replacing it as an
+archive.
 
-Eliminated by this compilation, recoverable from primary's history (snapshot
-commit precedes deletion): `CodexContextHandover-2026-07-27.md`,
+Detailed design documents carried live, this compilation controlling framing
+on conflict: `NomosAuthoredRulesDesign-2026-07-29.md` — the detailed spec
+for the TextualNomos syntax, load path, and Template(Logos) derivation, the
+running Codex train builds against it; `TransformerPriorArt-2026-07-29.md` —
+the ranked prior-art survey for the transformer engine; both in
+`/home/li/primary/reports/`.
+
+Pending briefing, not absorbed: `ScopeOfIdentityBriefing-2026-07-29.md` —
+the ScopeOf helper-identity briefing, pending psyche ruling.
+
+Eliminated by the 2026-07-28 compilation, recoverable from primary's history
+(snapshot commit preceded deletion): `CodexContextHandover-2026-07-27.md`,
 `DesignVision-2026-07-28.md`, `CodexWayForward-2026-07-28.md`,
 `NamingModelBrief-2026-07-28.md`, `CodexCorrection-2026-07-26-second.md`,
 `CodexCourseCorrection-2026-07-26.md`, `ShortIdentifierRuling-2026-07-26.md`,

@@ -178,3 +178,13 @@ design existed in nomos-macro-model-v1.md, textual-form-vision-design-v1/v2,
 and up-close-design-v1.md in the kept archive, and in the session
 transcripts cited above. This document is the restoration; future
 compilations must absorb it.
+
+## Correction note (appended 2026-07-29)
+
+The loss-accounting claim above that "the 2026-07-28 compilation absorbed
+none of the above quotes" overstates by one fragment. The 2026-07-17
+multiple-textualforms quote ("the vision even allowed multiple textualforms
+per encodedform; logos -> logos or logos -> rust") does appear in the 07-28
+compilation section 1, carried from the 07-26 compiled log. The remaining
+quotes in the chain above were genuinely absent from the 07-28 compilation.
+The 2026-07-29 compilation now absorbs the full chain.
