@@ -10,7 +10,7 @@ earlier ones, and where this document and a log disagree, the log wins.
 
 Firsthand logs, in authority order (newest controls its session's wording):
 
-1. `DesignReviewRulings-2026-07-28.md` — the naming/identity review, entries 1–16.
+1. `DesignReviewRulings-2026-07-28.md` — the naming/identity review, entries 1–17.
 2. `SliceOneRulings-2026-07-27.md` — the slice-1 decisions, entries 1–11.
 3. `ShapeAndSliceRulings-2026-07-26.md` — including entry 8's confirmations.
 
@@ -132,7 +132,7 @@ permitted as MVP — "sure, if you think that's a good first MVP".
 
 ## 5. Names and identity — the current model (2026-07-28)
 
-The model of DesignReviewRulings entries 1–16, which supersedes every earlier
+The model of DesignReviewRulings entries 1–17, which supersedes every earlier
 naming rendering (the per-component tables of 07-19, the flat unified table
 reading of 07-27, and the flat global lexicon reading of earlier 07-28
 entries).
@@ -207,13 +207,21 @@ billing's table              tasks' table
   redefinition error — **[ruled] 07-22** "it should be an error, whenever
   anything tries to define something already defined, like builtins" — lands
   at universe seal and means: the same spelling twice in one module's table.
-- **Emission** (entry 7): **[ruled]** "we use the coreID for the emitted rust
+- **Emission** (entries 7 and 17): **[ruled]** "we use the coreID for the emitted rust
   (a textual version of it - some kind of textual binary encoding which is
   friendly to rustc)." Emitted Rust identifies our things by an encoding of
   the encodedID chain — rename-proof by construction; Rust's own vocabulary
-  keeps Rust's spellings. Encoding scheme: matter, undesigned. Recorded
-  tension with **[ruled] 07-23** "keep the generated artifacts as accessible
-  as possible"; mitigations (regenerated doc comments) are matter.
+  keeps Rust's spellings. **[ruled] 2026-07-29** fixed-width decimal is
+  rejected as "a lame format" and "the most inefficient and reader unfriendly
+  format imaginable"; **[ruled]** the direction had already been answered and
+  asking for another psyche ruling failed to locate psyche vision. The exact
+  reversible codec — radix, alphabet, delimiters, and packing — is
+  implementation matter, not an open psyche design question. It must encode
+  the complete variant-fronted chain in a compact, readable textual-binary
+  form accepted by rustc, consistent with **[ruled] 07-23** "keep the
+  generated artifacts as accessible as possible." The rejected decimal
+  proposal's agent-invented 40-element bound is withdrawn; no replacement
+  depth bound is inferred.
 - **Content hashing** (entry 8): **[ruled]** only hashing "the entire capsule
   after it is fully encoded" was ever discussed; recursive leaf-first
   per-thing hashing "would be great, but we never discussed it" — undiscussed,
@@ -368,8 +376,10 @@ distinct socket, database, archive, and typed wire surfaces, with no
 old-socket alias, adapter, redirect, multiplexing, or fallback. Mixed or
 legacy contracts fail typed before request decoding or writes.
 
-Still open and not inferred here: emitted chain encoding; move; Capsule-pin
-composition; dynamic-enum member identity; and retirement.
+Still open and not inferred here: move; Capsule-pin composition;
+dynamic-enum member identity; and retirement. The emitted-chain design
+direction is closed; selecting and proving its exact codec is implementation
+work under entries 7 and 17.
 
 ## 7. The sema vision — intent
 
@@ -551,7 +561,9 @@ flowchart TD
 2. The two proposals were brought one at a time and are closed: entry 15
    approved `VocabularyRoot::{Universal, Rust}`; entry 16 approved
    `sema-translator` and `signal-sema-translator` with distinct new repository
-   and runtime surfaces.
+   and runtime surfaces. Entry 17 later confirms that the emitted-chain
+   direction was already answered and returns the exact codec to
+   implementation matter.
 3. In parallel after the active-doc correction, prove the approved generic
    nested-table library on fixture roots; it does not infer the production
    root variants or daemon name.
@@ -606,7 +618,10 @@ Closed this session: the global longest-match law (now law, token level); the
 identity crux (the encodedID is the durable identity; nested module tables);
 the homonym/conflict question (dissolved by the nested model); the production
 root set (`VocabularyRoot::{Universal, Rust}`); and the naming authority names
-(`sema-translator`, `signal-sema-translator`).
+(`sema-translator`, `signal-sema-translator`). Entry 17 closes the mistaken
+psyche-level emitted-chain format question: the direction is textual-binary,
+rustc-friendly, compact, readable, and accessible; the exact codec is
+implementation matter.
 
 1. Function-parameter and let-binding names (nearest word: let statements are
    "semi-anonymous (very private) types").
@@ -620,12 +635,11 @@ root set (`VocabularyRoot::{Universal, Rust}`); and the naming authority names
    logos? (Standing law until answered: no Rust capsule.)
 8. What "otherwise" excepted in the item-schema ratification.
 9. ID retirement policy.
-10. The encodedID chain encoding scheme for emitted Rust.
-11. The **move** operation (re-parenting between modules) — follows from
+10. The **move** operation (re-parenting between modules) — follows from
     operational editing; unruled.
-12. Module ↔ capsule relation; capsule identity minted or derived.
-13. Whether dynamic-enum members become things with their own encodedIDs.
-14. The final term for the container ("module" is the working term).
+11. Module ↔ capsule relation; capsule identity minted or derived.
+12. Whether dynamic-enum members become things with their own encodedIDs.
+13. The final term for the container ("module" is the working term).
 
 ## 18. Carried facts and registers
 
