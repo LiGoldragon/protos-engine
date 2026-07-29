@@ -7,18 +7,18 @@
     content-identity = {
       url = "github:LiGoldragon/content-identity/f1f9c6efc828acaefd0f751550cd40389d312bf5";
     };
-    core-ethos.url = "github:LiGoldragon/core-ethos/b9db643a853b1f52f10a4100a791d5dbc8c7240d";
-    core-logos.url = "github:LiGoldragon/core-logos/ffb9ccdeac94b4e3401fc4bffa593589f0321fe5";
-    core-nomos.url = "github:LiGoldragon/core-nomos/c185f6168474a7d94da970d95a15a149ec7b9220";
+    core-ethos.url = "github:LiGoldragon/core-ethos/5bace8ae21468401a07af262b6b9c15dd8543cb6";
+    core-logos.url = "github:LiGoldragon/core-logos/a7dd1e2b8d0c55d26e96c5b1b7154a534cf03e55";
+    core-nomos.url = "github:LiGoldragon/core-nomos/cc10e53f49f272ddbd061bf6dea35be072508df9";
     name-table = {
       url = "github:LiGoldragon/name-table/1f558eac44bd03034e51ad98e3a65ec16d8b8411";
     };
     raw-discovery = {
-      url = "github:LiGoldragon/raw-discovery/c27a9efabb1981c8b3d887c870fff82fc7daf49c";
+      url = "github:LiGoldragon/raw-discovery/d979778aa9d79199785f7b683f1029534aea3604";
       flake = false;
     };
     structural-codec = {
-      url = "github:LiGoldragon/structural-codec/38c037d83ad4a1a275295442e2978a8130d0ae4c";
+      url = "github:LiGoldragon/structural-codec/e47bec61c81fba80deb44c5920f6a15420bbf962";
       flake = false;
     };
     protos.url = "github:LiGoldragon/protos/1435c9aeb7f24e811aca670101e355ff26818ae2";
@@ -41,7 +41,7 @@
       flake = false;
     };
     spirit.url = "github:LiGoldragon/spirit/1049b8a1a9e3c2be7ece3553b89c7e3815939d43";
-    textual-rust.url = "github:LiGoldragon/textual-rust/87a9d9c29403e5ff2e08f4d18d034b11cc30be1b";
+    rust-logos.url = "github:LiGoldragon/rust-logos/3f1fa92ec268210777f27878a1a02287a7e2a2a8";
   };
 
   outputs =
@@ -63,7 +63,7 @@
       signal-spirit,
       meta-signal-spirit,
       spirit,
-      textual-rust,
+      rust-logos,
     }:
     let
       systems = [
@@ -206,7 +206,7 @@
                 protos-package-contents = protos.checks.${system}.package-contents;
                 core-ethos-test = core-ethos.checks.${system}.test;
                 core-logos-test = core-logos.checks.${system}.test;
-                textual-rust-test = textual-rust.checks.${system}.test;
+                rust-logos-test = rust-logos.checks.${system}.test;
                 core-nomos-test = core-nomos.checks.${system}.test;
               }
             else

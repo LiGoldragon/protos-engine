@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Only edges changed by the identity/Capsule train belong here. The direct
-# legacy content-identity and flat name-table edges in the core repositories
-# are intentionally outside this table until their encodedID-chain migration.
-readonly expected_edges=$'name-table|content-identity|content-identity|\nsignal-sema-translator|name-table|name-table|\nsema-translator|name-table|name-table|\nsema-translator|signal-sema-translator|signal-sema-translator|\nprotos|content-identity|content-identity|\ncore-ethos|capsule-content-identity|content-identity|content-identity\ncore-ethos|protos|protos|\ncore-logos|capsule-content-identity|content-identity|content-identity\ncore-logos|protos|protos|\ncore-logos|core-ethos|core-ethos|\ntextual-rust|core-logos|core-logos|\ncore-nomos|capsule-content-identity|content-identity|content-identity\ncore-nomos|protos|protos|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|textual-rust|textual-rust|'
+# Only edges changed by the identity/Capsule train belong here. Legacy
+# per-item and flat-name edges remain outside this table. The chain-based
+# Slice One aliases are checked by the separate slice coherence gate.
+readonly expected_edges=$'name-table|content-identity|content-identity|\nsignal-sema-translator|name-table|name-table|\nsema-translator|name-table|name-table|\nsema-translator|signal-sema-translator|signal-sema-translator|\nprotos|content-identity|content-identity|\ncore-ethos|capsule-content-identity|content-identity|content-identity\ncore-ethos|protos|protos|\ncore-logos|capsule-content-identity|content-identity|content-identity\ncore-logos|protos|protos|\ncore-nomos|capsule-content-identity|content-identity|content-identity\ncore-nomos|protos|protos|'
 
 root_revision() {
   local lock_file=$1
@@ -161,14 +161,14 @@ run_self_test() {
   local source_map_file=$2
   local temporary_root
   local core_nomos_manifest
-  local textual_rust_revision
+  local protos_revision
 
   validate_coherence "$lock_file" "$source_map_file"
   temporary_root=$(mktemp -d)
   trap 'rm -rf "$temporary_root"' RETURN
   copy_affected_manifests "$source_map_file" "$temporary_root"
   core_nomos_manifest="$temporary_root/sources/core-nomos/Cargo.toml"
-  textual_rust_revision=$(root_revision "$lock_file" textual-rust)
+  protos_revision=$(root_revision "$lock_file" protos)
 
   sed -i \
     '/^[[:space:]]*capsule-content-identity[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
@@ -179,7 +179,7 @@ run_self_test() {
   cp "$(source_path "$source_map_file" core-nomos)/Cargo.toml" \
     "$core_nomos_manifest"
   sed -i \
-    '/^[[:space:]]*textual-rust[[:space:]]*=/s#LiGoldragon/textual-rust.git#LiGoldragon/core-logos.git#' \
+    '/^[[:space:]]*protos[[:space:]]*=/s#LiGoldragon/protos.git#LiGoldragon/core-logos.git#' \
     "$core_nomos_manifest"
   expect_coherence_rejection "affected repository drift" \
     "$lock_file" "$temporary_root/source-map.json"
@@ -187,8 +187,8 @@ run_self_test() {
   cp "$(source_path "$source_map_file" core-nomos)/Cargo.toml" \
     "$core_nomos_manifest"
   printf \
-    'textual-rust = { git = "https://github.com/LiGoldragon/textual-rust.git", rev = "%s" }\n' \
-    "$textual_rust_revision" >> "$core_nomos_manifest"
+    'protos = { git = "https://github.com/LiGoldragon/protos.git", rev = "%s" }\n' \
+    "$protos_revision" >> "$core_nomos_manifest"
   expect_coherence_rejection "duplicate affected dependency" \
     "$lock_file" "$temporary_root/source-map.json"
 }

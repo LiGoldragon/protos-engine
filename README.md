@@ -39,12 +39,12 @@ Every repository input uses a full, published Git revision:
 | signal-sema-translator | `8ff7d0db033c756a0cd7999e72e564ca1c32b4aa` |
 | sema-translator | `bcfb339b069d3eba756779105894b396b7a8acc6` |
 | protos | `1435c9aeb7f24e811aca670101e355ff26818ae2` |
-| core-ethos | `b9db643a853b1f52f10a4100a791d5dbc8c7240d` |
-| core-logos | `ffb9ccdeac94b4e3401fc4bffa593589f0321fe5` |
-| textual-rust | `87a9d9c29403e5ff2e08f4d18d034b11cc30be1b` |
-| core-nomos | `c185f6168474a7d94da970d95a15a149ec7b9220` |
-| raw-discovery | `c27a9efabb1981c8b3d887c870fff82fc7daf49c` |
-| structural-codec | `38c037d83ad4a1a275295442e2978a8130d0ae4c` |
+| core-ethos | `5bace8ae21468401a07af262b6b9c15dd8543cb6` |
+| core-logos | `a7dd1e2b8d0c55d26e96c5b1b7154a534cf03e55` |
+| rust-logos | `3f1fa92ec268210777f27878a1a02287a7e2a2a8` |
+| core-nomos | `cc10e53f49f272ddbd061bf6dea35be072508df9` |
+| raw-discovery | `d979778aa9d79199785f7b683f1029534aea3604` |
+| structural-codec | `e47bec61c81fba80deb44c5920f6a15420bbf962` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
 | schema-rust | `3721656b0a654d47d9abde31f14d89d01f9305cf` |
 | signal-spirit | `1cf7c010029de46369b742687da4fa1ca6def9a9` |
@@ -59,7 +59,7 @@ The identity/Capsule producers are ordinary flake inputs rather than source-only
 inputs. This lets the assembly expose their published test derivations directly.
 On `x86_64-linux`, the root check surface passes through the content-identity,
 name-table, signal-sema-translator, sema-translator, protos, core-ethos,
-core-logos, textual-rust, and core-nomos test derivations. It also exposes
+core-logos, rust-logos, and core-nomos test derivations. It also exposes
 sema-translator's dedicated real-process derivation and protos'
 package-contents derivation as separate checks.
 
