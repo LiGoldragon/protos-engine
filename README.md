@@ -39,13 +39,13 @@ Every repository input uses a full, published Git revision:
 | signal-sema-translator | `dd8e7b5656833f640e49c099ab3be6f09881f9c5` |
 | sema-translator | `7e9e85bb9d199f24b968bcd49a351e910469f5b5` |
 | protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
-| core-ethos | `f7e4d127a8393e9ad4754e3cce79d1fca1a9e8c9` |
-| core-logos | `749408b13f5af64284dd9c596271232a89cc758b` |
-| rust-logos | `9fc8427f11c624dd08ce684a224df1575bb540de` |
-| core-nomos | `c8ae55678572b98cff88c08ab3a86b9b8cdcb0ee` |
-| language-engine-witness | `298ffabf4c2aaa41557fe6a58f0fd1404c3cc79f` |
+| core-ethos | `0840dbd96d250b15b750b5b17a3a7c86bacfb7ee` |
+| core-logos | `e4cefc413cfafbe589e64d961fba34457d214316` |
+| rust-logos | `c8e4ebc16dbea75880b3034a7c46cb6812ab4ef7` |
+| core-nomos | `f7071fb9f8879d17cd2436ed14894799958e9b08` |
+| language-engine-witness | `a0e1d7a7ab4fd7e156439df9e9a18e80605ff0d8` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
-| structural-codec | `5c11e1fb7f58444cd860207803d8f705e7415d71` |
+| structural-codec | `31d2e4c14943802ce75a910edd54ea1796273f78` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
 | schema-rust | `3721656b0a654d47d9abde31f14d89d01f9305cf` |
 | signal-spirit | `1cf7c010029de46369b742687da4fa1ca6def9a9` |
@@ -115,7 +115,7 @@ complete direct producer set; and the published
 language-engine-witness's eight Slice One aliases. Its mutation suite rejects
 revision drift, repository drift, alias package drift, duplicate direct
 declarations, durable-chain drift, and removal of restart coverage. The core
-surfaces carry one structural-codec 0.8 dependency universe; the witness's
+surfaces carry one structural-codec 0.9 dependency universe; the witness's
 separate daemon closure remains outside that authored-language carrier graph.
 
 ## Checks
