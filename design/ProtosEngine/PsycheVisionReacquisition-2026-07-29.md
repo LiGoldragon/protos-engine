@@ -263,3 +263,65 @@ entry as psyche conviction that Template(X) is correct; the design remains
 subordinate to his review of the actual code. The still-open items are
 unchanged: escape-vocabulary growth (recursion, targeted positional
 insertion), ScopeOf identity, cross-package invoke resolution.
+
+## Entry 7 — overnight leans: decisions taken at the not-understood-by-psyche grade
+
+Agent text answered: the manager's summary of the items on the psyche's desk
+(the two rulings gating po2.7 — ScopeOf helper identity and the recursion
+mechanism — the four law-scope questions from the 2026-07-29 morning audit,
+and the Law 5 gate-enforcement gap), with the train otherwise unblocked and
+working.
+
+Psyche (2026-07-30):
+
+> go with your leans, mark those topic as not-understood by psyche, and
+> produce an addendum for codex to be able to keep slicing while I sleep
+
+Reading (agent interpretation, not psyche wording): this introduces a grade
+below delegated assent — **not-understood-by-psyche** — for decisions taken
+on the manager's leans under explicit authorization to keep the train
+moving. The psyche has neither reviewed nor understood the substance of
+these decisions; every one is reversible on his review, none may ever be
+cited as psyche conviction or ruling, and any agent presenting them must
+carry this grade visibly.
+
+Decisions taken at this grade by the managing agent, effective for the
+overnight train:
+
+1. ScopeOf helper identity: recursive helper scope types are implementation
+   structure under the single authored result identity; scope values are
+   typed paths of existing source-variant encodedIDs; no translator IDs are
+   minted for helpers. The All-variant matches only itself (a behavioral
+   change from legacy — flagged for psyche review); ending a path after a
+   payload-bearing variant is that level's synthesized catch-all.
+2. Escape-vocabulary growth: the transformer template algebra grows two
+   typed members — a Fold construct for tree recursion (fresh typed
+   parameters bound per step, leaf termination, termination checkable at
+   transformer-compile time) and a targeted positional-insertion construct
+   (Splice cannot express inserting at a specific slot). Both are typed
+   data, checked pre-evaluation in the po2.15 pattern.
+3. Positional-fields law scope: binds the wire always and all new Rust data
+   shapes; existing named-field rkyv-archived structs (name-table,
+   content-identity) are tolerated as predating the law and migrate
+   opportunistically, not by churn.
+4. Alias law scope: bans renaming and compatibility shims (pub use X as Y,
+   simple type renames); domain-specific instantiations of generics (type
+   SnapshotDigest = IntegrityDigest<Domain>) are permitted.
+5. syn/quote/prettyplease law scope: binds direct dependencies and active
+   transformation code paths; transitive proc-macro dependencies via
+   rkyv/thiserror are an accepted cost; prettyplease leaves with the legacy
+   module retirement already lined up.
+6. StoreSchema naming in content-identity byte-compatibility tests: exempt
+   as frozen compatibility witnesses reproducing historical domain strings.
+7. Cross-package Invoke: v1 transformer packages are self-contained;
+   cross-package invocation refuses typed. Design deferred.
+8. Conformance Law 5 gate enforcement: structural-codec (and raw-discovery)
+   test suites get wired into protos-engine's check-all — treated as
+   implementation hygiene completing po1.8's own acceptance criteria, not a
+   design lean.
+9. sema-engine's "macro" wording for its unrelated redb table-descriptor
+   generator: out of the transformer-naming ruling's scope; left as is.
+
+An addendum document carries these to the Codex train with the grade stated;
+stop-line discipline is unchanged — anything genuinely new still stops the
+line rather than extending these leans by analogy.
