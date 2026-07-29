@@ -56,6 +56,14 @@ The three Spirit-family pins retain the existing `PublicTextSearch` process
 witness until its successor feature revisions are independently audited and
 published.
 
+The schema-language and schema-rust pins are frozen donors: the language they
+implement was ruled dead under its old name 2026-07-27 (S1R entry 7) and is
+now Ethos, and neither repository gains new consumers. Both pins remain here
+only because the pinned Spirit-family flake closure still builds through
+their wired-legacy schema/schema-rust toolchain; Spirit's port onto
+Ethos-based generation has not landed (blocked at bead
+`protos-engine-po1.10.11`).
+
 The identity/Capsule producers are ordinary flake inputs rather than source-only
 inputs. This lets the assembly expose their published test derivations directly.
 On `x86_64-linux`, the root check surface passes through the content-identity,
@@ -80,8 +88,15 @@ rule applies to this repository's root inputs.
 
 `scripts/check-identity-capsule-coherence` compares the affected direct Cargo
 edges with those exact root revisions. Its table includes the final integrity
-producer, translator, generic Capsule, kind-fixed core, and mechanically
-required textual-rust edges. It deliberately does not demand universal
+producer, translator, generic Capsule, and kind-fixed core edges — reading
+the script's own `expected_edges` table confirms it carries no rust-logos or
+textual-rust row. The chain-based rust-logos producer edges are checked
+separately by `scripts/check-slice-one-coherence` below (rust-logos is the
+data-driven structuretree replacement for the older hand-written textual-rust
+bypass crate, per the 2026-07-23 design session; `textual-rust` itself
+remains a separate, still-pinned Cargo.lock dependency of some cores as
+unmigrated legacy residue, not the same repository under an old name). It
+deliberately does not demand universal
 transitive equality: the cores' direct legacy per-item identity/archive and
 flat name-table dependencies remain on their established typed revisions.
 The legacy 0.3 identity crate and dependency-renamed 0.4 Capsule identity crate
