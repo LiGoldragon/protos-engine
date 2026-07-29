@@ -91,6 +91,15 @@ The gate therefore proves a coherent published carrier foundation without
 claiming encodedID-chain migration, whole Logos/Nomos content, content/hash
 verification, complete-pin verification, or module-table/Capsule composition.
 
+`scripts/check-slice-one-coherence` separately validates every chain-based
+Slice One producer edge against the exact root revisions. It covers
+structural-codec's raw-discovery and name-table producers; core-ethos's
+chain-based raw/structural aliases; core-nomos's chain-based Ethos/Logos
+aliases; and rust-logos's complete direct producer set. Its mutation suite
+rejects revision drift, repository drift, alias package drift, and duplicate
+direct declarations. The older flat API dependencies remain isolated from
+these checked aliases and are not represented as a migrated type universe.
+
 ## Checks
 
 Run the reproducible evaluation and check surface:

@@ -1,0 +1,227 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# These are the complete chain-based Slice One producer edges. The core
+# repositories still contain explicitly isolated legacy graphs; those are not
+# allowed to stand in for the slice aliases checked here.
+readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|slice-raw-discovery|raw-discovery|raw-discovery\ncore-ethos|slice-structural-codec|structural-codec|structural-codec\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|slice-core-ethos|core-ethos|core-ethos\ncore-nomos|slice-core-logos|core-logos|core-logos\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|'
+
+root_revision() {
+  local lock_file=$1
+  local input_name=$2
+
+  jq -er --arg input_name "$input_name" '
+    .root as $root
+    | .nodes[$root].inputs[$input_name] as $node_name
+    | select($node_name | type == "string")
+    | .nodes[$node_name].locked.rev
+    | select(type == "string" and test("^[0-9a-f]{40}$"))
+  ' "$lock_file"
+}
+
+source_path() {
+  local source_map_file=$1
+  local source_name=$2
+
+  jq -er --arg source_name "$source_name" '
+    .[$source_name]
+    | select(type == "string" and length > 0)
+  ' "$source_map_file"
+}
+
+dependency_declaration() {
+  local manifest=$1
+  local dependency_name=$2
+  local declarations
+
+  declarations=$(
+    LC_ALL=C grep -E \
+      "^[[:space:]]*${dependency_name}[[:space:]]*=" "$manifest" || true
+  )
+  if [[ $(printf '%s\n' "$declarations" | sed '/^$/d' | wc -l) -ne 1 ]]; then
+    echo "expected exactly one Slice One dependency: $manifest:$dependency_name" >&2
+    return 1
+  fi
+  printf '%s\n' "$declarations"
+}
+
+validate_direct_edge() {
+  local source_map_file=$1
+  local lock_file=$2
+  local source_name=$3
+  local dependency_name=$4
+  local target_name=$5
+  local package_name=$6
+  local source_root
+  local manifest
+  local target_revision
+  local target_git
+  local declaration
+  local compact_declaration
+
+  source_root=$(source_path "$source_map_file" "$source_name") || {
+    echo "Slice One source is absent from the root source map: $source_name" >&2
+    return 1
+  }
+  manifest="$source_root/Cargo.toml"
+  [[ -f "$manifest" && ! -L "$manifest" ]] || {
+    echo "Slice One source lacks a regular Cargo.toml: $source_name" >&2
+    return 1
+  }
+
+  target_revision=$(root_revision "$lock_file" "$target_name") || {
+    echo "Slice One target is not an exact direct root pin: $target_name" >&2
+    return 1
+  }
+  target_git="https://github.com/LiGoldragon/${target_name}.git"
+  declaration=$(dependency_declaration "$manifest" "$dependency_name") ||
+    return 1
+  compact_declaration=$(printf '%s\n' "$declaration" | tr -d '[:space:]')
+
+  if [[ "$compact_declaration" != *"git=\"$target_git\""* ]]; then
+    echo "Slice One edge targets the wrong repository: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+  if [[ "$compact_declaration" != *"rev=\"$target_revision\""* ]]; then
+    echo "Slice One edge differs from the root revision: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+  if [[ -n "$package_name" &&
+    "$compact_declaration" != *"package=\"$package_name\""* ]]; then
+    echo "Slice One alias targets the wrong package: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+}
+
+validate_coherence() {
+  local lock_file=$1
+  local source_map_file=$2
+  local source_name
+  local dependency_name
+  local target_name
+  local package_name
+
+  jq -e '
+    type == "object"
+    and all(to_entries[]; (.key | type == "string") and (.value | type == "string"))
+  ' "$source_map_file" >/dev/null || {
+    echo "root source map must be a JSON object of source paths" >&2
+    return 1
+  }
+
+  while IFS='|' read -r \
+    source_name dependency_name target_name package_name; do
+    validate_direct_edge "$source_map_file" "$lock_file" \
+      "$source_name" "$dependency_name" "$target_name" "$package_name" ||
+      return 1
+  done < <(printf '%s\n' "$expected_edges")
+}
+
+copy_affected_manifests() {
+  local source_map_file=$1
+  local fixture_root=$2
+  local fixture_map='{}'
+  local source_name
+  local source_root
+
+  while IFS= read -r source_name; do
+    source_root=$(source_path "$source_map_file" "$source_name")
+    mkdir -p "$fixture_root/sources/$source_name"
+    cp "$source_root/Cargo.toml" \
+      "$fixture_root/sources/$source_name/Cargo.toml"
+    chmod u+w "$fixture_root/sources/$source_name/Cargo.toml"
+    fixture_map=$(
+      jq -cn \
+        --argjson fixture_map "$fixture_map" \
+        --arg source_name "$source_name" \
+        --arg source_path "$fixture_root/sources/$source_name" \
+        '$fixture_map + {($source_name): $source_path}'
+    )
+  done < <(
+    printf '%s\n' "$expected_edges" |
+      cut -d '|' -f 1 |
+      LC_ALL=C sort -u
+  )
+  printf '%s\n' "$fixture_map" > "$fixture_root/source-map.json"
+}
+
+expect_coherence_rejection() {
+  local label=$1
+  local lock_file=$2
+  local source_map_file=$3
+
+  if validate_coherence "$lock_file" "$source_map_file" >/dev/null 2>&1; then
+    echo "Slice One coherence mutation unexpectedly passed: $label" >&2
+    return 1
+  fi
+}
+
+run_self_test() {
+  local lock_file=$1
+  local source_map_file=$2
+  local temporary_root
+  local core_ethos_manifest
+  local rust_logos_manifest
+  local structural_codec_revision
+
+  validate_coherence "$lock_file" "$source_map_file"
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+  copy_affected_manifests "$source_map_file" "$temporary_root"
+  core_ethos_manifest="$temporary_root/sources/core-ethos/Cargo.toml"
+  rust_logos_manifest="$temporary_root/sources/rust-logos/Cargo.toml"
+  structural_codec_revision=$(root_revision "$lock_file" structural-codec)
+
+  sed -i \
+    '/^[[:space:]]*slice-structural-codec[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
+    "$core_ethos_manifest"
+  expect_coherence_rejection "slice alias revision drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" rust-logos)/Cargo.toml" \
+    "$rust_logos_manifest"
+  sed -i \
+    '/^[[:space:]]*raw-discovery[[:space:]]*=/s#LiGoldragon/raw-discovery.git#LiGoldragon/core-logos.git#' \
+    "$rust_logos_manifest"
+  expect_coherence_rejection "producer repository drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" core-ethos)/Cargo.toml" \
+    "$core_ethos_manifest"
+  sed -i \
+    '/^[[:space:]]*slice-structural-codec[[:space:]]*=/s/package = "structural-codec"/package = "raw-discovery"/' \
+    "$core_ethos_manifest"
+  expect_coherence_rejection "alias package drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" rust-logos)/Cargo.toml" \
+    "$rust_logos_manifest"
+  printf \
+    'structural-codec = { git = "https://github.com/LiGoldragon/structural-codec.git", rev = "%s" }\n' \
+    "$structural_codec_revision" >> "$rust_logos_manifest"
+  expect_coherence_rejection "duplicate producer declaration" \
+    "$lock_file" "$temporary_root/source-map.json"
+}
+
+case ${1:-} in
+  --self-test)
+    (( $# == 3 )) || {
+      echo "usage: check-slice-one-coherence --self-test FLAKE_LOCK SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    run_self_test "$2" "$3"
+    echo "Slice One mutations reject revision, repository, alias, and duplicate drift"
+    ;;
+  "")
+    echo "usage: check-slice-one-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
+    exit 2
+    ;;
+  *)
+    (( $# == 2 )) || {
+      echo "usage: check-slice-one-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    validate_coherence "$1" "$2"
+    echo "Slice One producer edges match exact published root revisions"
+    ;;
+esac

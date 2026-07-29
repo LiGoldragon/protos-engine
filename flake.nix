@@ -144,6 +144,20 @@
                   --self-test ${self}/flake.lock ${familySourceMap}
                 touch "$out"
               '';
+          sliceOneCoherence =
+            pkgs.runCommand "protos-engine-slice-one-coherence"
+              {
+                nativeBuildInputs = scriptInputs;
+                validatedPinPolicy = exactPins;
+              }
+              ''
+                test -e "$validatedPinPolicy"
+                bash ${./scripts/check-slice-one-coherence} \
+                  ${self}/flake.lock ${familySourceMap}
+                bash ${./scripts/check-slice-one-coherence} \
+                  --self-test ${self}/flake.lock ${familySourceMap}
+                touch "$out"
+              '';
           publicTextSearchWitnessContract =
             pkgs.runCommand "protos-engine-public-text-search-witness-contract"
               {
@@ -217,6 +231,7 @@
           exact-pins = exactPins;
           dependency-direction = dependencyDirection;
           identity-capsule-coherence = identityCapsuleCoherence;
+          slice-one-coherence = sliceOneCoherence;
           public-text-search-witness-contract = publicTextSearchWitnessContract;
           public-text-search-exact-test = publicTextSearchExactTest;
           shell-scripts = shellScripts;
