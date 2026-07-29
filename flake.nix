@@ -7,10 +7,10 @@
     content-identity = {
       url = "github:LiGoldragon/content-identity/fdf2db1d5a9e8ea52d24d39a03833c3e6885c355";
     };
-    core-ethos.url = "github:LiGoldragon/core-ethos/a79aeb9a0b2bb304d69d7392147639e13a3d58bc";
+    core-ethos.url = "github:LiGoldragon/core-ethos/bbeca83c6980cc8a415f46fffc6e403fedf10b6b";
     core-logos.url = "github:LiGoldragon/core-logos/3e4ae814f684b44c0aa45d5887c09a7d61d75db6";
-    core-nomos.url = "github:LiGoldragon/core-nomos/59d7364139f040601102051c8b8aa65fab1e53c4";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/2286f543c0c8d2cae2979ad0d1e93eaa109e6714";
+    core-nomos.url = "github:LiGoldragon/core-nomos/46ea00dba9b03bce525e03266f1262ae693d4902";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/9540d5dd697f3c6ffec0103376df073d7674c2b7";
     name-table = {
       url = "github:LiGoldragon/name-table/50cb4bb53ae2dc4f2516f6912be328ef98ae49f8";
     };
@@ -167,12 +167,15 @@
                 validatedDependencyDirection = dependencyDirection;
                 validatedSliceOneCoherence = sliceOneCoherence;
                 ownerWitness = language-engine-witness.checks.${system}.test;
+                ownerSpiritDomainInventory =
+                  language-engine-witness.checks.${system}.spirit-domain-inventory;
               }
               ''
                 test -e "$validatedPinPolicy"
                 test -e "$validatedDependencyDirection"
                 test -e "$validatedSliceOneCoherence"
                 test -e "$ownerWitness"
+                test -e "$ownerSpiritDomainInventory"
                 touch "$out"
               '';
           publicTextSearchWitnessContract =

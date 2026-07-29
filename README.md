@@ -39,11 +39,11 @@ Every repository input uses a full, published Git revision:
 | signal-sema-translator | `8c504ba7aa8dbdc5edf7daadbb862bbdaa5613be` |
 | sema-translator | `2e152787f9fd191a3f5f4d391bd832d12e1c341a` |
 | protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
-| core-ethos | `a79aeb9a0b2bb304d69d7392147639e13a3d58bc` |
+| core-ethos | `bbeca83c6980cc8a415f46fffc6e403fedf10b6b` |
 | core-logos | `3e4ae814f684b44c0aa45d5887c09a7d61d75db6` |
 | rust-logos | `c1a62852569457af423acc633c4ab392aca7e498` |
-| core-nomos | `59d7364139f040601102051c8b8aa65fab1e53c4` |
-| language-engine-witness | `2286f543c0c8d2cae2979ad0d1e93eaa109e6714` |
+| core-nomos | `46ea00dba9b03bce525e03266f1262ae693d4902` |
+| language-engine-witness | `9540d5dd697f3c6ffec0103376df073d7674c2b7` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
 | structural-codec | `5c11e1fb7f58444cd860207803d8f705e7415d71` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
@@ -143,7 +143,12 @@ refuses incomplete projections without returning partial source, then
 compiles and exhaustively runs the generated forms in a temporary Cargo crate. Its
 separate process witness terminates and restarts the pinned engine processes
 against isolated temporary state and proves durable recovery and resumed
-progression. The wrapper dependencies ensure a producer-pin change cannot
+progression. It also realizes the owner's exact read-only Spirit-domain source
+inventory comparison, carries all 41 items and 369 variants through durable
+typed Ethos and Logos plus structural Rust emit/decode, and constructs all 369
+authored enum variants in scratch Cargo. `ScopeOf` and the two Vector newtypes
+that depend on its output remain typed structural data without a fabricated
+runtime. The wrapper dependencies ensure a producer-pin change cannot
 reuse a behavior result without rebuilding the relevant coherence closure.
 
 Run the same owning published suite explicitly with:

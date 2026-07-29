@@ -69,6 +69,16 @@ producer aliases and executable evidence, including mutation refusals for
 identity and restart drift. The root behavior derivation depends on pin,
 direction, and coherence results before accepting the published owner result.
 
+The pinned owner also checks the complete current Spirit domain as Ethos. Its
+read-only Nix inventory comparison is an explicit dependency of the root
+behavior witness. The owner carries 41 items and 369 variants through
+fixture-only complete Universal chains, durable Whole Ethos and Whole Logos,
+direct string-free Nomos, and structural Rust emit/decode, then compiles and
+constructs every authored enum variant. `ScopeOf` remains typed application
+data: no runtime transform exists on this path, so the two Vector newtypes
+whose payload is `DomainScope` are not replaced with a compatibility shape or
+claimed as Cargo behavior.
+
 ## Lock policy
 
 Root source inputs are a closed set proved by two independent surfaces. The

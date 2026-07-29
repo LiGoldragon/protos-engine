@@ -109,6 +109,8 @@ validate_behavior_witness() {
   local source_map_file=$1
   local witness_root
   local slice_test
+  local spirit_domain_test
+  local spirit_domain_fixture
   local restart_test
 
   witness_root=$(source_path "$source_map_file" language-engine-witness) || {
@@ -116,8 +118,12 @@ validate_behavior_witness() {
     return 1
   }
   slice_test="$witness_root/tests/slice_one.rs"
+  spirit_domain_test="$witness_root/tests/spirit_domain.rs"
+  spirit_domain_fixture="$witness_root/tests/fixtures/spirit-domain.ethos"
   restart_test="$witness_root/tests/e2e.rs"
   [[ -f "$slice_test" && ! -L "$slice_test" &&
+    -f "$spirit_domain_test" && ! -L "$spirit_domain_test" &&
+    -f "$spirit_domain_fixture" && ! -L "$spirit_domain_fixture" &&
     -f "$restart_test" && ! -L "$restart_test" ]] || {
     echo "Slice One behavior witness lacks regular owner test surfaces" >&2
     return 1
@@ -159,6 +165,37 @@ validate_behavior_witness() {
     '^[[:space:]]*let run = Command::new[(]"cargo"[)]'
   require_source_pattern "$slice_test" "generated behavior output" \
     '^[[:space:]]*"3 42\\n"'
+
+  require_source_pattern "$spirit_domain_test" "complete Spirit domain test" \
+    '^fn complete_spirit_domain_reaches_durable_logos_and_structural_rust[(][)]'
+  require_source_pattern "$spirit_domain_test" "41-item Spirit inventory" \
+    'assert_eq![(]inventory[.]items[(][)][.]len[(][)], 41[)][;]'
+  require_source_pattern "$spirit_domain_test" "38-enum Spirit inventory" \
+    'assert_eq![(]inventory[.]enumeration_count[(][)], 38[)][;]'
+  require_source_pattern "$spirit_domain_test" "369-variant Spirit inventory" \
+    'assert_eq![(]inventory[.]variant_count[(][)], 369[)][;]'
+  require_source_pattern "$spirit_domain_test" "37-payload Spirit inventory" \
+    'assert_eq![(]inventory[.]payload_variant_count[(][)], 37[)][;]'
+  require_source_pattern "$spirit_domain_test" "two Vector applications" \
+    'assert_eq![(]inventory[.]application_count[(]"Vector"[)], 2[)][;]'
+  require_source_pattern "$spirit_domain_test" "one ScopeOf application" \
+    'assert_eq![(]inventory[.]application_count[(]"ScopeOf"[)], 1[)][;]'
+  require_source_pattern "$spirit_domain_test" "complete Spirit Ethos archive recovery" \
+    'WholeEthos::from_archive_bytes[(]&ethos_archive[)]'
+  require_source_pattern "$spirit_domain_test" "complete direct Nomos lowering" \
+    'SliceOneTransformation::new[(][)][.]lower[(]&restored_ethos[)]'
+  require_source_pattern "$spirit_domain_test" "complete Spirit Logos archive recovery" \
+    'WholeLogos::from_archive_bytes[(]&logos_archive[)]'
+  require_source_pattern "$spirit_domain_test" "complete structural Rust emission" \
+    '[.]emit_fixture[(]&restored_logos, &projections[.]table[)]'
+  require_source_pattern "$spirit_domain_test" "complete structural Rust decode" \
+    '&emitted_bindings[(]&emitted, &restored_logos, &projections[)]'
+  require_source_pattern "$spirit_domain_test" "369-variant scratch behavior" \
+    '^[[:space:]]*"369\\n"'
+  require_source_pattern "$spirit_domain_test" "typed ScopeOf boundary" \
+    '^fn scope_of_stays_typed_application_data_without_a_runtime_substitute[(][)]'
+  require_source_pattern "$spirit_domain_test" "read-only signal-domain revision" \
+    '^const SIGNAL_DOMAIN_REVISION: &str = "[0-9a-f]{40}"[;]'
 
   require_source_pattern "$restart_test" "isolated process state" \
     '^[[:space:]]*let temporary = tempfile::tempdir[(][)][.]unwrap[(][)][;]'
@@ -210,12 +247,16 @@ copy_affected_manifests() {
       "$fixture_root/sources/$source_name/Cargo.toml"
     chmod u+w "$fixture_root/sources/$source_name/Cargo.toml"
     if [[ "$source_name" == language-engine-witness ]]; then
-      mkdir -p "$fixture_root/sources/$source_name/tests"
+      mkdir -p "$fixture_root/sources/$source_name/tests/fixtures"
       cp "$source_root/tests/slice_one.rs" \
         "$fixture_root/sources/$source_name/tests/slice_one.rs"
+      cp "$source_root/tests/spirit_domain.rs" \
+        "$fixture_root/sources/$source_name/tests/spirit_domain.rs"
+      cp "$source_root/tests/fixtures/spirit-domain.ethos" \
+        "$fixture_root/sources/$source_name/tests/fixtures/spirit-domain.ethos"
       cp "$source_root/tests/e2e.rs" \
         "$fixture_root/sources/$source_name/tests/e2e.rs"
-      chmod u+w "$fixture_root/sources/$source_name/tests/"*.rs
+      chmod -R u+w "$fixture_root/sources/$source_name/tests"
     fi
     fixture_map=$(
       jq -cn \
@@ -250,6 +291,7 @@ run_self_test() {
   local core_ethos_manifest
   local witness_e2e_test
   local witness_slice_test
+  local witness_spirit_domain_test
   local rust_logos_manifest
   local structural_codec_revision
 
@@ -260,6 +302,7 @@ run_self_test() {
   core_ethos_manifest="$temporary_root/sources/core-ethos/Cargo.toml"
   witness_e2e_test="$temporary_root/sources/language-engine-witness/tests/e2e.rs"
   witness_slice_test="$temporary_root/sources/language-engine-witness/tests/slice_one.rs"
+  witness_spirit_domain_test="$temporary_root/sources/language-engine-witness/tests/spirit_domain.rs"
   rust_logos_manifest="$temporary_root/sources/rust-logos/Cargo.toml"
   structural_codec_revision=$(root_revision "$lock_file" structural-codec)
 
@@ -297,6 +340,12 @@ run_self_test() {
     "$witness_slice_test"
   sed -i 's/&\\[42, 7, 9\\]/\\&[42, 7, 8]/' "$witness_slice_test"
   expect_coherence_rejection "behavior witness identity drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  sed -i \
+    's/inventory[.]variant_count[(][)], 369/inventory.variant_count(), 368/' \
+    "$witness_spirit_domain_test"
+  expect_coherence_rejection "Spirit domain inventory drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/slice_one.rs" \
