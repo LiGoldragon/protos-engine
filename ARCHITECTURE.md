@@ -52,11 +52,13 @@ This is an integration limitation, not permission to add engine code here.
 
 The pinned `language-engine-witness` repository owns the complete Slice One
 behavior proof. Its owner tests decode a complete six-slot Ethos document with
-translator-issued declaration and reference chains, archive and restore the
-Whole Ethos carrier, lower through the direct typed Nomos transformation,
-verify Whole Logos identity and archive recovery, structurally emit and decode
-Rust, and compile and run the generated newtype in a process-local scratch
-Cargo crate.
+translator-issued declaration and reference chains into an application-backed
+newtype and an enumeration with unit and positional tuple variants, archive
+and restore the Whole Ethos carrier, lower through the direct typed Nomos
+transformation, verify Whole Logos identity and archive recovery, structurally
+emit and decode Rust, refuse incomplete projections without partial output,
+and compile and exhaustively run the generated forms in a process-local
+scratch Cargo crate.
 
 The same published owner suite retains its isolated process continuity test:
 it terminates and restarts the delivered engine processes against the same

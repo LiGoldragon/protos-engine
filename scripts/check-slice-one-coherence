@@ -123,30 +123,42 @@ validate_behavior_witness() {
     return 1
   }
 
-  require_source_pattern "$slice_test" "six-slot Ethos test" \
-    '^fn six_slot_ethos_lowers_and_emits_a_working_integer_newtype[(][)]'
-  require_source_pattern "$slice_test" "translator-issued declaration chain" \
-    '^[[:space:]]*let declaration = issued[(]VocabularyRoot::Universal, &[[]42, 7, 9[]][)][;]'
+  require_source_pattern "$slice_test" "six-slot Ethos enum and application test" \
+    '^fn six_slot_ethos_lowers_and_emits_working_enum_and_application_shapes[(][)]'
+  require_source_pattern "$slice_test" "translator-issued item chain" \
+    '^[[:space:]]*newtype: issued[(]VocabularyRoot::Universal, &[[]42, 7, 9[]][)][,]'
+  require_source_pattern "$slice_test" "translator-issued enumeration chain" \
+    '^[[:space:]]*enumeration: issued[(]VocabularyRoot::Universal, &[[]42, 7, 10[]][)][,]'
+  require_source_pattern "$slice_test" "translator-issued descendant variant chain" \
+    '^[[:space:]]*batch_variant: issued[(]VocabularyRoot::Universal, &[[]42, 7, 10, 3[]][)][,]'
   require_source_pattern "$slice_test" "lookup-only Integer chain" \
-    '^[[:space:]]*let integer = issued[(]VocabularyRoot::Universal, &[[]3[]][)][;]'
+    '^[[:space:]]*integer: issued[(]VocabularyRoot::Universal, &[[]3[]][)][,]'
+  require_source_pattern "$slice_test" "lookup-only Vector chain" \
+    '^[[:space:]]*vector: issued[(]VocabularyRoot::Universal, &[[]4[]][)][,]'
   require_source_pattern "$slice_test" "typed six-slot decode" \
-    '[.]decode[(]ETHOS_SOURCE, &ethos_bindings[)]'
+    '[.]decode[(]ETHOS_SOURCE, &bindings[)]'
   require_source_pattern "$slice_test" "Whole Ethos archive recovery" \
     'WholeEthos::from_archive_bytes[(]&ethos_archive[)]'
   require_source_pattern "$slice_test" "direct Nomos lowering" \
     'SliceOneTransformation::new[(][)][.]lower[(]&restored_ethos[)]'
   require_source_pattern "$slice_test" "whole Logos identity" \
-    '^[[:space:]]*let _whole_identity = logos'
+    '^[[:space:]]*let whole_identity = logos'
   require_source_pattern "$slice_test" "Whole Logos archive recovery" \
     'WholeLogos::from_archive_bytes[(]&logos_archive[)]'
   require_source_pattern "$slice_test" "structural Rust emission" \
-    '^[[:space:]]*[.]emit[(]&restored_logos, &projections[)]'
+    '^[[:space:]]*[.]emit_fixture[(]&restored_logos, &projections[(]&ids[)][)]'
   require_source_pattern "$slice_test" "structural Rust decode" \
-    'rust[.]decode[(]&emitted, &emitted_bindings[)]'
+    'rust[.]decode_fixture[(]&emitted, &emitted_bindings[(]&emitted, &ids[)][)]'
+  require_source_pattern "$slice_test" "unit variant carrier" \
+    'WholeLogosVariantPayload::Unit'
+  require_source_pattern "$slice_test" "tuple variant carrier" \
+    'WholeLogosVariantPayload::Tuple'
+  require_source_pattern "$slice_test" "no-partial-emission refusal" \
+    '^fn incomplete_projection_refuses_without_returning_partial_rust[(][)]'
   require_source_pattern "$slice_test" "scratch Cargo execution" \
     '^[[:space:]]*let run = Command::new[(]"cargo"[)]'
   require_source_pattern "$slice_test" "generated behavior output" \
-    '^[[:space:]]*"41\\n"'
+    '^[[:space:]]*"3 42\\n"'
 
   require_source_pattern "$restart_test" "isolated process state" \
     '^[[:space:]]*let temporary = tempfile::tempdir[(][)][.]unwrap[(][)][;]'

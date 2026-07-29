@@ -39,13 +39,13 @@ Every repository input uses a full, published Git revision:
 | signal-sema-translator | `8c504ba7aa8dbdc5edf7daadbb862bbdaa5613be` |
 | sema-translator | `2e152787f9fd191a3f5f4d391bd832d12e1c341a` |
 | protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
-| core-ethos | `b51805acf48d691514c159b364aaf9d854ee9ddd` |
-| core-logos | `28260415849a250e5e310c3563eda99ad1ff4232` |
-| rust-logos | `53f407e794e78866d6af3ef155b13d46d6973ffc` |
-| core-nomos | `a30c0c5b74125218795806d37395eea5b8b1338c` |
-| language-engine-witness | `55b69192840ddcb757609d5c057eb0d3ccc58183` |
-| raw-discovery | `d979778aa9d79199785f7b683f1029534aea3604` |
-| structural-codec | `3cecb832e4209698038e64c537b66af8afcb66b2` |
+| core-ethos | `a79aeb9a0b2bb304d69d7392147639e13a3d58bc` |
+| core-logos | `3e4ae814f684b44c0aa45d5887c09a7d61d75db6` |
+| rust-logos | `c1a62852569457af423acc633c4ab392aca7e498` |
+| core-nomos | `59d7364139f040601102051c8b8aa65fab1e53c4` |
+| language-engine-witness | `2286f543c0c8d2cae2979ad0d1e93eaa109e6714` |
+| raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
+| structural-codec | `5c11e1fb7f58444cd860207803d8f705e7415d71` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
 | schema-rust | `3721656b0a654d47d9abde31f14d89d01f9305cf` |
 | signal-spirit | `1cf7c010029de46369b742687da4fa1ca6def9a9` |
@@ -134,11 +134,13 @@ the producer's broader published suite as a separate closure check.
 
 `slice-one-behavior-witness` realizes the pinned
 language-engine-witness owner suite only after exact-pin, dependency-direction,
-and Slice One coherence derivations succeed. The owner suite decodes the
-six-slot Ethos newtype with translator-issued chains, archives and restores
-Whole Ethos, lowers through direct typed Nomos to identified Whole Logos,
-archives and restores Whole Logos, structurally emits and decodes Rust, then
-compiles and runs the generated newtype in a temporary Cargo crate. Its
+and Slice One coherence derivations succeed. The owner suite decodes a
+six-slot Ethos application-backed newtype and enumeration with unit and
+positional tuple variants using translator-issued chains, archives and
+restores Whole Ethos, lowers through direct typed Nomos to identified Whole
+Logos, archives and restores Whole Logos, structurally emits and decodes Rust,
+refuses incomplete projections without returning partial source, then
+compiles and exhaustively runs the generated forms in a temporary Cargo crate. Its
 separate process witness terminates and restarts the pinned engine processes
 against isolated temporary state and proves durable recovery and resumed
 progression. The wrapper dependencies ensure a producer-pin change cannot
