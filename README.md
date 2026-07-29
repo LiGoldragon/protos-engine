@@ -43,6 +43,7 @@ Every repository input uses a full, published Git revision:
 | core-logos | `a7dd1e2b8d0c55d26e96c5b1b7154a534cf03e55` |
 | rust-logos | `3f1fa92ec268210777f27878a1a02287a7e2a2a8` |
 | core-nomos | `cc10e53f49f272ddbd061bf6dea35be072508df9` |
+| language-engine-witness | `92f54591d8ce82d7eff3f85578fe5ebeb014084e` |
 | raw-discovery | `d979778aa9d79199785f7b683f1029534aea3604` |
 | structural-codec | `e47bec61c81fba80deb44c5920f6a15420bbf962` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
@@ -95,10 +96,12 @@ verification, complete-pin verification, or module-table/Capsule composition.
 Slice One producer edge against the exact root revisions. It covers
 structural-codec's raw-discovery and name-table producers; core-ethos's
 chain-based raw/structural aliases; core-nomos's chain-based Ethos/Logos
-aliases; and rust-logos's complete direct producer set. Its mutation suite
-rejects revision drift, repository drift, alias package drift, and duplicate
-direct declarations. The older flat API dependencies remain isolated from
-these checked aliases and are not represented as a migrated type universe.
+aliases; rust-logos's complete direct producer set; and the published
+language-engine-witness's eight Slice One aliases. Its mutation suite rejects
+revision drift, repository drift, alias package drift, duplicate direct
+declarations, durable-chain drift, and removal of restart coverage. The older
+flat API dependencies remain isolated from these checked aliases and are not
+represented as a migrated type universe.
 
 ## Checks
 
@@ -128,6 +131,18 @@ satisfy it. The test implementation stays in Spirit.
 active `#[test]`, is not ignored, and retains executable TempDir, daemon,
 query, and assertion statements. `public-text-search-owner-suite` preserves
 the producer's broader published suite as a separate closure check.
+
+`slice-one-behavior-witness` realizes the pinned
+language-engine-witness owner suite only after exact-pin, dependency-direction,
+and Slice One coherence derivations succeed. The owner suite decodes the
+six-slot Ethos newtype with translator-issued chains, archives and restores
+Whole Ethos, lowers through direct typed Nomos to identified Whole Logos,
+archives and restores Whole Logos, structurally emits and decodes Rust, then
+compiles and runs the generated newtype in a temporary Cargo crate. Its
+separate process witness terminates and restarts the pinned engine processes
+against isolated temporary state and proves durable recovery and resumed
+progression. The wrapper dependencies ensure a producer-pin change cannot
+reuse a behavior result without rebuilding the relevant coherence closure.
 
 Run the same owning published suite explicitly with:
 

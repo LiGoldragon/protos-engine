@@ -10,6 +10,7 @@
     core-ethos.url = "github:LiGoldragon/core-ethos/5bace8ae21468401a07af262b6b9c15dd8543cb6";
     core-logos.url = "github:LiGoldragon/core-logos/a7dd1e2b8d0c55d26e96c5b1b7154a534cf03e55";
     core-nomos.url = "github:LiGoldragon/core-nomos/cc10e53f49f272ddbd061bf6dea35be072508df9";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/92f54591d8ce82d7eff3f85578fe5ebeb014084e";
     name-table = {
       url = "github:LiGoldragon/name-table/1f558eac44bd03034e51ad98e3a65ec16d8b8411";
     };
@@ -52,6 +53,7 @@
       core-ethos,
       core-logos,
       core-nomos,
+      language-engine-witness,
       name-table,
       raw-discovery,
       structural-codec,
@@ -158,6 +160,21 @@
                   --self-test ${self}/flake.lock ${familySourceMap}
                 touch "$out"
               '';
+          sliceOneBehaviorWitness =
+            pkgs.runCommand "protos-engine-slice-one-behavior-witness"
+              {
+                validatedPinPolicy = exactPins;
+                validatedDependencyDirection = dependencyDirection;
+                validatedSliceOneCoherence = sliceOneCoherence;
+                ownerWitness = language-engine-witness.checks.${system}.test;
+              }
+              ''
+                test -e "$validatedPinPolicy"
+                test -e "$validatedDependencyDirection"
+                test -e "$validatedSliceOneCoherence"
+                test -e "$ownerWitness"
+                touch "$out"
+              '';
           publicTextSearchWitnessContract =
             pkgs.runCommand "protos-engine-public-text-search-witness-contract"
               {
@@ -232,6 +249,7 @@
           dependency-direction = dependencyDirection;
           identity-capsule-coherence = identityCapsuleCoherence;
           slice-one-coherence = sliceOneCoherence;
+          slice-one-behavior-witness = sliceOneBehaviorWitness;
           public-text-search-witness-contract = publicTextSearchWitnessContract;
           public-text-search-exact-test = publicTextSearchExactTest;
           shell-scripts = shellScripts;

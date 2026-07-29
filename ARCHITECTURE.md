@@ -48,6 +48,25 @@ reimplementing the test:
 
 This is an integration limitation, not permission to add engine code here.
 
+## Slice One behavior witness
+
+The pinned `language-engine-witness` repository owns the complete Slice One
+behavior proof. Its owner tests decode a complete six-slot Ethos document with
+translator-issued declaration and reference chains, archive and restore the
+Whole Ethos carrier, lower through the direct typed Nomos transformation,
+verify Whole Logos identity and archive recovery, structurally emit and decode
+Rust, and compile and run the generated newtype in a process-local scratch
+Cargo crate.
+
+The same published owner suite retains its isolated process continuity test:
+it terminates and restarts the delivered engine processes against the same
+temporary database, verifies archived state recovery, and proves a second
+document progresses durably after restart. `protos-engine` does not copy those
+tests. Its existing Slice One coherence script validates the witness's exact
+producer aliases and executable evidence, including mutation refusals for
+identity and restart drift. The root behavior derivation depends on pin,
+direction, and coherence results before accepting the published owner result.
+
 ## Lock policy
 
 Root source inputs are a closed set proved by two independent surfaces. The
