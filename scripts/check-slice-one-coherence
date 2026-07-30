@@ -3,7 +3,7 @@ set -euo pipefail
 
 # These are the complete direct producer edges for the chain-based language
 # path and the native authored Nomos process that now owns its runtime.
-readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|raw-discovery|raw-discovery|\ncore-nomos|textual-rust|rust-logos|rust-logos\ncore-nomos|structural-codec|structural-codec|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nsignal-nomos|core-nomos|core-nomos|\nnomos-engine|core-ethos|core-ethos|\nnomos-engine|core-logos|core-logos|\nnomos-engine|core-nomos|core-nomos|\nnomos-engine|protos|protos|\nnomos-engine|sema-engine|sema-engine|\nnomos-engine|signal-nomos|signal-nomos|\nnomos-engine|signal-sema-translator|signal-sema-translator|\nnomos-engine|name-table|name-table|\nnomos-engine|structural-codec|structural-codec|\nlanguage-engine-witness|nomos-engine|nomos-engine|\nlanguage-engine-witness|signal-nomos|signal-nomos|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
+readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|raw-discovery|raw-discovery|\ncore-nomos|textual-rust|rust-logos|rust-logos\ncore-nomos|structural-codec|structural-codec|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nsignal-nomos|core-nomos|core-nomos|\nnomos-engine|core-ethos|core-ethos|\nnomos-engine|core-logos|core-logos|\nnomos-engine|core-nomos|core-nomos|\nnomos-engine|protos|protos|\nnomos-engine|sema-engine|sema-engine|\nnomos-engine|signal-nomos|signal-nomos|\nnomos-engine|signal-sema-translator|signal-sema-translator|\nnomos-engine|name-table|name-table|\nnomos-engine|structural-codec|structural-codec|\nlanguage-engine-witness|nomos-engine|nomos-engine|\nlanguage-engine-witness|signal-nomos|signal-nomos|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-protos|protos|protos\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
 
 root_revision() {
   local lock_file=$1
@@ -239,6 +239,20 @@ validate_behavior_witness() {
     '^[[:space:]]*&NomosRequest::Deploy [{]'
   require_source_pattern "$restart_test" "nonempty native Nomos transform" \
     '^[[:space:]]*&& !outcome[.]logos_population[(][)][.]is_empty[(][)]'
+  require_source_pattern "$restart_test" "authored recursive enumeration declaration" \
+    '^ScopeOfStep[.]Recursive[.]Enumeration [{]$'
+  require_source_pattern "$restart_test" "authored recursive self Invoke" \
+    '^Invoke[.]ScopeOfStep$'
+  require_source_pattern "$restart_test" "boundary-zero InsertAt" \
+    '^InsertAt[.]children 0 rustfmt[.]skip$'
+  require_source_pattern "$restart_test" "finite recursive Ethos corpus" \
+    '^fn recursive_ethos_population[(]fixed: &FixedNames[)] -> EthosPopulationArchive [{]$'
+  require_source_pattern "$restart_test" "recursive child-before-parent output order" \
+    'assert_eq![(]constructors, vec![[]3, 3, 1, 3, 3, 1, 1, 1, 3, 1[]][)][;]'
+  require_source_pattern "$restart_test" "restart-stable canonical recursive output" \
+    'assert_eq![(]recovered_output, initial_output[)][;]'
+  require_source_pattern "$restart_test" "renamed InsertAt canonical projection" \
+    'InsertAt[.]descendants 0 rustfmt[.]skip'
   require_source_pattern "$restart_test" "authorized projection advance" \
     '^[[:space:]]*&NomosRequest::AdvanceProjection [{]'
   require_source_pattern "$restart_test" "process termination before restart" \
@@ -476,6 +490,54 @@ run_self_test() {
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
     "$witness_nomos_process_test"
   sed -i \
+    's/^ScopeOfStep[.]Recursive[.]Enumeration [{]$/ScopeOfStep.Structural.Enumeration {/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "recursive declaration witness removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/^Invoke[.]ScopeOfStep$/Invoke.WireAttributes/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "recursive self Invoke witness removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/^InsertAt[.]children 0 rustfmt[.]skip$/InsertAt.children 1 rustfmt.skip/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "InsertAt boundary witness drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/vec![[]3, 3, 1, 3, 3, 1, 1, 1, 3, 1[]]/vec![3, 1]/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "recursive output order witness drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/assert_eq![(]recovered_output, initial_output[)][;]/assert_ne!(recovered_output, initial_output);/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "restart-stable recursive output witness removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/InsertAt[.]descendants 0 rustfmt[.]skip/InsertAt.children 0 rustfmt.skip/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "recursive rename projection witness removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
     's/recv_timeout[(]PROCESS_STARTUP_TIMEOUT[)]/recv()/' \
     "$witness_nomos_process_test"
   expect_coherence_rejection "bounded process readiness removal" \
@@ -527,7 +589,7 @@ case ${1:-} in
       exit 2
     }
     run_self_test "$2" "$3"
-    echo "Slice One and native Nomos mutations reject producer, protocol, timeout, legacy-source, identity, and restart drift"
+    echo "Slice One and native Nomos mutations reject producer, protocol, timeout, legacy-source, identity, recursion, InsertAt, and restart drift"
     ;;
   "")
     echo "usage: check-slice-one-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2

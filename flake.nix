@@ -13,7 +13,7 @@
     core-ethos.url = "github:LiGoldragon/core-ethos/736460fdafbd65d6500fe15e6ae8844b42a39e7c";
     core-logos.url = "github:LiGoldragon/core-logos/9a61e2ac1bf8a8c1163794d695902115a05a4007";
     core-nomos.url = "github:LiGoldragon/core-nomos/58fd8036bffcb3cff6e27af4db25690764ecc768";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/ce51afb64e0664c0e4950d8a38197803f5b65c03";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/edbf506f2befd2ee756ecdf22e28fd09e53017e7";
     legacy-protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     name-table = {
       url = "github:LiGoldragon/name-table/50cb4bb53ae2dc4f2516f6912be328ef98ae49f8";

@@ -54,7 +54,7 @@ Every repository input uses a full, published Git revision:
 | template-core-logos (po2.5 graph) | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
 | template-rust-logos (po2.5 graph) | `96eda934a8f3203295f0a08869199441f109c369` |
 | equivalent-core-nomos (po2.5 graph) | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
-| language-engine-witness | `ce51afb64e0664c0e4950d8a38197803f5b65c03` |
+| language-engine-witness | `edbf506f2befd2ee756ecdf22e28fd09e53017e7` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
 | structural-codec | `f47fac132722916912b7071556f69cbbf4026f7f` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
@@ -171,11 +171,14 @@ compiles and exhaustively runs the generated forms in a temporary Cargo crate. I
 separate process witness terminates and restarts the pinned native Nomos engine
 against isolated temporary state and proves durable recovery and resumed
 progression. The current process path authority-seals authored Nomos, deploys
-it through the native daemon, transforms nonempty Ethos, advances its
-authenticated NameTree projection, restarts on the same `nomos.sema`, resumes
-at projection 1, rejects stale projection artifacts, and preserves the
-current-deployment no-op before stale CAS ordering. The wrapper also realizes
-nomos-engine's 15-test owner gate and signal-nomos's typed protocol suite.
+it through the native daemon, recursively transforms a finite enumeration tree,
+asserts child-before-parent `Invoke` order and boundary-zero `InsertAt`, advances
+its authenticated NameTree projection, restarts on the same `nomos.sema`, and
+reproduces the exact canonical Logos archive at projection 1. It also proves
+recursive-binding rename projection, rejects stale projection artifacts, and
+preserves the current-deployment no-op before stale CAS ordering. The wrapper
+also realizes nomos-engine's 15-test owner gate and signal-nomos's typed
+protocol suite.
 Daemon readiness and every process socket read/write are bounded to ten
 seconds, and coherence mutations reject removal of those deadlines.
 It additionally realizes the owner's exact read-only Spirit-domain source

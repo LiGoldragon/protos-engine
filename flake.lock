@@ -1960,17 +1960,17 @@
         "signal-domain-source": "signal-domain-source"
       },
       "locked": {
-        "lastModified": 1785452483,
-        "narHash": "sha256-EhIUuktlkridLtT+eTaiebZ98tonlPIx5Ky/i7JHhQE=",
+        "lastModified": 1785454833,
+        "narHash": "sha256-VIt1a91A0CIP9k+B6F/kc509Cy0B8dVgF27w7/KUxMw=",
         "owner": "LiGoldragon",
         "repo": "language-engine-witness",
-        "rev": "ce51afb64e0664c0e4950d8a38197803f5b65c03",
+        "rev": "edbf506f2befd2ee756ecdf22e28fd09e53017e7",
         "type": "github"
       },
       "original": {
         "owner": "LiGoldragon",
         "repo": "language-engine-witness",
-        "rev": "ce51afb64e0664c0e4950d8a38197803f5b65c03",
+        "rev": "edbf506f2befd2ee756ecdf22e28fd09e53017e7",
         "type": "github"
       }
     },
