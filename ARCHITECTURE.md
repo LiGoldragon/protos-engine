@@ -79,6 +79,24 @@ data: no runtime transform exists on this path, so the two Vector newtypes
 whose payload is `DomainScope` are not replaced with a compatibility shape or
 claimed as Cargo behavior.
 
+## Po2.5 structural equivalence
+
+The po2.5 producer train is pinned beside, rather than substituted into, the
+frozen Slice One graph. The `template-core-logos`, `template-rust-logos`, and
+`equivalent-core-nomos` integration labels identify exact published revisions;
+the component package and repository names remain canonical.
+
+The owning core-nomos test exhaustively converts the five-definition legacy
+wire fixture into the generic authored representation and compares kinds,
+ordered signatures, complete identity ancestry, constructors, stable roles,
+recursive sequences, literals, futures, splice semantics, fragment outputs,
+revision, defaults, and the separate ordered generation selection. Mutation
+witnesses reject semantic drift. Its retained legacy lowering run is a
+structural-proof-implied sanity check over the same evaluator, not independent
+behavioral evidence. `check-po-two-five-coherence` verifies the three direct
+producer edges and the presence of those owner witnesses before accepting the
+published owner test derivation.
+
 ## Lock policy
 
 Root source inputs are a closed set proved by two independent surfaces. The

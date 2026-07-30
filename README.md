@@ -42,10 +42,13 @@ Every repository input uses a full, published Git revision:
 | protos (legacy Capsule consumers) | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
 | nomos-protos (content-only identity consumer) | `1263f9d1f73b57885d695ac033bdd6faa1334ddf` |
 | core-ethos | `47c866f101c0e830ecff70451e92f7bdc0ade4e7` |
-| core-logos | `918869938402a099c3d8cd5d599b2488d0317c15` |
-| rust-logos | `ed6665d50bae56f5e26a764a1fd2f4dc6231a251` |
+| core-logos (Slice One graph) | `918869938402a099c3d8cd5d599b2488d0317c15` |
+| rust-logos (Slice One graph) | `ed6665d50bae56f5e26a764a1fd2f4dc6231a251` |
 | core-nomos (Slice One graph) | `7cd62205a19938cb3921a4cad56d79a596c662f0` |
 | sealed-core-nomos (content-only identity consumer) | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
+| template-core-logos (po2.5 graph) | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
+| template-rust-logos (po2.5 graph) | `96eda934a8f3203295f0a08869199441f109c369` |
+| equivalent-core-nomos (po2.5 graph) | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
 | language-engine-witness | `8eb6fd7b2cec633daeff26a7c6264d815fa6df16` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
 | structural-codec | `1485c1f8edcb9c988492c6eb0378c10a3599d665` |
@@ -120,6 +123,15 @@ revision drift, repository drift, alias package drift, duplicate direct
 declarations, durable-chain drift, and removal of restart coverage. The core
 surfaces carry one structural-codec 0.18 dependency universe; the witness's
 separate daemon closure remains outside that authored-language carrier graph.
+
+`scripts/check-po-two-five-coherence` advances a separate, exact po2.5 graph
+without moving the frozen Slice One owner pins. It verifies that the published
+rust-logos and core-nomos revisions consume the published struct-capable
+core-logos revision, that core-nomos consumes rust-logos through the
+`textual-rust` dependency label, and that the owner retains the exhaustive
+five-transformer structural-equivalence and mutation witnesses. The retained
+legacy evaluator run is only a structural-proof-implied sanity check; the gate
+does not claim an independent authored evaluator.
 
 ## Checks
 

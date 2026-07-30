@@ -1,0 +1,220 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Po2.5 advances the Template(Logos) proof graph without moving the frozen
+# Slice One owner graph. These aliases are integration labels, not component
+# aliases: every Cargo edge still targets the canonical published package.
+readonly expected_edges=$'template-rust-logos|core-logos|template-core-logos|\nequivalent-core-nomos|core-logos|template-core-logos|\nequivalent-core-nomos|textual-rust|template-rust-logos|rust-logos'
+
+root_revision() {
+  local lock_file=$1
+  local input_name=$2
+
+  jq -er --arg input_name "$input_name" '
+    .root as $root
+    | .nodes[$root].inputs[$input_name] as $node_name
+    | select($node_name | type == "string")
+    | .nodes[$node_name].locked.rev
+    | select(type == "string" and test("^[0-9a-f]{40}$"))
+  ' "$lock_file"
+}
+
+source_path() {
+  local source_map_file=$1
+  local source_name=$2
+
+  jq -er --arg source_name "$source_name" '
+    .[$source_name]
+    | select(type == "string" and length > 0)
+  ' "$source_map_file"
+}
+
+dependency_declaration() {
+  local manifest=$1
+  local dependency_name=$2
+  local declarations
+
+  declarations=$(
+    LC_ALL=C grep -E \
+      "^[[:space:]]*${dependency_name}[[:space:]]*=" "$manifest" || true
+  )
+  if [[ $(printf '%s\n' "$declarations" | sed '/^$/d' | wc -l) -ne 1 ]]; then
+    echo "expected exactly one po2.5 dependency: $manifest:$dependency_name" >&2
+    return 1
+  fi
+  printf '%s\n' "$declarations"
+}
+
+validate_direct_edge() {
+  local source_map_file=$1
+  local lock_file=$2
+  local source_name=$3
+  local dependency_name=$4
+  local target_name=$5
+  local package_name=$6
+  local manifest
+  local target_revision
+  local target_repository
+  local declaration
+  local compact_declaration
+
+  manifest="$(source_path "$source_map_file" "$source_name")/Cargo.toml"
+  [[ -f "$manifest" && ! -L "$manifest" ]] || {
+    echo "po2.5 source lacks a regular Cargo.toml: $source_name" >&2
+    return 1
+  }
+  target_revision=$(root_revision "$lock_file" "$target_name") || {
+    echo "po2.5 target is not an exact root pin: $target_name" >&2
+    return 1
+  }
+  case $target_name in
+    template-core-logos)
+      target_repository=core-logos
+      ;;
+    template-rust-logos)
+      target_repository=rust-logos
+      ;;
+    *)
+      target_repository=$target_name
+      ;;
+  esac
+  declaration=$(dependency_declaration "$manifest" "$dependency_name") ||
+    return 1
+  compact_declaration=$(printf '%s\n' "$declaration" | tr -d '[:space:]')
+
+  if [[ "$compact_declaration" != *"git=\"https://github.com/LiGoldragon/${target_repository}.git\""* ]]; then
+    echo "po2.5 edge targets the wrong repository: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+  if [[ "$compact_declaration" != *"rev=\"$target_revision\""* ]]; then
+    echo "po2.5 edge differs from the exact root revision: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+  if [[ -n "$package_name" &&
+    "$compact_declaration" != *"package=\"$package_name\""* ]]; then
+    echo "po2.5 dependency label targets the wrong package: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+}
+
+validate_edges() {
+  local lock_file=$1
+  local source_map_file=$2
+  local source_name
+  local dependency_name
+  local target_name
+  local package_name
+
+  while IFS='|' read -r \
+    source_name dependency_name target_name package_name; do
+    validate_direct_edge "$source_map_file" "$lock_file" \
+      "$source_name" "$dependency_name" "$target_name" "$package_name" ||
+      return 1
+  done < <(printf '%s\n' "$expected_edges")
+}
+
+validate_owner_witness() {
+  local source_map_file=$1
+  local test_source
+
+  test_source="$(source_path "$source_map_file" equivalent-core-nomos)/tests/textual_nomos.rs"
+  [[ -f "$test_source" && ! -L "$test_source" ]] || {
+    echo "po2.5 owner lacks the structural-equivalence test surface" >&2
+    return 1
+  }
+  for witness in \
+    standard_text_is_structurally_equivalent_to_all_five_legacy_transformers \
+    declaration_set_reordering_preserves_structural_equivalence \
+    isolated_kind_meta_fragment_and_transform_mutations_are_localized \
+    legacy_only_splice_semantics_are_checked_explicitly \
+    duplicate_identities_and_text_scalars_refuse_with_typed_diagnostics; do
+    LC_ALL=C grep -Fq "fn ${witness}()" "$test_source" || {
+      echo "po2.5 owner witness is missing: $witness" >&2
+      return 1
+    }
+  done
+}
+
+validate_coherence() {
+  local lock_file=$1
+  local source_map_file=$2
+
+  validate_edges "$lock_file" "$source_map_file"
+  validate_owner_witness "$source_map_file"
+}
+
+copy_manifests() {
+  local source_map_file=$1
+  local fixture_root=$2
+  local fixture_map='{}'
+  local source_name
+  local source_root
+
+  for source_name in template-rust-logos equivalent-core-nomos; do
+    source_root=$(source_path "$source_map_file" "$source_name")
+    mkdir -p "$fixture_root/$source_name"
+    cp "$source_root/Cargo.toml" "$fixture_root/$source_name/Cargo.toml"
+    chmod u+w "$fixture_root/$source_name/Cargo.toml"
+    fixture_map=$(
+      jq -cn \
+        --argjson fixture_map "$fixture_map" \
+        --arg source_name "$source_name" \
+        --arg source_path "$fixture_root/$source_name" \
+        '$fixture_map + {($source_name): $source_path}'
+    )
+  done
+  printf '%s\n' "$fixture_map" > "$fixture_root/source-map.json"
+}
+
+run_self_test() {
+  local lock_file=$1
+  local source_map_file=$2
+  local temporary_root
+  local manifest
+
+  validate_coherence "$lock_file" "$source_map_file"
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+  copy_manifests "$source_map_file" "$temporary_root"
+  manifest="$temporary_root/equivalent-core-nomos/Cargo.toml"
+  sed -i \
+    '/^[[:space:]]*core-logos[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
+    "$manifest"
+  if validate_edges "$lock_file" "$temporary_root/source-map.json" >/dev/null 2>&1; then
+    echo "po2.5 coherence accepted revision drift" >&2
+    return 1
+  fi
+
+  copy_manifests "$source_map_file" "$temporary_root"
+  manifest="$temporary_root/equivalent-core-nomos/Cargo.toml"
+  sed -i \
+    '/^[[:space:]]*textual-rust[[:space:]]*=/s/package = "rust-logos"/package = "wrong-package"/' \
+    "$manifest"
+  if validate_edges "$lock_file" "$temporary_root/source-map.json" >/dev/null 2>&1; then
+    echo "po2.5 coherence accepted package-label drift" >&2
+    return 1
+  fi
+}
+
+case ${1:-} in
+  --self-test)
+    (( $# == 3 )) || {
+      echo "usage: check-po-two-five-coherence --self-test FLAKE_LOCK SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    run_self_test "$2" "$3"
+    echo "po2.5 coherence mutations reject revision and package-label drift"
+    ;;
+  "")
+    echo "usage: check-po-two-five-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
+    exit 2
+    ;;
+  *)
+    (( $# == 2 )) || {
+      echo "usage: check-po-two-five-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    validate_coherence "$1" "$2"
+    echo "po2.5 producer edges and structural-equivalence witnesses are exact"
+    ;;
+esac

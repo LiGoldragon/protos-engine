@@ -26,6 +26,9 @@
     protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     nomos-protos.url = "github:LiGoldragon/protos/1263f9d1f73b57885d695ac033bdd6faa1334ddf";
     sealed-core-nomos.url = "github:LiGoldragon/core-nomos/ba7abc0b471a0385012b1d8a03cf4942e9da617e";
+    template-core-logos.url = "github:LiGoldragon/core-logos/141abe23273273d2e4470ce15b42ccf9bc5c8764";
+    template-rust-logos.url = "github:LiGoldragon/rust-logos/96eda934a8f3203295f0a08869199441f109c369";
+    equivalent-core-nomos.url = "github:LiGoldragon/core-nomos/e1b2febf9f143ab1c84d042d2e9bdd0685303ddc";
     sema-translator.url = "github:LiGoldragon/sema-translator/6df830ab1ec9f315a5b50e40ffc393b48ea3d412";
     signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/51c02c4a7b6f67d9dad095f11986085d7d65785b";
     schema-language = {
@@ -64,6 +67,9 @@
       protos,
       nomos-protos,
       sealed-core-nomos,
+      template-core-logos,
+      template-rust-logos,
+      equivalent-core-nomos,
       sema-translator,
       signal-sema-translator,
       schema-language,
@@ -184,6 +190,20 @@
                 test -e "$ownerSpiritDomainInventory"
                 touch "$out"
               '';
+          poTwoFiveCoherence =
+            pkgs.runCommand "protos-engine-po-two-five-coherence"
+              {
+                nativeBuildInputs = scriptInputs;
+                validatedPinPolicy = exactPins;
+              }
+              ''
+                test -e "$validatedPinPolicy"
+                bash ${./scripts/check-po-two-five-coherence} \
+                  ${self}/flake.lock ${familySourceMap}
+                bash ${./scripts/check-po-two-five-coherence} \
+                  --self-test ${self}/flake.lock ${familySourceMap}
+                touch "$out"
+              '';
           publicTextSearchWitnessContract =
             pkgs.runCommand "protos-engine-public-text-search-witness-contract"
               {
@@ -256,6 +276,9 @@
                 rust-logos-test = rust-logos.checks.${system}.test;
                 core-nomos-test = core-nomos.checks.${system}.test;
                 sealed-core-nomos-test = sealed-core-nomos.checks.${system}.test;
+                template-core-logos-test = template-core-logos.checks.${system}.test;
+                template-rust-logos-test = template-rust-logos.checks.${system}.test;
+                equivalent-core-nomos-test = equivalent-core-nomos.checks.${system}.test;
               }
             else
               { };
@@ -267,6 +290,7 @@
           identity-capsule-coherence = identityCapsuleCoherence;
           slice-one-coherence = sliceOneCoherence;
           slice-one-behavior-witness = sliceOneBehaviorWitness;
+          po-two-five-coherence = poTwoFiveCoherence;
           public-text-search-witness-contract = publicTextSearchWitnessContract;
           public-text-search-exact-test = publicTextSearchExactTest;
           shell-scripts = shellScripts;
