@@ -44,19 +44,19 @@ Every repository input uses a full, published Git revision:
 | protos (neutral po2.6 carrier) | `c85cec6117bfd4c423d952fd54e0c0bb11562f89` |
 | legacy-protos (unchanged Ethos/Logos consumers) | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
 | nomos-protos (content-only identity consumer) | `1263f9d1f73b57885d695ac033bdd6faa1334ddf` |
-| core-ethos | `47c866f101c0e830ecff70451e92f7bdc0ade4e7` |
-| core-logos | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
-| rust-logos | `96eda934a8f3203295f0a08869199441f109c369` |
-| core-nomos | `d47e1e4441b7110051aba0f54eb6dea31c057b4c` |
-| signal-nomos | `40ea24045194542a679b97ae34e53c92c2393480` |
-| nomos-engine | `0773e03eae899e1364cb639280e57520d6d454b2` |
+| core-ethos | `736460fdafbd65d6500fe15e6ae8844b42a39e7c` |
+| core-logos | `9a61e2ac1bf8a8c1163794d695902115a05a4007` |
+| rust-logos | `f46167cbb35d25d86ddbc197653c6560ded8e077` |
+| core-nomos | `58fd8036bffcb3cff6e27af4db25690764ecc768` |
+| signal-nomos | `1af71a9d0625a6404f81cd6fe8b6393ac0c9040f` |
+| nomos-engine | `e4230f62b55fcf8543477a26d272862a63aa1fc3` |
 | sealed-core-nomos (content-only identity consumer) | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
 | template-core-logos (po2.5 graph) | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
 | template-rust-logos (po2.5 graph) | `96eda934a8f3203295f0a08869199441f109c369` |
 | equivalent-core-nomos (po2.5 graph) | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
-| language-engine-witness | `d24ec383ceeba3ab24310d4a177536a962239c64` |
+| language-engine-witness | `ce51afb64e0664c0e4950d8a38197803f5b65c03` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
-| structural-codec | `1485c1f8edcb9c988492c6eb0378c10a3599d665` |
+| structural-codec | `f47fac132722916912b7071556f69cbbf4026f7f` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
 | schema-rust | `3721656b0a654d47d9abde31f14d89d01f9305cf` |
 | signal-spirit | `1cf7c010029de46369b742687da4fa1ca6def9a9` |
