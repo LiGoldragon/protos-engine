@@ -42,8 +42,8 @@ Every repository input uses a full, published Git revision:
 | core-ethos | `47c866f101c0e830ecff70451e92f7bdc0ade4e7` |
 | core-logos | `918869938402a099c3d8cd5d599b2488d0317c15` |
 | rust-logos | `ed6665d50bae56f5e26a764a1fd2f4dc6231a251` |
-| core-nomos | `94cec6ed90cda69dd0f3b94bae074deaf459c8e4` |
-| language-engine-witness | `745c9c3e91e443c1b68cdf78770f60181109fa68` |
+| core-nomos | `7cd62205a19938cb3921a4cad56d79a596c662f0` |
+| language-engine-witness | `8eb6fd7b2cec633daeff26a7c6264d815fa6df16` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
 | structural-codec | `1485c1f8edcb9c988492c6eb0378c10a3599d665` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
