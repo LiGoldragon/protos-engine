@@ -34,15 +34,18 @@ Every repository input uses a full, published Git revision:
 
 | Repository | Revision |
 | --- | --- |
-| content-identity | `fdf2db1d5a9e8ea52d24d39a03833c3e6885c355` |
+| content-identity (legacy per-item graph) | `fdf2db1d5a9e8ea52d24d39a03833c3e6885c355` |
+| capsule-content-identity (content-only) | `896b21e17f31b66d0802bff899b4b60acea9c0f1` |
 | name-table | `50cb4bb53ae2dc4f2516f6912be328ef98ae49f8` |
 | signal-sema-translator | `51c02c4a7b6f67d9dad095f11986085d7d65785b` |
 | sema-translator | `6df830ab1ec9f315a5b50e40ffc393b48ea3d412` |
-| protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
+| protos (legacy Capsule consumers) | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
+| nomos-protos (content-only identity consumer) | `1263f9d1f73b57885d695ac033bdd6faa1334ddf` |
 | core-ethos | `47c866f101c0e830ecff70451e92f7bdc0ade4e7` |
 | core-logos | `918869938402a099c3d8cd5d599b2488d0317c15` |
 | rust-logos | `ed6665d50bae56f5e26a764a1fd2f4dc6231a251` |
-| core-nomos | `7cd62205a19938cb3921a4cad56d79a596c662f0` |
+| core-nomos (Slice One graph) | `7cd62205a19938cb3921a4cad56d79a596c662f0` |
+| sealed-core-nomos (content-only identity consumer) | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
 | language-engine-witness | `8eb6fd7b2cec633daeff26a7c6264d815fa6df16` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
 | structural-codec | `1485c1f8edcb9c988492c6eb0378c10a3599d665` |

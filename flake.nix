@@ -7,6 +7,9 @@
     content-identity = {
       url = "github:LiGoldragon/content-identity/fdf2db1d5a9e8ea52d24d39a03833c3e6885c355";
     };
+    capsule-content-identity = {
+      url = "github:LiGoldragon/content-identity/896b21e17f31b66d0802bff899b4b60acea9c0f1";
+    };
     core-ethos.url = "github:LiGoldragon/core-ethos/47c866f101c0e830ecff70451e92f7bdc0ade4e7";
     core-logos.url = "github:LiGoldragon/core-logos/918869938402a099c3d8cd5d599b2488d0317c15";
     core-nomos.url = "github:LiGoldragon/core-nomos/7cd62205a19938cb3921a4cad56d79a596c662f0";
@@ -21,6 +24,8 @@
       url = "github:LiGoldragon/structural-codec/1485c1f8edcb9c988492c6eb0378c10a3599d665";
     };
     protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
+    nomos-protos.url = "github:LiGoldragon/protos/1263f9d1f73b57885d695ac033bdd6faa1334ddf";
+    sealed-core-nomos.url = "github:LiGoldragon/core-nomos/ba7abc0b471a0385012b1d8a03cf4942e9da617e";
     sema-translator.url = "github:LiGoldragon/sema-translator/6df830ab1ec9f315a5b50e40ffc393b48ea3d412";
     signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/51c02c4a7b6f67d9dad095f11986085d7d65785b";
     schema-language = {
@@ -48,6 +53,7 @@
       self,
       nixpkgs,
       content-identity,
+      capsule-content-identity,
       core-ethos,
       core-logos,
       core-nomos,
@@ -56,6 +62,8 @@
       raw-discovery,
       structural-codec,
       protos,
+      nomos-protos,
+      sealed-core-nomos,
       sema-translator,
       signal-sema-translator,
       schema-language,
@@ -230,6 +238,8 @@
             if system == "x86_64-linux" then
               {
                 content-identity-test = content-identity.checks.${system}.test;
+                capsule-content-identity-test =
+                  capsule-content-identity.checks.${system}.test;
                 name-table-test = name-table.checks.${system}.test;
                 raw-discovery-test = raw-discovery.checks.${system}.test;
                 structural-codec-test = structural-codec.checks.${system}.test;
@@ -238,10 +248,14 @@
                 sema-translator-process = sema-translator.checks.${system}.process;
                 protos-test = protos.checks.${system}.test;
                 protos-package-contents = protos.checks.${system}.package-contents;
+                nomos-protos-test = nomos-protos.checks.${system}.test;
+                nomos-protos-package-contents =
+                  nomos-protos.checks.${system}.package-contents;
                 core-ethos-test = core-ethos.checks.${system}.test;
                 core-logos-test = core-logos.checks.${system}.test;
                 rust-logos-test = rust-logos.checks.${system}.test;
                 core-nomos-test = core-nomos.checks.${system}.test;
+                sealed-core-nomos-test = sealed-core-nomos.checks.${system}.test;
               }
             else
               { };

@@ -4,7 +4,7 @@ set -euo pipefail
 # Only edges changed by the identity/Capsule train belong here. Legacy
 # per-item and flat-name edges remain outside this table. The chain-based
 # Slice One aliases are checked by the separate slice coherence gate.
-readonly expected_edges=$'name-table|content-identity|content-identity|\nsignal-sema-translator|name-table|name-table|\nsema-translator|name-table|name-table|\nsema-translator|signal-sema-translator|signal-sema-translator|\nprotos|content-identity|content-identity|\ncore-ethos|capsule-content-identity|content-identity|content-identity\ncore-ethos|protos|protos|\ncore-logos|capsule-content-identity|content-identity|content-identity\ncore-logos|protos|protos|\ncore-nomos|capsule-content-identity|content-identity|content-identity\ncore-nomos|protos|protos|'
+readonly expected_edges=$'name-table|content-identity|content-identity|\nsignal-sema-translator|name-table|name-table|\nsema-translator|name-table|name-table|\nsema-translator|signal-sema-translator|signal-sema-translator|\nprotos|content-identity|content-identity|\nnomos-protos|content-identity|capsule-content-identity|\ncore-ethos|capsule-content-identity|content-identity|content-identity\ncore-ethos|protos|protos|\ncore-logos|capsule-content-identity|content-identity|content-identity\ncore-logos|protos|protos|\nsealed-core-nomos|capsule-content-identity|capsule-content-identity|content-identity\nsealed-core-nomos|protos|nomos-protos|'
 
 root_revision() {
   local lock_file=$1
@@ -56,6 +56,7 @@ validate_direct_edge() {
   local manifest
   local target_revision
   local target_git
+  local target_repository
   local declaration
   local compact_declaration
 
@@ -73,7 +74,18 @@ validate_direct_edge() {
     echo "affected target is not an exact direct root pin: $target_name" >&2
     return 1
   }
-  target_git="https://github.com/LiGoldragon/${target_name}.git"
+  case $target_name in
+    capsule-content-identity)
+      target_repository=content-identity
+      ;;
+    nomos-protos)
+      target_repository=protos
+      ;;
+    *)
+      target_repository=$target_name
+      ;;
+  esac
+  target_git="https://github.com/LiGoldragon/${target_repository}.git"
   declaration=$(dependency_declaration "$manifest" "$dependency_name") ||
     return 1
   compact_declaration=$(printf '%s\n' "$declaration" | tr -d '[:space:]')
@@ -167,7 +179,7 @@ run_self_test() {
   temporary_root=$(mktemp -d)
   trap 'rm -rf "$temporary_root"' RETURN
   copy_affected_manifests "$source_map_file" "$temporary_root"
-  core_nomos_manifest="$temporary_root/sources/core-nomos/Cargo.toml"
+  core_nomos_manifest="$temporary_root/sources/sealed-core-nomos/Cargo.toml"
   protos_revision=$(root_revision "$lock_file" protos)
 
   sed -i \
@@ -176,7 +188,7 @@ run_self_test() {
   expect_coherence_rejection "affected revision drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
-  cp "$(source_path "$source_map_file" core-nomos)/Cargo.toml" \
+  cp "$(source_path "$source_map_file" sealed-core-nomos)/Cargo.toml" \
     "$core_nomos_manifest"
   sed -i \
     '/^[[:space:]]*protos[[:space:]]*=/s#LiGoldragon/protos.git#LiGoldragon/core-logos.git#' \
@@ -184,7 +196,7 @@ run_self_test() {
   expect_coherence_rejection "affected repository drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
-  cp "$(source_path "$source_map_file" core-nomos)/Cargo.toml" \
+  cp "$(source_path "$source_map_file" sealed-core-nomos)/Cargo.toml" \
     "$core_nomos_manifest"
   printf \
     'protos = { git = "https://github.com/LiGoldragon/protos.git", rev = "%s" }\n' \
