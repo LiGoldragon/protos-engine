@@ -267,8 +267,11 @@ billing's table              tasks' table
 - **[ruled]** short identifiers are display operations, never state: "it's a
   full content-addressed hash. the short identifiers is for common display
   operations… the 4 or more chars shortened version that doesnt conflict in
-  the db"; kind-distinct short-code types ("they should be a different type
-  for sure").
+  the db"; kind-distinct display result types ("they should be a different
+  type for sure"). ShapeAndSliceRulings entries 6-7 supersede every stored
+  short-code rendering: no `ShortIdentifier` supertrait, stored `ShortCode`,
+  mint, archive adapter, or fixed-width representation remains. The display
+  alphabet and byte encoding are unresolved.
 
 **Terminology guard:** the container's working term is **module**; never
 "domain" — the word is four-times taken for hash separation, and the
@@ -430,13 +433,19 @@ parameter, kind-distinct types by construction. **[ruled]** the name is
 "Capsule". **[ruled]** a capsule pins the complete composition of its
 nametree. **[ruled] 07-25** rust-logos gets no capsule; the textualform
 association object is *fixed* to a capsule kind — with his own reopening ("OR,
-rust has also a capsule…?") still open. **[ruled]** capsule and
+rust has also a capsule…?") still open. Historical provenance, preserved but
+not a current implementation instruction: **[ruled 07-25]** "capsule and
 short-identifier are protos concepts — protos traits with per-engine
-implementations. **[ruled]** capsule-to-crate correspondence is optional,
-driven by generated-artifact accessibility. **[ruled]**
-"content-identity is that library — add ShortCode to it" (the stored ShortCode
-value model has since died under the display-operation ruling; the library
-seat stands).
+implementations." The separate historical instruction was **[ruled]**
+"content-identity is that library — add ShortCode to it".
+ShapeAndSliceRulings entries 6-7 later supersede the
+short-identifier half: the generic `Capsule` carrier remains in protos, but
+there is no live `ShortIdentifier` supertrait and no stored `ShortCode`, mint,
+archive adapter, or fixed-width representation. A short identifier is an
+unstored, kind-distinct display projection of the full content hash, at least
+four characters and lengthened against a resolver/database view; its alphabet
+and byte encoding remain unresolved. **[ruled]** capsule-to-crate
+correspondence is optional, driven by generated-artifact accessibility.
 
 **Open (2026-07-28):** how the module tables of section 5 relate to the
 capsule's pinned composed nametree, and whether capsule identity is minted or
