@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# These are the complete chain-based Slice One producer edges. The canonical
-# core surfaces use their ordinary dependency names; only the integration
-# witness aliases production packages away from its daemon dependency graph.
-readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|structural-codec|structural-codec|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
+# These are the complete direct producer edges for the chain-based language
+# path and the native authored Nomos process that now owns its runtime.
+readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|raw-discovery|raw-discovery|\ncore-nomos|textual-rust|rust-logos|rust-logos\ncore-nomos|structural-codec|structural-codec|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nsignal-nomos|core-nomos|core-nomos|\nnomos-engine|core-ethos|core-ethos|\nnomos-engine|core-logos|core-logos|\nnomos-engine|core-nomos|core-nomos|\nnomos-engine|protos|protos|\nnomos-engine|sema-engine|sema-engine|\nnomos-engine|signal-nomos|signal-nomos|\nnomos-engine|signal-sema-translator|signal-sema-translator|\nnomos-engine|name-table|name-table|\nnomos-engine|structural-codec|structural-codec|\nlanguage-engine-witness|nomos-engine|nomos-engine|\nlanguage-engine-witness|signal-nomos|signal-nomos|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
 
 root_revision() {
   local lock_file=$1
@@ -56,6 +55,7 @@ validate_direct_edge() {
   local manifest
   local target_revision
   local target_git
+  local target_repository
   local declaration
   local compact_declaration
 
@@ -73,7 +73,15 @@ validate_direct_edge() {
     echo "Slice One target is not an exact direct root pin: $target_name" >&2
     return 1
   }
-  target_git="https://github.com/LiGoldragon/${target_name}.git"
+  case $target_name in
+    capsule-content-identity)
+      target_repository=content-identity
+      ;;
+    *)
+      target_repository=$target_name
+      ;;
+  esac
+  target_git="https://github.com/LiGoldragon/${target_repository}.git"
   declaration=$(dependency_declaration "$manifest" "$dependency_name") ||
     return 1
   compact_declaration=$(printf '%s\n' "$declaration" | tr -d '[:space:]')
@@ -130,7 +138,7 @@ validate_behavior_witness() {
   slice_test="$witness_root/tests/slice_one.rs"
   spirit_domain_test="$witness_root/tests/spirit_domain.rs"
   spirit_domain_fixture="$witness_root/tests/fixtures/spirit-domain.ethos"
-  restart_test="$witness_root/tests/e2e.rs"
+  restart_test="$witness_root/tests/nomos_authority_process.rs"
   [[ -f "$slice_test" && ! -L "$slice_test" &&
     -f "$spirit_domain_test" && ! -L "$spirit_domain_test" &&
     -f "$spirit_domain_fixture" && ! -L "$spirit_domain_fixture" &&
@@ -215,14 +223,69 @@ validate_behavior_witness() {
   require_source_pattern "$spirit_domain_test" "read-only signal-domain revision" \
     '^const SIGNAL_DOMAIN_REVISION: &str = "[0-9a-f]{40}"[;]'
 
+  require_source_pattern "$restart_test" "native authored Nomos process witness" \
+    '^fn authored_nomos_deploys_transforms_advances_and_recovers_through_the_process[(][)]'
   require_source_pattern "$restart_test" "isolated process state" \
-    '^[[:space:]]*let temporary = tempfile::tempdir[(][)][.]unwrap[(][)][;]'
+    '^[[:space:]]*let directory = tempfile::tempdir[(][)][.]expect[(]"isolated process directory"[)][;]'
+  require_source_pattern "$restart_test" "bounded process readiness" \
+    'receiver[.]recv_timeout[(]PROCESS_STARTUP_TIMEOUT[)]'
+  require_source_pattern "$restart_test" "bounded process reads" \
+    '[.]set_read_timeout[(]Some[(]PROCESS_IO_TIMEOUT[)][)]'
+  require_source_pattern "$restart_test" "bounded process writes" \
+    '[.]set_write_timeout[(]Some[(]PROCESS_IO_TIMEOUT[)][)]'
+  require_source_pattern "$restart_test" "direct big-endian Nomos framing" \
+    '^[[:space:]]*[.]to_be_bytes[(][)][,]'
+  require_source_pattern "$restart_test" "native Nomos deployment" \
+    '^[[:space:]]*&NomosRequest::Deploy [{]'
+  require_source_pattern "$restart_test" "nonempty native Nomos transform" \
+    '^[[:space:]]*&& !outcome[.]logos_population[(][)][.]is_empty[(][)]'
+  require_source_pattern "$restart_test" "authorized projection advance" \
+    '^[[:space:]]*&NomosRequest::AdvanceProjection [{]'
   require_source_pattern "$restart_test" "process termination before restart" \
-    '^[[:space:]]*processes[.]terminate[(][)][;]'
-  require_source_pattern "$restart_test" "post-restart progression" \
-    'all four restarted daemons resume push progression without polling'
-  require_source_pattern "$restart_test" "post-restart durable Logos" \
-    '^[[:space:]]*second_document[.]hash, second_event[.]logos,'
+    '^[[:space:]]*nomos[.]stop[(][)][;]'
+  require_source_pattern "$restart_test" "same-state process restart" \
+    '^[[:space:]]*let mut recovered = NomosDaemon::start[(]&nomos_socket, &nomos_database[)][;]'
+  require_source_pattern "$restart_test" "recovered projection-one transform" \
+    'outcome[.]snapshot[(][)][.]projection_version[(][)] == NameTreeProjectionVersion::new[(]1[)]'
+  require_source_pattern "$restart_test" "stale projection refusal" \
+    'NomosReply::Rejected[(]NomosRejection::ProjectionStale[)]'
+  require_source_pattern "$restart_test" "current deployment no-op" \
+    'NomosReply::Deployed[(]DeployOutcome::AlreadyCurrent [{]'
+  reject_source_pattern "$restart_test" "retired central storage relay" \
+    'signal[_-]sema[_-]storage|SEMA_STORAGE_BIN|all four restarted daemons'
+}
+
+validate_native_nomos_source_boundary() {
+  local source_map_file=$1
+  local engine_root
+  local -a production_sources
+
+  engine_root=$(source_path "$source_map_file" nomos-engine) || {
+    echo "native Nomos engine is absent from the root source map" >&2
+    return 1
+  }
+  [[ -f "$engine_root/Cargo.toml" && ! -L "$engine_root/Cargo.toml" &&
+    -d "$engine_root/src" && ! -L "$engine_root/src" ]] || {
+    echo "native Nomos engine lacks regular production source surfaces" >&2
+    return 1
+  }
+  if find "$engine_root/src" -type l -print -quit | grep -q .; then
+    echo "native Nomos production source contains a symbolic link" >&2
+    return 1
+  fi
+  mapfile -d '' -t production_sources < <(
+    find "$engine_root/src" -type f -name '*.rs' -print0
+  )
+  (( ${#production_sources[@]} > 0 )) || {
+    echo "native Nomos production source has no regular Rust files" >&2
+    return 1
+  }
+  if LC_ALL=C rg -n -i \
+    'MacroPackage|apply_enriched|enriched_fixture|wire_fixture|signal[_-]sema[_-]storage|sema-storage|SEMA_STORAGE_BIN|SemaPlane|output_slot|kameo' \
+    "$engine_root/Cargo.toml" "${production_sources[@]}" >/dev/null; then
+    echo "native Nomos production source retains a retired evaluator or central storage path" >&2
+    return 1
+  fi
 }
 
 validate_coherence() {
@@ -249,6 +312,7 @@ validate_coherence() {
   done < <(printf '%s\n' "$expected_edges")
 
   validate_behavior_witness "$source_map_file"
+  validate_native_nomos_source_boundary "$source_map_file"
 }
 
 copy_affected_manifests() {
@@ -272,9 +336,13 @@ copy_affected_manifests() {
         "$fixture_root/sources/$source_name/tests/spirit_domain.rs"
       cp "$source_root/tests/fixtures/spirit-domain.ethos" \
         "$fixture_root/sources/$source_name/tests/fixtures/spirit-domain.ethos"
-      cp "$source_root/tests/e2e.rs" \
-        "$fixture_root/sources/$source_name/tests/e2e.rs"
+      cp "$source_root/tests/nomos_authority_process.rs" \
+        "$fixture_root/sources/$source_name/tests/nomos_authority_process.rs"
       chmod -R u+w "$fixture_root/sources/$source_name/tests"
+    fi
+    if [[ "$source_name" == nomos-engine ]]; then
+      cp -R "$source_root/src" "$fixture_root/sources/$source_name/src"
+      chmod -R u+w "$fixture_root/sources/$source_name/src"
     fi
     fixture_map=$(
       jq -cn \
@@ -307,8 +375,10 @@ run_self_test() {
   local source_map_file=$2
   local temporary_root
   local core_ethos_manifest
+  local nomos_engine_manifest
+  local nomos_engine_name_tree
   local witness_manifest
-  local witness_e2e_test
+  local witness_nomos_process_test
   local witness_slice_test
   local witness_spirit_domain_test
   local rust_logos_manifest
@@ -319,8 +389,10 @@ run_self_test() {
   trap 'rm -rf "$temporary_root"' RETURN
   copy_affected_manifests "$source_map_file" "$temporary_root"
   core_ethos_manifest="$temporary_root/sources/core-ethos/Cargo.toml"
+  nomos_engine_manifest="$temporary_root/sources/nomos-engine/Cargo.toml"
+  nomos_engine_name_tree="$temporary_root/sources/nomos-engine/src/name_tree.rs"
   witness_manifest="$temporary_root/sources/language-engine-witness/Cargo.toml"
-  witness_e2e_test="$temporary_root/sources/language-engine-witness/tests/e2e.rs"
+  witness_nomos_process_test="$temporary_root/sources/language-engine-witness/tests/nomos_authority_process.rs"
   witness_slice_test="$temporary_root/sources/language-engine-witness/tests/slice_one.rs"
   witness_spirit_domain_test="$temporary_root/sources/language-engine-witness/tests/spirit_domain.rs"
   rust_logos_manifest="$temporary_root/sources/rust-logos/Cargo.toml"
@@ -330,6 +402,21 @@ run_self_test() {
     '/^[[:space:]]*structural-codec[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
     "$core_ethos_manifest"
   expect_coherence_rejection "canonical producer revision drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" nomos-engine)/Cargo.toml" \
+    "$nomos_engine_manifest"
+  sed -i \
+    '/^[[:space:]]*signal-nomos[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
+    "$nomos_engine_manifest"
+  expect_coherence_rejection "native Nomos protocol revision drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" nomos-engine)/src/name_tree.rs" \
+    "$nomos_engine_name_tree"
+  printf '%s\n' 'const LEGACY_OUTPUT_SLOT: &str = "output_slot";' \
+    >> "$nomos_engine_name_tree"
+  expect_coherence_rejection "retired path in recursively discovered production source" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" rust-logos)/Cargo.toml" \
@@ -381,9 +468,55 @@ run_self_test() {
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/slice_one.rs" \
     "$witness_slice_test"
   sed -i \
-    's#^[[:space:]]*processes[.]terminate[(][)][;]#    // restart removed#' \
-    "$witness_e2e_test"
+    's#^[[:space:]]*nomos[.]stop[(][)][;]#    // restart removed#' \
+    "$witness_nomos_process_test"
   expect_coherence_rejection "behavior witness restart removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/recv_timeout[(]PROCESS_STARTUP_TIMEOUT[)]/recv()/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "bounded process readiness removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/set_read_timeout[(]Some[(]PROCESS_IO_TIMEOUT[)][)]/set_nonblocking(true)/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "bounded process read removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/set_write_timeout[(]Some[(]PROCESS_IO_TIMEOUT[)][)]/set_nonblocking(true)/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "bounded process write removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i 's/[.]to_be_bytes[(][)]/.to_le_bytes()/' "$witness_nomos_process_test"
+  expect_coherence_rejection "native Nomos framing byte-order drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/&NomosRequest::AdvanceProjection [{]/\\&NomosRequest::Transform {/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "projection advance witness removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/NomosReply::Rejected[(]NomosRejection::ProjectionStale[)]/NomosReply::Rejected(NomosRejection::SlotMissing)/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "stale projection refusal removal" \
     "$lock_file" "$temporary_root/source-map.json"
 }
 
@@ -394,7 +527,7 @@ case ${1:-} in
       exit 2
     }
     run_self_test "$2" "$3"
-    echo "Slice One mutations reject producer, identity, and restart drift"
+    echo "Slice One and native Nomos mutations reject producer, protocol, timeout, legacy-source, identity, and restart drift"
     ;;
   "")
     echo "usage: check-slice-one-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
@@ -406,6 +539,6 @@ case ${1:-} in
       exit 2
     }
     validate_coherence "$1" "$2"
-    echo "Slice One producer edges and behavior witness match exact published revisions"
+    echo "Slice One and native Nomos edges and behavior witness match exact published revisions"
     ;;
 esac

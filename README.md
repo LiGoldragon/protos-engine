@@ -39,17 +39,22 @@ Every repository input uses a full, published Git revision:
 | name-table | `50cb4bb53ae2dc4f2516f6912be328ef98ae49f8` |
 | signal-sema-translator | `51c02c4a7b6f67d9dad095f11986085d7d65785b` |
 | sema-translator | `6df830ab1ec9f315a5b50e40ffc393b48ea3d412` |
-| protos (legacy Capsule consumers) | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
+| signal-frame | `0786fbe8caf27552afcdd5deb85bc82ec6088337` |
+| sema-engine | `7bed5017a6f20ff2c109f693c2dedaaddf52e64d` |
+| protos (neutral po2.6 carrier) | `c85cec6117bfd4c423d952fd54e0c0bb11562f89` |
+| legacy-protos (unchanged Ethos/Logos consumers) | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
 | nomos-protos (content-only identity consumer) | `1263f9d1f73b57885d695ac033bdd6faa1334ddf` |
 | core-ethos | `47c866f101c0e830ecff70451e92f7bdc0ade4e7` |
-| core-logos (Slice One graph) | `918869938402a099c3d8cd5d599b2488d0317c15` |
-| rust-logos (Slice One graph) | `ed6665d50bae56f5e26a764a1fd2f4dc6231a251` |
-| core-nomos (Slice One graph) | `7cd62205a19938cb3921a4cad56d79a596c662f0` |
+| core-logos | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
+| rust-logos | `96eda934a8f3203295f0a08869199441f109c369` |
+| core-nomos | `d47e1e4441b7110051aba0f54eb6dea31c057b4c` |
+| signal-nomos | `40ea24045194542a679b97ae34e53c92c2393480` |
+| nomos-engine | `0773e03eae899e1364cb639280e57520d6d454b2` |
 | sealed-core-nomos (content-only identity consumer) | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
 | template-core-logos (po2.5 graph) | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
 | template-rust-logos (po2.5 graph) | `96eda934a8f3203295f0a08869199441f109c369` |
 | equivalent-core-nomos (po2.5 graph) | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
-| language-engine-witness | `8eb6fd7b2cec633daeff26a7c6264d815fa6df16` |
+| language-engine-witness | `d24ec383ceeba3ab24310d4a177536a962239c64` |
 | raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
 | structural-codec | `1485c1f8edcb9c988492c6eb0378c10a3599d665` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
@@ -73,10 +78,11 @@ Ethos-based generation has not landed (blocked at bead
 The identity/Capsule producers are ordinary flake inputs rather than source-only
 inputs. This lets the assembly expose their published test derivations directly.
 On `x86_64-linux`, the root check surface passes through the content-identity,
-name-table, signal-sema-translator, sema-translator, protos, core-ethos,
-core-logos, rust-logos, and core-nomos test derivations. It also exposes
-sema-translator's dedicated real-process derivation and protos'
-package-contents derivation as separate checks.
+name-table, signal-frame, signal-sema-translator, sema-engine, sema-translator,
+protos, core-ethos, core-logos, rust-logos, core-nomos, signal-nomos, and
+nomos-engine test derivations. It also exposes sema-translator's dedicated
+real-process derivation and protos' package-contents derivation as separate
+checks.
 
 `scripts/check-pin-policy` has two explicit gates. Its pure gate parses the
 committed `flake.lock`. Its live gate independently runs
@@ -94,44 +100,35 @@ rule applies to this repository's root inputs.
 
 `scripts/check-identity-capsule-coherence` compares the affected direct Cargo
 edges with those exact root revisions. Its table includes the final integrity
-producer, translator, generic Capsule, and kind-fixed core edges — reading
-the script's own `expected_edges` table confirms it carries no rust-logos or
-textual-rust row. The chain-based rust-logos producer edges are checked
-separately by `scripts/check-slice-one-coherence` below (rust-logos is the
-data-driven structuretree replacement for the older hand-written textual-rust
-bypass crate, per the 2026-07-23 design session; the historical
-`textual-rust` package remains an isolated projection dependency at its
-published maintenance revision, with no structural-codec dependency). It
-deliberately does not demand universal
-transitive equality: the cores' direct legacy per-item identity/archive and
-flat name-table dependencies remain on their established typed revisions.
+producer, translator, generic Capsule, the legacy carrier edges retained by
+core-ethos/core-logos, and the content-only protos/core-nomos/signal-nomos/
+nomos-engine edges. Chain-based and runtime edges are checked separately by
+`scripts/check-slice-one-coherence`. The identity gate deliberately does not
+demand universal transitive equality: the cores' direct legacy per-item
+identity/archive and flat name-table dependencies remain on their established
+typed revisions.
 The legacy 0.3 identity crate and dependency-renamed 0.4 Capsule identity crate
 form a deliberate typed firewall. Rust reports `E0308` when values cross those
 crate revisions accidentally; keeping every affected producer edge exact is
 what prevents that mismatch without pretending the legacy graph has migrated.
 The gate therefore proves a coherent published carrier foundation without
-claiming encodedID-chain migration, whole Logos/Nomos content, content/hash
-verification, complete-pin verification, or module-table/Capsule composition.
+claiming universal migration of the retained compatibility graph.
 
-`scripts/check-slice-one-coherence` separately validates every chain-based
-Slice One producer edge against the exact root revisions. It covers
-structural-codec's raw-discovery and name-table producers; core-ethos,
-core-logos, and core-nomos's canonical chain-based dependencies; rust-logos's
-complete direct producer set; and the published
-language-engine-witness's eight Slice One aliases. Its mutation suite rejects
-revision drift, repository drift, alias package drift, duplicate direct
-declarations, durable-chain drift, and removal of restart coverage. The core
-surfaces carry one structural-codec 0.18 dependency universe; the witness's
-separate daemon closure remains outside that authored-language carrier graph.
+`scripts/check-slice-one-coherence` validates every chain-based language edge
+and the native authored Nomos runtime edges against the exact root revisions.
+It covers the canonical cores, rust-logos, neutral protos frame dependency,
+signal-nomos, nomos-engine, and every language-engine-witness alias. Its
+mutation suite rejects revision, repository, package-alias, protocol framing,
+projection-advance, stale-refusal, and restart drift. Production-source scans
+also enumerate every regular `nomos-engine` `src/**/*.rs` file and refuse the
+retired evaluator and central storage vocabulary.
 
-`scripts/check-po-two-five-coherence` advances a separate, exact po2.5 graph
-without moving the frozen Slice One owner pins. It verifies that the published
-rust-logos and core-nomos revisions consume the published struct-capable
-core-logos revision, that core-nomos consumes rust-logos through the
-`textual-rust` dependency label, and that the owner retains the exhaustive
-five-transformer structural-equivalence and mutation witnesses. The retained
-legacy evaluator run is only a structural-proof-implied sanity check; the gate
-does not claim an independent authored evaluator.
+`scripts/check-po-two-five-coherence` retains the exact po2.5 integration labels
+beside the current graph. It verifies that rust-logos and the po2.5 core-nomos
+revision consume the struct-capable core-logos revision, that core-nomos uses
+rust-logos through the `textual-rust` dependency label, and that the owner
+retains the exhaustive five-transformer structural-equivalence and mutation
+witnesses.
 
 ## Checks
 
@@ -171,9 +168,17 @@ restores Whole Ethos, lowers through direct typed Nomos to identified Whole
 Logos, archives and restores Whole Logos, structurally emits and decodes Rust,
 refuses incomplete projections without returning partial source, then
 compiles and exhaustively runs the generated forms in a temporary Cargo crate. Its
-separate process witness terminates and restarts the pinned engine processes
+separate process witness terminates and restarts the pinned native Nomos engine
 against isolated temporary state and proves durable recovery and resumed
-progression. It also realizes the owner's exact read-only Spirit-domain source
+progression. The current process path authority-seals authored Nomos, deploys
+it through the native daemon, transforms nonempty Ethos, advances its
+authenticated NameTree projection, restarts on the same `nomos.sema`, resumes
+at projection 1, rejects stale projection artifacts, and preserves the
+current-deployment no-op before stale CAS ordering. The wrapper also realizes
+nomos-engine's 15-test owner gate and signal-nomos's typed protocol suite.
+Daemon readiness and every process socket read/write are bounded to ten
+seconds, and coherence mutations reject removal of those deadlines.
+It additionally realizes the owner's exact read-only Spirit-domain source
 inventory comparison, carries all 41 items and 369 variants through durable
 typed Ethos and Logos plus structural Rust emit/decode, and constructs all 369
 authored enum variants in scratch Cargo. `ScopeOf` and the two Vector newtypes

@@ -11,9 +11,10 @@
       url = "github:LiGoldragon/content-identity/896b21e17f31b66d0802bff899b4b60acea9c0f1";
     };
     core-ethos.url = "github:LiGoldragon/core-ethos/47c866f101c0e830ecff70451e92f7bdc0ade4e7";
-    core-logos.url = "github:LiGoldragon/core-logos/918869938402a099c3d8cd5d599b2488d0317c15";
-    core-nomos.url = "github:LiGoldragon/core-nomos/7cd62205a19938cb3921a4cad56d79a596c662f0";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/8eb6fd7b2cec633daeff26a7c6264d815fa6df16";
+    core-logos.url = "github:LiGoldragon/core-logos/141abe23273273d2e4470ce15b42ccf9bc5c8764";
+    core-nomos.url = "github:LiGoldragon/core-nomos/d47e1e4441b7110051aba0f54eb6dea31c057b4c";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/d24ec383ceeba3ab24310d4a177536a962239c64";
+    legacy-protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     name-table = {
       url = "github:LiGoldragon/name-table/50cb4bb53ae2dc4f2516f6912be328ef98ae49f8";
     };
@@ -23,13 +24,17 @@
     structural-codec = {
       url = "github:LiGoldragon/structural-codec/1485c1f8edcb9c988492c6eb0378c10a3599d665";
     };
-    protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
+    protos.url = "github:LiGoldragon/protos/c85cec6117bfd4c423d952fd54e0c0bb11562f89";
     nomos-protos.url = "github:LiGoldragon/protos/1263f9d1f73b57885d695ac033bdd6faa1334ddf";
+    nomos-engine.url = "github:LiGoldragon/nomos-engine/0773e03eae899e1364cb639280e57520d6d454b2";
     sealed-core-nomos.url = "github:LiGoldragon/core-nomos/ba7abc0b471a0385012b1d8a03cf4942e9da617e";
     template-core-logos.url = "github:LiGoldragon/core-logos/141abe23273273d2e4470ce15b42ccf9bc5c8764";
     template-rust-logos.url = "github:LiGoldragon/rust-logos/96eda934a8f3203295f0a08869199441f109c369";
     equivalent-core-nomos.url = "github:LiGoldragon/core-nomos/e1b2febf9f143ab1c84d042d2e9bdd0685303ddc";
+    sema-engine.url = "github:LiGoldragon/sema-engine/7bed5017a6f20ff2c109f693c2dedaaddf52e64d";
     sema-translator.url = "github:LiGoldragon/sema-translator/6df830ab1ec9f315a5b50e40ffc393b48ea3d412";
+    signal-frame.url = "github:LiGoldragon/signal-frame/0786fbe8caf27552afcdd5deb85bc82ec6088337";
+    signal-nomos.url = "github:LiGoldragon/signal-nomos/40ea24045194542a679b97ae34e53c92c2393480";
     signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/51c02c4a7b6f67d9dad095f11986085d7d65785b";
     schema-language = {
       url = "github:LiGoldragon/schema-language/9c217610c4b8d3bdaa9f95542e28c04424a593e3";
@@ -48,7 +53,7 @@
       flake = false;
     };
     spirit.url = "github:LiGoldragon/spirit/1049b8a1a9e3c2be7ece3553b89c7e3815939d43";
-    rust-logos.url = "github:LiGoldragon/rust-logos/ed6665d50bae56f5e26a764a1fd2f4dc6231a251";
+    rust-logos.url = "github:LiGoldragon/rust-logos/96eda934a8f3203295f0a08869199441f109c369";
   };
 
   outputs =
@@ -61,16 +66,21 @@
       core-logos,
       core-nomos,
       language-engine-witness,
+      legacy-protos,
       name-table,
       raw-discovery,
       structural-codec,
       protos,
       nomos-protos,
+      nomos-engine,
       sealed-core-nomos,
       template-core-logos,
       template-rust-logos,
       equivalent-core-nomos,
+      sema-engine,
       sema-translator,
+      signal-frame,
+      signal-nomos,
       signal-sema-translator,
       schema-language,
       schema-rust,
@@ -178,6 +188,8 @@
                 validatedPinPolicy = exactPins;
                 validatedDependencyDirection = dependencyDirection;
                 validatedSliceOneCoherence = sliceOneCoherence;
+                ownerNomosEngine = nomos-engine.checks.${system}.test;
+                ownerSignalNomos = signal-nomos.checks.${system}.test;
                 ownerWitness = language-engine-witness.checks.${system}.test;
                 ownerSpiritDomainInventory =
                   language-engine-witness.checks.${system}.spirit-domain-inventory;
@@ -186,6 +198,8 @@
                 test -e "$validatedPinPolicy"
                 test -e "$validatedDependencyDirection"
                 test -e "$validatedSliceOneCoherence"
+                test -e "$ownerNomosEngine"
+                test -e "$ownerSignalNomos"
                 test -e "$ownerWitness"
                 test -e "$ownerSpiritDomainInventory"
                 touch "$out"
@@ -264,6 +278,9 @@
                 raw-discovery-test = raw-discovery.checks.${system}.test;
                 structural-codec-test = structural-codec.checks.${system}.test;
                 signal-sema-translator-test = signal-sema-translator.checks.${system}.test;
+                signal-frame-test = signal-frame.checks.${system}.default;
+                signal-nomos-test = signal-nomos.checks.${system}.test;
+                sema-engine-test = sema-engine.checks.${system}.test;
                 sema-translator-test = sema-translator.checks.${system}.test;
                 sema-translator-process = sema-translator.checks.${system}.process;
                 protos-test = protos.checks.${system}.test;
@@ -279,6 +296,9 @@
                 template-core-logos-test = template-core-logos.checks.${system}.test;
                 template-rust-logos-test = template-rust-logos.checks.${system}.test;
                 equivalent-core-nomos-test = equivalent-core-nomos.checks.${system}.test;
+                nomos-engine-test = nomos-engine.checks.${system}.test;
+                language-engine-witness-test =
+                  language-engine-witness.checks.${system}.test;
               }
             else
               { };

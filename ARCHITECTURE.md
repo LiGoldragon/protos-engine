@@ -60,14 +60,21 @@ emit and decode Rust, refuse incomplete projections without partial output,
 and compile and exhaustively run the generated forms in a process-local
 scratch Cargo crate.
 
-The same published owner suite retains its isolated process continuity test:
-it terminates and restarts the delivered engine processes against the same
-temporary database, verifies archived state recovery, and proves a second
-document progresses durably after restart. `protos-engine` does not copy those
-tests. Its existing Slice One coherence script validates the witness's exact
-producer aliases and executable evidence, including mutation refusals for
-identity and restart drift. The root behavior derivation depends on pin,
-direction, and coherence results before accepting the published owner result.
+The same published owner suite contains the native authored Nomos process
+continuity test. It asks the authority to seal authored SOURCE, deploys the
+result through the real Nomos daemon over the direct length-prefixed
+signal-nomos protocol, transforms nonempty Ethos, advances the authenticated
+NameTree projection, and kills the process. Reopening the same `nomos.sema`
+must transform at projection 1, reject stale initial artifacts, and accept
+current artifacts as `AlreadyCurrent` before applying stale CAS.
+`protos-engine` does not copy that test. Its coherence script validates the
+exact producer graph and executable evidence, with mutations for engine
+revision, protocol byte order, projection advance, stale refusal, and restart
+removal. It also requires the owner's ten-second readiness and socket I/O
+deadlines and recursively scans every regular `nomos-engine` `src/**/*.rs`
+file for retired evaluator and central storage paths. The root behavior
+derivation consumes nomos-engine's 15-test owner gate and signal-nomos's typed
+protocol suite after pin, direction, and coherence checks pass.
 
 The pinned owner also checks the complete current Spirit domain as Ethos. Its
 read-only Nix inventory comparison is an explicit dependency of the root
@@ -81,10 +88,10 @@ claimed as Cargo behavior.
 
 ## Po2.5 structural equivalence
 
-The po2.5 producer train is pinned beside, rather than substituted into, the
-frozen Slice One graph. The `template-core-logos`, `template-rust-logos`, and
-`equivalent-core-nomos` integration labels identify exact published revisions;
-the component package and repository names remain canonical.
+The po2.5 producer train remains pinned under explicit compatibility labels
+beside the current po2.6 graph. The `template-core-logos`,
+`template-rust-logos`, and `equivalent-core-nomos` labels identify exact
+published revisions; component package and repository names remain canonical.
 
 The owning core-nomos test exhaustively converts the five-definition legacy
 wire fixture into the generic authored representation and compares kinds,
