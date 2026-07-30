@@ -16,11 +16,9 @@
     };
     raw-discovery = {
       url = "github:LiGoldragon/raw-discovery/7290f65bbb5e7825ab2ca58340631d154d69d110";
-      flake = false;
     };
     structural-codec = {
       url = "github:LiGoldragon/structural-codec/1485c1f8edcb9c988492c6eb0378c10a3599d665";
-      flake = false;
     };
     protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     sema-translator.url = "github:LiGoldragon/sema-translator/6df830ab1ec9f315a5b50e40ffc393b48ea3d412";
@@ -233,6 +231,8 @@
               {
                 content-identity-test = content-identity.checks.${system}.test;
                 name-table-test = name-table.checks.${system}.test;
+                raw-discovery-test = raw-discovery.checks.${system}.test;
+                structural-codec-test = structural-codec.checks.${system}.test;
                 signal-sema-translator-test = signal-sema-translator.checks.${system}.test;
                 sema-translator-test = sema-translator.checks.${system}.test;
                 sema-translator-process = sema-translator.checks.${system}.process;
