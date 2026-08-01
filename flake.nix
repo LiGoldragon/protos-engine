@@ -33,6 +33,7 @@
     equivalent-core-nomos.url = "github:LiGoldragon/core-nomos/e1b2febf9f143ab1c84d042d2e9bdd0685303ddc";
     sema-engine.url = "github:LiGoldragon/sema-engine/7bed5017a6f20ff2c109f693c2dedaaddf52e64d";
     sema-translator.url = "github:LiGoldragon/sema-translator/6df830ab1ec9f315a5b50e40ffc393b48ea3d412";
+    signal-domain.url = "github:LiGoldragon/signal-domain/fbc400bf5ed5e4c4d27ef4e76cb48fa4e5d53658";
     signal-frame.url = "github:LiGoldragon/signal-frame/0786fbe8caf27552afcdd5deb85bc82ec6088337";
     signal-nomos.url = "github:LiGoldragon/signal-nomos/1af71a9d0625a6404f81cd6fe8b6393ac0c9040f";
     signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/51c02c4a7b6f67d9dad095f11986085d7d65785b";
@@ -79,6 +80,7 @@
       equivalent-core-nomos,
       sema-engine,
       sema-translator,
+      signal-domain,
       signal-frame,
       signal-nomos,
       signal-sema-translator,
@@ -204,6 +206,22 @@
                 test -e "$ownerSpiritDomainInventory"
                 touch "$out"
               '';
+          scopeOfTargetWitness =
+            pkgs.runCommand "protos-engine-scope-of-target-witness"
+              {
+                nativeBuildInputs = [ pkgs.coreutils ];
+                ownerSignalDomain = signal-domain.checks.${system}.test;
+                ownerSpiritDomainInventory =
+                  language-engine-witness.checks.${system}.spirit-domain-inventory;
+              }
+              ''
+                test -e "$ownerSignalDomain"
+                test -e "$ownerSpiritDomainInventory"
+                cmp --silent \
+                  ${signal-domain}/schema/domain.schema \
+                  ${language-engine-witness}/tests/fixtures/spirit-domain.ethos
+                touch "$out"
+              '';
           poTwoFiveCoherence =
             pkgs.runCommand "protos-engine-po-two-five-coherence"
               {
@@ -310,6 +328,7 @@
           identity-capsule-coherence = identityCapsuleCoherence;
           slice-one-coherence = sliceOneCoherence;
           slice-one-behavior-witness = sliceOneBehaviorWitness;
+          scope-of-target-witness = scopeOfTargetWitness;
           po-two-five-coherence = poTwoFiveCoherence;
           public-text-search-witness-contract = publicTextSearchWitnessContract;
           public-text-search-exact-test = publicTextSearchExactTest;
