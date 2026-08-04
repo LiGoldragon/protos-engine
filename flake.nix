@@ -10,10 +10,10 @@
     capsule-content-identity = {
       url = "github:LiGoldragon/content-identity/896b21e17f31b66d0802bff899b4b60acea9c0f1";
     };
-    core-ethos.url = "github:LiGoldragon/core-ethos/736460fdafbd65d6500fe15e6ae8844b42a39e7c";
+    core-ethos.url = "github:LiGoldragon/core-ethos/29237c33798db908bbfe10ef0cffe2c6a28be508";
     core-logos.url = "github:LiGoldragon/core-logos/9a61e2ac1bf8a8c1163794d695902115a05a4007";
-    core-nomos.url = "github:LiGoldragon/core-nomos/58fd8036bffcb3cff6e27af4db25690764ecc768";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/edbf506f2befd2ee756ecdf22e28fd09e53017e7";
+    core-nomos.url = "github:LiGoldragon/core-nomos/6ef64cc38a104836b2b236ba4838ffd8e75dced1";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/efe8ed3d5ea53f280b93cc1f2f131d92ef781832";
     legacy-protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     name-table = {
       url = "github:LiGoldragon/name-table/50cb4bb53ae2dc4f2516f6912be328ef98ae49f8";
@@ -22,7 +22,7 @@
       url = "github:LiGoldragon/raw-discovery/7290f65bbb5e7825ab2ca58340631d154d69d110";
     };
     structural-codec = {
-      url = "github:LiGoldragon/structural-codec/f47fac132722916912b7071556f69cbbf4026f7f";
+      url = "github:LiGoldragon/structural-codec/fc6807f4365cde1551bbfe120520aec68245abdb";
     };
     protos.url = "github:LiGoldragon/protos/c85cec6117bfd4c423d952fd54e0c0bb11562f89";
     nomos-protos.url = "github:LiGoldragon/protos/1263f9d1f73b57885d695ac033bdd6faa1334ddf";
@@ -54,14 +54,14 @@
       flake = false;
     };
     spirit.url = "github:LiGoldragon/spirit/1049b8a1a9e3c2be7ece3553b89c7e3815939d43";
-    rust-logos.url = "github:LiGoldragon/rust-logos/f46167cbb35d25d86ddbc197653c6560ded8e077";
+    rust-logos.url = "github:LiGoldragon/rust-logos/f92a8eccd851ebb1f8140ec42e00b04ba73758d0";
     stream-nomos-types.url = "github:LiGoldragon/nomos-types/a7b831e0540a8ad263cd07ed44ec4c95c56771fb";
     stream-protos.url = "github:LiGoldragon/protos/95aeb1470c549a404518faf1ab0280a36583a2b3";
-    stream-core-ethos.url = "github:LiGoldragon/core-ethos/904dfce385ad9c7bfe0fa894267dd8815df100f4";
+    stream-core-ethos.url = "github:LiGoldragon/core-ethos/29237c33798db908bbfe10ef0cffe2c6a28be508";
     stream-core-logos.url = "github:LiGoldragon/core-logos/a960aacff8ed13dc14b0ae0094208189d6609434";
-    stream-core-nomos.url = "github:LiGoldragon/core-nomos/2e855607ebf4bc7f40b9328f8fbc78c59ed7926b";
-    stream-rust-logos.url = "github:LiGoldragon/rust-logos/306098361221b0f19b82156ab697134520fce8bc";
-    stream-language-engine-witness.url = "github:LiGoldragon/language-engine-witness/37dffb34e355e526b311f6a4d3f8c4764caca668";
+    stream-core-nomos.url = "github:LiGoldragon/core-nomos/6ef64cc38a104836b2b236ba4838ffd8e75dced1";
+    stream-rust-logos.url = "github:LiGoldragon/rust-logos/f92a8eccd851ebb1f8140ec42e00b04ba73758d0";
+    stream-language-engine-witness.url = "github:LiGoldragon/language-engine-witness/efe8ed3d5ea53f280b93cc1f2f131d92ef781832";
   };
 
   outputs =
