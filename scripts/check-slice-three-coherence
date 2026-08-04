@@ -334,8 +334,8 @@ run_self_test() {
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nexus.rs" "$witness_test"
-  printf '\npub trait StreamClose {}\n' >> "$protos_interface"
-  expect_coherence_rejection "third stream trait reintroduction" \
+  : > "$protos_interface"
+  expect_coherence_rejection "Protos signature evidence removal" \
     "$lock_file" "$temporary_root/source-map.json"
 }
 
