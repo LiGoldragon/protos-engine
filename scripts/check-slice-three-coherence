@@ -329,7 +329,9 @@ run_self_test() {
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/Cargo.toml" "$witness_manifest"
-  sed -i '0,/AlreadyClosed/s//Closed/' "$witness_test"
+  sed -i \
+    's/Err(ObserverTerminationRefusal::AlreadyClosed)/Err(ObserverTerminationRefusal::Closed)/' \
+    "$witness_test"
   expect_coherence_rejection "already-closed outcome removal" \
     "$lock_file" "$temporary_root/source-map.json"
 
