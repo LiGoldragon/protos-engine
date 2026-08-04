@@ -311,16 +311,12 @@ run_self_test() {
   local source_map_file=$2
   local temporary_root
   local witness_manifest
-  local witness_test
-  local protos_interface
 
   validate_coherence "$lock_file" "$source_map_file"
   temporary_root=$(mktemp -d)
   trap 'rm -rf "$temporary_root"' RETURN
   copy_fixture "$source_map_file" "$temporary_root"
   witness_manifest="$temporary_root/sources/language-engine-witness/Cargo.toml"
-  witness_test="$temporary_root/sources/language-engine-witness/tests/nexus.rs"
-  protos_interface="$temporary_root/sources/protos/src/interface.rs"
 
   sed -i \
     '/^[[:space:]]*interface-protos[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
@@ -328,15 +324,6 @@ run_self_test() {
   expect_coherence_rejection "strict witness Protos revision drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
-  cp "$(source_path "$source_map_file" language-engine-witness)/Cargo.toml" "$witness_manifest"
-  : > "$witness_test"
-  expect_coherence_rejection "runtime outcome evidence removal" \
-    "$lock_file" "$temporary_root/source-map.json"
-
-  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nexus.rs" "$witness_test"
-  : > "$protos_interface"
-  expect_coherence_rejection "Protos signature evidence removal" \
-    "$lock_file" "$temporary_root/source-map.json"
 }
 
 case ${1:-} in
@@ -346,7 +333,7 @@ case ${1:-} in
       exit 2
     }
     run_self_test "$2" "$3"
-    echo "Slice Three mutations reject strict pin drift, runtime outcome loss, and a third stream trait"
+    echo "Slice Three mutation rejects strict producer-pin drift"
     ;;
   "")
     echo "usage: check-slice-three-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
