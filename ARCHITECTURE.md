@@ -86,6 +86,26 @@ data: no runtime transform exists on this path, so the two Vector newtypes
 whose payload is `DomainScope` are not replaced with a compatibility shape or
 claimed as Cargo behavior.
 
+## Slice Three strict stream lifecycle
+
+The strict stream path is an authored `Stream` initiation with a typed query
+and event. Termination is implied in authored Ethos and rendered as a separate
+generated operation over the same typed handle. `nomos-types` owns the pure
+initiation and termination data, and Protos owns only `StreamIdentity`,
+`Stream`, `StreamOpen`, and `StreamEvent`; a third close trait and runtime
+state do not belong to that contract surface.
+
+`check-slice-three-coherence` pins the complete producer chain through
+nomos-types, Protos, Core Ethos, Core Logos, Core Nomos, Rust Logos, and the
+language-engine witness. It verifies the strict dependency aliases against
+the sink roots and checks the owner evidence for initiation-only syntax, the
+resolved direct-success/termination contract, zero strict-stream deferral,
+the emitted typed handle/refusals, and runtime behavior. The witness compiles
+its runtime implementation directly beside the actual Rust Logos emission;
+it does not replace the generated contract with handwritten duplicate types.
+The behavior witness consumes every owning repository's published Nix test
+surface. Runtime storage remains process-local to the owner test.
+
 ## Po2.5 structural equivalence
 
 The po2.5 producer train remains pinned under explicit compatibility labels

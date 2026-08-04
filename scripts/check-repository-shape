@@ -2,7 +2,7 @@
 set -euo pipefail
 
 readonly expected_top_level=$'.beads\n.gitignore\nAGENTS.md\nARCHITECTURE.md\nREADME.md\ndesign\nflake.lock\nflake.nix\nscripts'
-readonly expected_scripts=$'check-dependency-direction\ncheck-identity-capsule-coherence\ncheck-pin-policy\ncheck-po-two-five-coherence\ncheck-public-text-search-witness\ncheck-repository-shape\ncheck-slice-one-coherence\nrun-public-text-search-witness'
+readonly expected_scripts=$'check-dependency-direction\ncheck-identity-capsule-coherence\ncheck-pin-policy\ncheck-po-two-five-coherence\ncheck-public-text-search-witness\ncheck-repository-shape\ncheck-slice-one-coherence\ncheck-slice-three-coherence\nrun-public-text-search-witness'
 
 validate_repository_shape() {
   local repository_root=$1

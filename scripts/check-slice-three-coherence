@@ -1,0 +1,335 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Slice Three has a deliberately narrow producer graph.  The ordinary
+# component pins may retain compatibility dependencies elsewhere, but these
+# aliases are the strict authored-stream path and must resolve to this sink's
+# exact roots.
+readonly expected_edges=$'core-ethos|nomos-types|nomos-types|\ncore-logos|protos|protos|\ncore-nomos|nexus-core-ethos|core-ethos|core-ethos\ncore-nomos|nexus-core-logos|core-logos|core-logos\nrust-logos|core-logos|core-logos|\nlanguage-engine-witness|interface-protos|protos|protos\nlanguage-engine-witness|nexus-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|nexus-core-logos|core-logos|core-logos\nlanguage-engine-witness|nexus-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|nexus-rust-logos|rust-logos|rust-logos'
+
+root_revision() {
+  local lock_file=$1
+  local input_name=$2
+
+  jq -er --arg input_name "$input_name" '
+    .root as $root
+    | .nodes[$root].inputs[$input_name] as $node_name
+    | select($node_name | type == "string")
+    | .nodes[$node_name].locked.rev
+    | select(type == "string" and test("^[0-9a-f]{40}$"))
+  ' "$lock_file"
+}
+
+source_path() {
+  local source_map_file=$1
+  local source_name=$2
+
+  jq -er --arg source_name "$source_name" '
+    .[$source_name]
+    | select(type == "string" and length > 0)
+  ' "$source_map_file"
+}
+
+dependency_declaration() {
+  local manifest=$1
+  local dependency_name=$2
+  local declarations
+
+  declarations=$(LC_ALL=C grep -E \
+    "^[[:space:]]*${dependency_name}[[:space:]]*=" "$manifest" || true)
+  if [[ $(printf '%s\n' "$declarations" | sed '/^$/d' | wc -l) -ne 1 ]]; then
+    echo "expected exactly one Slice Three dependency: $manifest:$dependency_name" >&2
+    return 1
+  fi
+  printf '%s\n' "$declarations"
+}
+
+validate_direct_edge() {
+  local source_map_file=$1
+  local lock_file=$2
+  local source_name=$3
+  local dependency_name=$4
+  local target_name=$5
+  local package_name=$6
+  local source_root
+  local manifest
+  local target_revision
+  local declaration
+  local compact_declaration
+
+  source_root=$(source_path "$source_map_file" "$source_name") || {
+    echo "Slice Three source is absent from the root source map: $source_name" >&2
+    return 1
+  }
+  manifest="$source_root/Cargo.toml"
+  [[ -f "$manifest" && ! -L "$manifest" ]] || {
+    echo "Slice Three source lacks a regular Cargo.toml: $source_name" >&2
+    return 1
+  }
+  target_revision=$(root_revision "$lock_file" "$target_name") || {
+    echo "Slice Three target is not an exact direct root pin: $target_name" >&2
+    return 1
+  }
+  declaration=$(dependency_declaration "$manifest" "$dependency_name") || return 1
+  compact_declaration=$(printf '%s\n' "$declaration" | tr -d '[:space:]')
+
+  if [[ "$compact_declaration" != *"git=\"https://github.com/LiGoldragon/${target_name}.git\""* ]]; then
+    echo "Slice Three edge targets the wrong repository: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+  if [[ "$compact_declaration" != *"rev=\"$target_revision\""* ]]; then
+    echo "Slice Three edge differs from the root revision: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+  if [[ -n "$package_name" &&
+    "$compact_declaration" != *"package=\"$package_name\""* ]]; then
+    echo "Slice Three alias targets the wrong package: $source_name -> $dependency_name" >&2
+    return 1
+  fi
+}
+
+require_source_pattern() {
+  local source_file=$1
+  local label=$2
+  local pattern=$3
+
+  [[ -f "$source_file" && ! -L "$source_file" ]] || {
+    echo "Slice Three evidence is absent: $label ($source_file)" >&2
+    return 1
+  }
+  if ! LC_ALL=C rg -n --fixed-strings "$pattern" "$source_file" >/dev/null; then
+    echo "Slice Three evidence is missing: $label" >&2
+    return 1
+  fi
+}
+
+reject_source_pattern() {
+  local source_file=$1
+  local label=$2
+  local pattern=$3
+
+  [[ -f "$source_file" && ! -L "$source_file" ]] || {
+    echo "Slice Three negative evidence is absent: $label ($source_file)" >&2
+    return 1
+  }
+  if LC_ALL=C rg -n --fixed-strings "$pattern" "$source_file" >/dev/null; then
+    echo "Slice Three retired surface reappeared: $label" >&2
+    return 1
+  fi
+}
+
+validate_behavior_witness() {
+  local source_map_file=$1
+  local nomos_types
+  local protos
+  local ethos
+  local logos
+  local nomos
+  local rust_logos
+  local witness
+
+  nomos_types=$(source_path "$source_map_file" nomos-types)
+  protos=$(source_path "$source_map_file" protos)
+  ethos=$(source_path "$source_map_file" core-ethos)
+  logos=$(source_path "$source_map_file" core-logos)
+  nomos=$(source_path "$source_map_file" core-nomos)
+  rust_logos=$(source_path "$source_map_file" rust-logos)
+  witness=$(source_path "$source_map_file" language-engine-witness)
+
+  require_source_pattern "$nomos_types/src/lib.rs" "typed initiation data" \
+    'pub struct StreamInitiation<Stream, Query, Event>'
+  require_source_pattern "$nomos_types/src/lib.rs" "typed termination data" \
+    'pub struct StreamTermination<Stream>'
+  require_source_pattern "$protos/src/interface.rs" "typed stream identity" \
+    'pub struct StreamIdentity<Event>'
+  require_source_pattern "$protos/src/interface.rs" "typed stream handle" \
+    'pub struct Stream<Event>'
+  require_source_pattern "$protos/src/interface.rs" "open signature" \
+    'pub trait StreamOpen'
+  require_source_pattern "$protos/src/interface.rs" "event signature" \
+    'pub trait StreamEvent'
+  reject_source_pattern "$protos/src/interface.rs" "third close trait" 'pub trait StreamClose'
+
+  require_source_pattern "$ethos/tests/spirit_fixtures.rs" \
+    "authored initiation-only syntax" \
+    'strict_stream_initiation_schema_roundtrips_the_standalone_name_transformer_form'
+  require_source_pattern "$ethos/tests/spirit_fixtures.rs" "typed query/event syntax" \
+    'Observer.Stream.(ObserverFilter ObservationEvent)'
+  require_source_pattern "$ethos/tests/spirit_fixtures.rs" "subscription syntax refusal" \
+    'retired subscription/grant role must not re-enter strict StreamInitiation'
+
+  require_source_pattern "$logos/src/whole.rs" "resolved lifecycle carrier" \
+    'pub struct WholeLogosStreamLifecycle'
+  require_source_pattern "$logos/src/whole.rs" "typed direct stream success" \
+    'pub struct WholeLogosStreamHandle'
+  require_source_pattern "$logos/src/whole.rs" "termination identity equality validation" \
+    'StreamTerminationIdentityDoesNotMatch'
+  require_source_pattern "$nomos/src/nexus.rs" "strict lifecycle lowering" \
+    'fn lower_stream_initiation('
+  require_source_pattern "$nomos/src/nexus.rs" "missing identity refusal" \
+    'MissingStreamLifecycleIdentities'
+  require_source_pattern "$nomos/tests/nexus.rs" "no strict stream deferral" \
+    'assert!(outcome.deferred_tables().is_empty());'
+
+  require_source_pattern "$rust_logos/tests/slice_two.rs" "generated stream handle" \
+    'pub type ObserverHandle = protos::Stream<ObservationEvent>;'
+  require_source_pattern "$rust_logos/tests/slice_two.rs" "invalid query refusal" \
+    'pub enum ObserverInitiationRefusal {\\n    InvalidQuery,'
+  require_source_pattern "$rust_logos/tests/slice_two.rs" "termination refusal outcomes" \
+    'pub enum ObserverTerminationRefusal {\\n    UnknownStream,\\n    AlreadyClosed,'
+
+  require_source_pattern "$witness/tests/nexus.rs" "end-to-end strict lifecycle" \
+    'fn strict_interface_stream_lowers_through_nomos_logos_and_rust_without_deferral()'
+  require_source_pattern "$witness/tests/nexus.rs" "exact emitted Protos pin" \
+    'protos = { git = \\"https://github.com/LiGoldragon/protos.git\\", rev = \\"95aeb1470c549a404518faf1ab0280a36583a2b3\\" }'
+  require_source_pattern "$witness/tests/nexus.rs" "locked scratch compile" \
+    'scratch lockfile with the pinned Protos source'
+  require_source_pattern "$witness/tests/nexus.rs" "runtime compiles against emitted contract" \
+    '{emitted}\\n{runtime}\\n'
+  require_source_pattern "$witness/tests/nexus.rs" "runtime open signature" \
+    'impl protos::StreamOpen for ObserverRuntime'
+  require_source_pattern "$witness/tests/nexus.rs" "runtime event signature" \
+    'impl protos::StreamEvent for ObserverRuntime'
+  require_source_pattern "$witness/tests/nexus.rs" "invalid query behavior" \
+    'Err(ObserverInitiationRefusal::InvalidQuery)'
+  require_source_pattern "$witness/tests/nexus.rs" "one queued event behavior" \
+    'Some(WireChoice::Empty)'
+  require_source_pattern "$witness/tests/nexus.rs" "already closed behavior" \
+    'Err(ObserverTerminationRefusal::AlreadyClosed)'
+  require_source_pattern "$witness/tests/nexus.rs" "unknown stream behavior" \
+    'Err(ObserverTerminationRefusal::UnknownStream)'
+}
+
+validate_coherence() {
+  local lock_file=$1
+  local source_map_file=$2
+  local source_name
+  local dependency_name
+  local target_name
+  local package_name
+
+  jq -e 'type == "object" and all(to_entries[]; (.key | type == "string") and (.value | type == "string"))' \
+    "$source_map_file" >/dev/null || {
+    echo "root source map must be a JSON object of source paths" >&2
+    return 1
+  }
+
+  while IFS='|' read -r source_name dependency_name target_name package_name; do
+    validate_direct_edge "$source_map_file" "$lock_file" \
+      "$source_name" "$dependency_name" "$target_name" "$package_name" || return 1
+  done < <(printf '%s\n' "$expected_edges")
+  validate_behavior_witness "$source_map_file"
+}
+
+copy_fixture() {
+  local source_map_file=$1
+  local fixture_root=$2
+  local fixture_map='{}'
+  local source_name
+  local source_root
+
+  while IFS= read -r source_name; do
+    source_root=$(source_path "$source_map_file" "$source_name")
+    mkdir -p "$fixture_root/sources/$source_name"
+    cp "$source_root/Cargo.toml" "$fixture_root/sources/$source_name/Cargo.toml"
+    fixture_map=$(jq -cn --argjson fixture_map "$fixture_map" \
+      --arg source_name "$source_name" \
+      --arg source_path "$fixture_root/sources/$source_name" \
+      '$fixture_map + {($source_name): $source_path}')
+  done < <(printf '%s\n' \
+    nomos-types protos core-ethos core-logos core-nomos rust-logos language-engine-witness)
+
+  mkdir -p "$fixture_root/sources/nomos-types/src" \
+    "$fixture_root/sources/protos/src" \
+    "$fixture_root/sources/core-ethos/tests" \
+    "$fixture_root/sources/core-logos/src" \
+    "$fixture_root/sources/core-nomos/src" \
+    "$fixture_root/sources/core-nomos/tests" \
+    "$fixture_root/sources/rust-logos/tests" \
+    "$fixture_root/sources/language-engine-witness/tests"
+  cp "$(source_path "$source_map_file" nomos-types)/src/lib.rs" \
+    "$fixture_root/sources/nomos-types/src/lib.rs"
+  cp "$(source_path "$source_map_file" protos)/src/interface.rs" \
+    "$fixture_root/sources/protos/src/interface.rs"
+  cp "$(source_path "$source_map_file" core-ethos)/tests/spirit_fixtures.rs" \
+    "$fixture_root/sources/core-ethos/tests/spirit_fixtures.rs"
+  cp "$(source_path "$source_map_file" core-logos)/src/whole.rs" \
+    "$fixture_root/sources/core-logos/src/whole.rs"
+  cp "$(source_path "$source_map_file" core-nomos)/src/nexus.rs" \
+    "$fixture_root/sources/core-nomos/src/nexus.rs"
+  cp "$(source_path "$source_map_file" core-nomos)/tests/nexus.rs" \
+    "$fixture_root/sources/core-nomos/tests/nexus.rs"
+  cp "$(source_path "$source_map_file" rust-logos)/tests/slice_two.rs" \
+    "$fixture_root/sources/rust-logos/tests/slice_two.rs"
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nexus.rs" \
+    "$fixture_root/sources/language-engine-witness/tests/nexus.rs"
+  chmod -R u+w "$fixture_root/sources"
+  printf '%s\n' "$fixture_map" > "$fixture_root/source-map.json"
+}
+
+expect_coherence_rejection() {
+  local label=$1
+  local lock_file=$2
+  local source_map_file=$3
+
+  if validate_coherence "$lock_file" "$source_map_file" >/dev/null 2>&1; then
+    echo "Slice Three coherence mutation unexpectedly passed: $label" >&2
+    return 1
+  fi
+}
+
+run_self_test() {
+  local lock_file=$1
+  local source_map_file=$2
+  local temporary_root
+  local witness_manifest
+  local witness_test
+  local protos_interface
+
+  validate_coherence "$lock_file" "$source_map_file"
+  temporary_root=$(mktemp -d)
+  trap 'rm -rf "$temporary_root"' RETURN
+  copy_fixture "$source_map_file" "$temporary_root"
+  witness_manifest="$temporary_root/sources/language-engine-witness/Cargo.toml"
+  witness_test="$temporary_root/sources/language-engine-witness/tests/nexus.rs"
+  protos_interface="$temporary_root/sources/protos/src/interface.rs"
+
+  sed -i \
+    '/^[[:space:]]*interface-protos[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
+    "$witness_manifest"
+  expect_coherence_rejection "strict witness Protos revision drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/Cargo.toml" "$witness_manifest"
+  sed -i '0,/AlreadyClosed/s//Closed/' "$witness_test"
+  expect_coherence_rejection "already-closed outcome removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nexus.rs" "$witness_test"
+  printf '\npub trait StreamClose {}\n' >> "$protos_interface"
+  expect_coherence_rejection "third stream trait reintroduction" \
+    "$lock_file" "$temporary_root/source-map.json"
+}
+
+case ${1:-} in
+  --self-test)
+    (( $# == 3 )) || {
+      echo "usage: check-slice-three-coherence --self-test FLAKE_LOCK SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    run_self_test "$2" "$3"
+    echo "Slice Three mutations reject strict pin drift, runtime outcome loss, and a third stream trait"
+    ;;
+  "")
+    echo "usage: check-slice-three-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
+    exit 2
+    ;;
+  *)
+    (( $# == 2 )) || {
+      echo "usage: check-slice-three-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
+      exit 2
+    }
+    validate_coherence "$1" "$2"
+    echo "Slice Three strict stream lifecycle edges and owner behavior match exact published revisions"
+    ;;
+esac

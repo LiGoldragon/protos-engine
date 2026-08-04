@@ -10,10 +10,10 @@
     capsule-content-identity = {
       url = "github:LiGoldragon/content-identity/896b21e17f31b66d0802bff899b4b60acea9c0f1";
     };
-    core-ethos.url = "github:LiGoldragon/core-ethos/736460fdafbd65d6500fe15e6ae8844b42a39e7c";
-    core-logos.url = "github:LiGoldragon/core-logos/9a61e2ac1bf8a8c1163794d695902115a05a4007";
-    core-nomos.url = "github:LiGoldragon/core-nomos/58fd8036bffcb3cff6e27af4db25690764ecc768";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/edbf506f2befd2ee756ecdf22e28fd09e53017e7";
+    core-ethos.url = "github:LiGoldragon/core-ethos/904dfce385ad9c7bfe0fa894267dd8815df100f4";
+    core-logos.url = "github:LiGoldragon/core-logos/a960aacff8ed13dc14b0ae0094208189d6609434";
+    core-nomos.url = "github:LiGoldragon/core-nomos/2e855607ebf4bc7f40b9328f8fbc78c59ed7926b";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/37dffb34e355e526b311f6a4d3f8c4764caca668";
     legacy-protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     name-table = {
       url = "github:LiGoldragon/name-table/50cb4bb53ae2dc4f2516f6912be328ef98ae49f8";
@@ -24,7 +24,8 @@
     structural-codec = {
       url = "github:LiGoldragon/structural-codec/f47fac132722916912b7071556f69cbbf4026f7f";
     };
-    protos.url = "github:LiGoldragon/protos/c85cec6117bfd4c423d952fd54e0c0bb11562f89";
+    protos.url = "github:LiGoldragon/protos/95aeb1470c549a404518faf1ab0280a36583a2b3";
+    nomos-types.url = "github:LiGoldragon/nomos-types/a7b831e0540a8ad263cd07ed44ec4c95c56771fb";
     nomos-protos.url = "github:LiGoldragon/protos/1263f9d1f73b57885d695ac033bdd6faa1334ddf";
     nomos-engine.url = "github:LiGoldragon/nomos-engine/e4230f62b55fcf8543477a26d272862a63aa1fc3";
     sealed-core-nomos.url = "github:LiGoldragon/core-nomos/ba7abc0b471a0385012b1d8a03cf4942e9da617e";
@@ -53,7 +54,7 @@
       flake = false;
     };
     spirit.url = "github:LiGoldragon/spirit/1049b8a1a9e3c2be7ece3553b89c7e3815939d43";
-    rust-logos.url = "github:LiGoldragon/rust-logos/f46167cbb35d25d86ddbc197653c6560ded8e077";
+    rust-logos.url = "github:LiGoldragon/rust-logos/306098361221b0f19b82156ab697134520fce8bc";
   };
 
   outputs =
@@ -71,6 +72,7 @@
       raw-discovery,
       structural-codec,
       protos,
+      nomos-types,
       nomos-protos,
       nomos-engine,
       sealed-core-nomos,
@@ -182,6 +184,20 @@
                   --self-test ${self}/flake.lock ${familySourceMap}
                 touch "$out"
               '';
+          sliceThreeCoherence =
+            pkgs.runCommand "protos-engine-slice-three-coherence"
+              {
+                nativeBuildInputs = scriptInputs;
+                validatedPinPolicy = exactPins;
+              }
+              ''
+                test -e "$validatedPinPolicy"
+                bash ${./scripts/check-slice-three-coherence} \
+                  ${self}/flake.lock ${familySourceMap}
+                bash ${./scripts/check-slice-three-coherence} \
+                  --self-test ${self}/flake.lock ${familySourceMap}
+                touch "$out"
+              '';
           sliceOneBehaviorWitness =
             pkgs.runCommand "protos-engine-slice-one-behavior-witness"
               {
@@ -283,6 +299,7 @@
                 sema-engine-test = sema-engine.checks.${system}.test;
                 sema-translator-test = sema-translator.checks.${system}.test;
                 sema-translator-process = sema-translator.checks.${system}.process;
+                nomos-types-test = nomos-types.checks.${system}.test;
                 protos-test = protos.checks.${system}.test;
                 protos-package-contents = protos.checks.${system}.package-contents;
                 nomos-protos-test = nomos-protos.checks.${system}.test;
@@ -299,6 +316,33 @@
                 nomos-engine-test = nomos-engine.checks.${system}.test;
                 language-engine-witness-test =
                   language-engine-witness.checks.${system}.test;
+                slice-three-behavior-witness =
+                  pkgs.runCommand "protos-engine-slice-three-behavior-witness"
+                    {
+                      validatedPinPolicy = exactPins;
+                      validatedDependencyDirection = dependencyDirection;
+                      validatedSliceThreeCoherence = sliceThreeCoherence;
+                      ownerNomosTypes = nomos-types.checks.${system}.test;
+                      ownerProtos = protos.checks.${system}.test;
+                      ownerEthos = core-ethos.checks.${system}.test;
+                      ownerLogos = core-logos.checks.${system}.test;
+                      ownerNomos = core-nomos.checks.${system}.test;
+                      ownerRustLogos = rust-logos.checks.${system}.test;
+                      ownerWitness = language-engine-witness.checks.${system}.test;
+                    }
+                    ''
+                      test -e "$validatedPinPolicy"
+                      test -e "$validatedDependencyDirection"
+                      test -e "$validatedSliceThreeCoherence"
+                      test -e "$ownerNomosTypes"
+                      test -e "$ownerProtos"
+                      test -e "$ownerEthos"
+                      test -e "$ownerLogos"
+                      test -e "$ownerNomos"
+                      test -e "$ownerRustLogos"
+                      test -e "$ownerWitness"
+                      touch "$out"
+                    '';
               }
             else
               { };
@@ -310,6 +354,7 @@
           identity-capsule-coherence = identityCapsuleCoherence;
           slice-one-coherence = sliceOneCoherence;
           slice-one-behavior-witness = sliceOneBehaviorWitness;
+          slice-three-coherence = sliceThreeCoherence;
           po-two-five-coherence = poTwoFiveCoherence;
           public-text-search-witness-contract = publicTextSearchWitnessContract;
           public-text-search-exact-test = publicTextSearchExactTest;
