@@ -5,7 +5,7 @@ set -euo pipefail
 # component pins may retain compatibility dependencies elsewhere, but these
 # aliases are the strict authored-stream path and must resolve to this sink's
 # exact roots.
-readonly expected_edges=$'stream-core-ethos|nomos-types|stream-nomos-types|nomos-types\nstream-core-logos|protos|stream-protos|protos\nstream-core-nomos|nexus-core-ethos|stream-core-ethos|core-ethos\nstream-core-nomos|nexus-core-logos|stream-core-logos|core-logos\nstream-rust-logos|core-logos|stream-core-logos|core-logos\nstream-language-engine-witness|interface-protos|stream-protos|protos\nstream-language-engine-witness|nexus-core-ethos|stream-core-ethos|core-ethos\nstream-language-engine-witness|nexus-core-logos|stream-core-logos|core-logos\nstream-language-engine-witness|nexus-core-nomos|stream-core-nomos|core-nomos\nstream-language-engine-witness|nexus-rust-logos|stream-rust-logos|rust-logos'
+readonly expected_edges=$'stream-core-ethos|nomos-types|stream-nomos-types|\nstream-core-logos|protos|stream-protos|\nstream-core-nomos|nexus-core-ethos|stream-core-ethos|core-ethos\nstream-core-nomos|nexus-core-logos|stream-core-logos|core-logos\nstream-rust-logos|core-logos|stream-core-logos|\nstream-language-engine-witness|interface-protos|stream-protos|protos\nstream-language-engine-witness|nexus-core-ethos|stream-core-ethos|core-ethos\nstream-language-engine-witness|nexus-core-logos|stream-core-logos|core-logos\nstream-language-engine-witness|nexus-core-nomos|stream-core-nomos|core-nomos\nstream-language-engine-witness|nexus-rust-logos|stream-rust-logos|rust-logos'
 
 root_revision() {
   local lock_file=$1
