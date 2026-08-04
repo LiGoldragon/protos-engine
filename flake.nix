@@ -33,6 +33,7 @@
     equivalent-core-nomos.url = "github:LiGoldragon/core-nomos/e1b2febf9f143ab1c84d042d2e9bdd0685303ddc";
     sema-engine.url = "github:LiGoldragon/sema-engine/7bed5017a6f20ff2c109f693c2dedaaddf52e64d";
     sema-translator.url = "github:LiGoldragon/sema-translator/6df830ab1ec9f315a5b50e40ffc393b48ea3d412";
+    signal-domain.url = "github:LiGoldragon/signal-domain/fbc400bf5ed5e4c4d27ef4e76cb48fa4e5d53658";
     signal-frame.url = "github:LiGoldragon/signal-frame/0786fbe8caf27552afcdd5deb85bc82ec6088337";
     signal-nomos.url = "github:LiGoldragon/signal-nomos/1af71a9d0625a6404f81cd6fe8b6393ac0c9040f";
     signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/51c02c4a7b6f67d9dad095f11986085d7d65785b";
@@ -86,6 +87,7 @@
       equivalent-core-nomos,
       sema-engine,
       sema-translator,
+      signal-domain,
       signal-frame,
       signal-nomos,
       signal-sema-translator,

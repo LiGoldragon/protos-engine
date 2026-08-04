@@ -420,6 +420,12 @@ more, and use more now."
 
 ## 8. Capsule
 
+> **PARTIALLY SUPERSEDED.** The capsule-per-namespace/file dictation in the
+> first paragraph below is not current. The later psyche ruling recorded at
+> `/home/li/primary/design/ProtosEngine/capsuleIsCompilationUnit-2026-08-01.md`
+> makes a capsule one program or library—the content yielding one compiled
+> artifact—not a namespace or source file.
+
 **[ruled]** the 07-23 dictation (wording in the compiled sources): a capsule
 per namespace mirrors the file concept; conflicts are dealt with at each
 layer; emitted Rust is always fully qualified — "we treat Rust like an
