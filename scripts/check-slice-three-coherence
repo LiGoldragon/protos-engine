@@ -5,7 +5,7 @@ set -euo pipefail
 # component pins may retain compatibility dependencies elsewhere, but these
 # aliases are the strict authored-stream path and must resolve to this sink's
 # exact roots.
-readonly expected_edges=$'core-ethos|nomos-types|nomos-types|\ncore-logos|protos|protos|\ncore-nomos|nexus-core-ethos|core-ethos|core-ethos\ncore-nomos|nexus-core-logos|core-logos|core-logos\nrust-logos|core-logos|core-logos|\nlanguage-engine-witness|interface-protos|protos|protos\nlanguage-engine-witness|nexus-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|nexus-core-logos|core-logos|core-logos\nlanguage-engine-witness|nexus-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|nexus-rust-logos|rust-logos|rust-logos'
+readonly expected_edges=$'stream-core-ethos|nomos-types|stream-nomos-types|nomos-types\nstream-core-logos|protos|stream-protos|protos\nstream-core-nomos|nexus-core-ethos|stream-core-ethos|core-ethos\nstream-core-nomos|nexus-core-logos|stream-core-logos|core-logos\nstream-rust-logos|core-logos|stream-core-logos|core-logos\nstream-language-engine-witness|interface-protos|stream-protos|protos\nstream-language-engine-witness|nexus-core-ethos|stream-core-ethos|core-ethos\nstream-language-engine-witness|nexus-core-logos|stream-core-logos|core-logos\nstream-language-engine-witness|nexus-core-nomos|stream-core-nomos|core-nomos\nstream-language-engine-witness|nexus-rust-logos|stream-rust-logos|rust-logos'
 
 root_revision() {
   local lock_file=$1
@@ -73,7 +73,8 @@ validate_direct_edge() {
   declaration=$(dependency_declaration "$manifest" "$dependency_name") || return 1
   compact_declaration=$(printf '%s\n' "$declaration" | tr -d '[:space:]')
 
-  if [[ "$compact_declaration" != *"git=\"https://github.com/LiGoldragon/${target_name}.git\""* ]]; then
+  local target_repository=${target_name#stream-}
+  if [[ "$compact_declaration" != *"git=\"https://github.com/LiGoldragon/${target_repository}.git\""* ]]; then
     echo "Slice Three edge targets the wrong repository: $source_name -> $dependency_name" >&2
     return 1
   fi
@@ -156,13 +157,13 @@ validate_behavior_witness() {
   local rust_logos
   local witness
 
-  nomos_types=$(source_path "$source_map_file" nomos-types)
-  protos=$(source_path "$source_map_file" protos)
-  ethos=$(source_path "$source_map_file" core-ethos)
-  logos=$(source_path "$source_map_file" core-logos)
-  nomos=$(source_path "$source_map_file" core-nomos)
-  rust_logos=$(source_path "$source_map_file" rust-logos)
-  witness=$(source_path "$source_map_file" language-engine-witness)
+  nomos_types=$(source_path "$source_map_file" stream-nomos-types)
+  protos=$(source_path "$source_map_file" stream-protos)
+  ethos=$(source_path "$source_map_file" stream-core-ethos)
+  logos=$(source_path "$source_map_file" stream-core-logos)
+  nomos=$(source_path "$source_map_file" stream-core-nomos)
+  rust_logos=$(source_path "$source_map_file" stream-rust-logos)
+  witness=$(source_path "$source_map_file" stream-language-engine-witness)
 
   require_source_pattern "$nomos_types/src/lib.rs" "typed initiation data" \
     'pub struct StreamInitiation<Stream, Query, Event>'
@@ -265,32 +266,17 @@ copy_fixture() {
       --arg source_path "$fixture_root/sources/$source_name" \
       '$fixture_map + {($source_name): $source_path}')
   done < <(printf '%s\n' \
-    nomos-types protos core-ethos core-logos core-nomos rust-logos language-engine-witness)
+    stream-nomos-types stream-protos stream-core-ethos stream-core-logos stream-core-nomos stream-rust-logos stream-language-engine-witness)
 
-  mkdir -p "$fixture_root/sources/nomos-types/src" \
-    "$fixture_root/sources/protos/src" \
-    "$fixture_root/sources/core-ethos/tests" \
-    "$fixture_root/sources/core-logos/src" \
-    "$fixture_root/sources/core-nomos/src" \
-    "$fixture_root/sources/core-nomos/tests" \
-    "$fixture_root/sources/rust-logos/tests" \
-    "$fixture_root/sources/language-engine-witness/tests"
-  cp "$(source_path "$source_map_file" nomos-types)/src/lib.rs" \
-    "$fixture_root/sources/nomos-types/src/lib.rs"
-  cp "$(source_path "$source_map_file" protos)/src/interface.rs" \
-    "$fixture_root/sources/protos/src/interface.rs"
-  cp "$(source_path "$source_map_file" core-ethos)/tests/spirit_fixtures.rs" \
-    "$fixture_root/sources/core-ethos/tests/spirit_fixtures.rs"
-  cp "$(source_path "$source_map_file" core-logos)/src/whole.rs" \
-    "$fixture_root/sources/core-logos/src/whole.rs"
-  cp "$(source_path "$source_map_file" core-nomos)/src/nexus.rs" \
-    "$fixture_root/sources/core-nomos/src/nexus.rs"
-  cp "$(source_path "$source_map_file" core-nomos)/tests/nexus.rs" \
-    "$fixture_root/sources/core-nomos/tests/nexus.rs"
-  cp "$(source_path "$source_map_file" rust-logos)/tests/slice_two.rs" \
-    "$fixture_root/sources/rust-logos/tests/slice_two.rs"
-  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nexus.rs" \
-    "$fixture_root/sources/language-engine-witness/tests/nexus.rs"
+  mkdir -p "$fixture_root/sources/stream-nomos-types/src" "$fixture_root/sources/stream-protos/src" "$fixture_root/sources/stream-core-ethos/tests" "$fixture_root/sources/stream-core-logos/src" "$fixture_root/sources/stream-core-nomos/src" "$fixture_root/sources/stream-core-nomos/tests" "$fixture_root/sources/stream-rust-logos/tests" "$fixture_root/sources/stream-language-engine-witness/tests"
+  cp "$(source_path "$source_map_file" stream-nomos-types)/src/lib.rs" "$fixture_root/sources/stream-nomos-types/src/lib.rs"
+  cp "$(source_path "$source_map_file" stream-protos)/src/interface.rs" "$fixture_root/sources/stream-protos/src/interface.rs"
+  cp "$(source_path "$source_map_file" stream-core-ethos)/tests/spirit_fixtures.rs" "$fixture_root/sources/stream-core-ethos/tests/spirit_fixtures.rs"
+  cp "$(source_path "$source_map_file" stream-core-logos)/src/whole.rs" "$fixture_root/sources/stream-core-logos/src/whole.rs"
+  cp "$(source_path "$source_map_file" stream-core-nomos)/src/nexus.rs" "$fixture_root/sources/stream-core-nomos/src/nexus.rs"
+  cp "$(source_path "$source_map_file" stream-core-nomos)/tests/nexus.rs" "$fixture_root/sources/stream-core-nomos/tests/nexus.rs"
+  cp "$(source_path "$source_map_file" stream-rust-logos)/tests/slice_two.rs" "$fixture_root/sources/stream-rust-logos/tests/slice_two.rs"
+  cp "$(source_path "$source_map_file" stream-language-engine-witness)/tests/nexus.rs" "$fixture_root/sources/stream-language-engine-witness/tests/nexus.rs"
   chmod -R u+w "$fixture_root/sources"
   printf '%s\n' "$fixture_map" > "$fixture_root/source-map.json"
 }
@@ -316,7 +302,7 @@ run_self_test() {
   temporary_root=$(mktemp -d)
   trap 'rm -rf "$temporary_root"' RETURN
   copy_fixture "$source_map_file" "$temporary_root"
-  witness_manifest="$temporary_root/sources/language-engine-witness/Cargo.toml"
+  witness_manifest="$temporary_root/sources/stream-language-engine-witness/Cargo.toml"
 
   sed -i \
     '/^[[:space:]]*interface-protos[[:space:]]*=/s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
