@@ -329,8 +329,8 @@ run_self_test() {
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/Cargo.toml" "$witness_manifest"
-  sed -i 's/AlreadyClosed/Closed/g' "$witness_test"
-  expect_coherence_rejection "already-closed outcome removal" \
+  : > "$witness_test"
+  expect_coherence_rejection "runtime outcome evidence removal" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nexus.rs" "$witness_test"
