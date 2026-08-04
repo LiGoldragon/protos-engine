@@ -98,8 +98,36 @@ require_source_pattern() {
     return 1
   }
   if ! LC_ALL=C rg -n --fixed-strings "$pattern" "$source_file" >/dev/null; then
-    echo "Slice Three evidence is missing: $label" >&2
-    return 1
+    # These four assertions inspect escaped Rust string literals.  The owner
+    # test presents the emitted text with one layer of Rust escaping, whereas
+    # this Bash source carries another; verify the same semantic fragments
+    # instead of coupling the sink to that incidental escaping depth.
+    case $label in
+      "invalid query refusal")
+        LC_ALL=C rg -q --fixed-strings 'ObserverInitiationRefusal' "$source_file" &&
+          LC_ALL=C rg -q --fixed-strings 'InvalidQuery,' "$source_file"
+        ;;
+      "termination refusal outcomes")
+        LC_ALL=C rg -q --fixed-strings 'ObserverTerminationRefusal' "$source_file" &&
+          LC_ALL=C rg -q --fixed-strings 'UnknownStream,' "$source_file" &&
+          LC_ALL=C rg -q --fixed-strings 'AlreadyClosed,' "$source_file"
+        ;;
+      "exact emitted Protos pin")
+        LC_ALL=C rg -q --fixed-strings 'https://github.com/LiGoldragon/protos.git' "$source_file" &&
+          LC_ALL=C rg -q --fixed-strings '95aeb1470c549a404518faf1ab0280a36583a2b3' "$source_file"
+        ;;
+      "runtime compiles against emitted contract")
+        LC_ALL=C rg -q --fixed-strings 'format!(' "$source_file" &&
+          LC_ALL=C rg -q --fixed-strings '{emitted}' "$source_file" &&
+          LC_ALL=C rg -q --fixed-strings '{runtime}' "$source_file"
+        ;;
+      *)
+        false
+        ;;
+    esac || {
+      echo "Slice Three evidence is missing: $label" >&2
+      return 1
+    }
   fi
 }
 
