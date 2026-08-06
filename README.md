@@ -26,54 +26,62 @@ component repository -X-> protos-engine
 root lock input set, then scans every pinned family `Cargo.toml` and
 `flake.nix` for that forbidden reverse edge. The match is case-insensitive.
 `scripts/check-repository-shape` keeps the recursively exact repository
-allowlist source-free.
+allowlist source-free. `NON_IDEAL_AGENTS.md` is a required regular file in that
+surface, and the shape self-test proves its removal is rejected.
 
 ## Pinned family
 
 Every repository input uses a full, published Git revision:
-
-| Repository | Revision |
+| Root input | Revision |
 | --- | --- |
-| content-identity (legacy per-item graph) | `fdf2db1d5a9e8ea52d24d39a03833c3e6885c355` |
-| capsule-content-identity (content-only) | `896b21e17f31b66d0802bff899b4b60acea9c0f1` |
-| name-table | `50cb4bb53ae2dc4f2516f6912be328ef98ae49f8` |
-| signal-sema-translator | `51c02c4a7b6f67d9dad095f11986085d7d65785b` |
-| sema-translator | `6df830ab1ec9f315a5b50e40ffc393b48ea3d412` |
-| signal-frame | `0786fbe8caf27552afcdd5deb85bc82ec6088337` |
-| sema-engine | `7bed5017a6f20ff2c109f693c2dedaaddf52e64d` |
-| protos (neutral po2.6 carrier) | `c85cec6117bfd4c423d952fd54e0c0bb11562f89` |
-| legacy-protos (unchanged Ethos/Logos consumers) | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
-| nomos-protos (content-only identity consumer) | `1263f9d1f73b57885d695ac033bdd6faa1334ddf` |
-| core-ethos | `736460fdafbd65d6500fe15e6ae8844b42a39e7c` |
-| core-logos | `9a61e2ac1bf8a8c1163794d695902115a05a4007` |
-| rust-logos | `f46167cbb35d25d86ddbc197653c6560ded8e077` |
-| core-nomos | `58fd8036bffcb3cff6e27af4db25690764ecc768` |
-| signal-nomos | `1af71a9d0625a6404f81cd6fe8b6393ac0c9040f` |
-| nomos-engine | `e4230f62b55fcf8543477a26d272862a63aa1fc3` |
-| sealed-core-nomos (content-only identity consumer) | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
-| template-core-logos (po2.5 graph) | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
-| template-rust-logos (po2.5 graph) | `96eda934a8f3203295f0a08869199441f109c369` |
-| equivalent-core-nomos (po2.5 graph) | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
-| language-engine-witness | `edbf506f2befd2ee756ecdf22e28fd09e53017e7` |
-| raw-discovery | `7290f65bbb5e7825ab2ca58340631d154d69d110` |
-| structural-codec | `f47fac132722916912b7071556f69cbbf4026f7f` |
-| schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
-| schema-rust | `3721656b0a654d47d9abde31f14d89d01f9305cf` |
-| signal-spirit | `1cf7c010029de46369b742687da4fa1ca6def9a9` |
+| capsule-content-identity | `896b21e17f31b66d0802bff899b4b60acea9c0f1` |
+| content-identity | `fdf2db1d5a9e8ea52d24d39a03833c3e6885c355` |
+| core-ethos | `7a1384874f3747de97c6ccbb4ae6fa2149b27330` |
+| core-logos | `abee4036fbeb58c767ef7dc3489804e2afd5c6e1` |
+| core-nomos | `4758e8db3c72e7c84c30c1a0b597b6d9ed65d35d` |
+| equivalent-core-nomos | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
+| language-engine-witness | `2cbc9e67a8f011db84c7869b9fb5242f7e4ed13b` |
+| legacy-protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
 | meta-signal-spirit | `0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3` |
+| name-table | `a22f48d8040ab9235f3552ad8654ff8e27b8157d` |
+| nixpkgs | `91cc1fdf6831e29b6c98768e721a72241f3d0797` |
+| nomos-engine | `2ccb200894056abbaae70b10a070c427fa4fdf4c` |
+| nomos-protos | `1263f9d1f73b57885d695ac033bdd6faa1334ddf` |
+| protos | `65e7c6d4692a40e1c49deffb3fb4a9a2c3555c5b` |
+| raw-discovery | `2d4e2e00f2821c4e2893fa96028cef0ac76e9644` |
+| rust-logos | `250e728fa9e5a02e3c9a6d4f0cfee0683863df83` |
+| schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
+| schema-rust | `c1d2ae1b0dd189cd8c8788a2cfc062e26c0377f3` |
+| sealed-core-nomos | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
+| sema-engine | `9f62eb444d7ae257b34c740e1bbad8cca079a13b` |
+| sema-translator | `4675e5ddfdd0d24144498ec9b7d2e5b9cb422249` |
+| signal-domain | `6f7c1352602581cb6cb82f507fe573890c6ffa56` |
+| signal-frame | `0786fbe8caf27552afcdd5deb85bc82ec6088337` |
+| signal-nomos | `bdcf54021e880f75ab693d00e3707478ca7de487` |
+| signal-sema-translator | `3a26cb43f8ce7f9fe85da64d19aa55aa662943ce` |
+| signal-spirit | `1cf7c010029de46369b742687da4fa1ca6def9a9` |
 | spirit | `1049b8a1a9e3c2be7ece3553b89c7e3815939d43` |
+| stream-core-ethos | `29237c33798db908bbfe10ef0cffe2c6a28be508` |
+| stream-core-logos | `a960aacff8ed13dc14b0ae0094208189d6609434` |
+| stream-core-nomos | `6ef64cc38a104836b2b236ba4838ffd8e75dced1` |
+| stream-language-engine-witness | `efe8ed3d5ea53f280b93cc1f2f131d92ef781832` |
+| stream-nomos-types | `a7b831e0540a8ad263cd07ed44ec4c95c56771fb` |
+| stream-protos | `95aeb1470c549a404518faf1ab0280a36583a2b3` |
+| stream-rust-logos | `f92a8eccd851ebb1f8140ec42e00b04ba73758d0` |
+| structural-codec | `413e3744569ca237e837a1fd57d9ba6ad6adc3de` |
+| template-core-logos | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
+| template-rust-logos | `96eda934a8f3203295f0a08869199441f109c369` |
 
 The three Spirit-family pins retain the existing `PublicTextSearch` process
 witness until its successor feature revisions are independently audited and
 published.
 
-The schema-language and schema-rust pins are frozen donors: the language they
-implement was ruled dead under its old name 2026-07-27 (S1R entry 7) and is
-now Ethos, and neither repository gains new consumers. Both pins remain here
-only because the pinned Spirit-family flake closure still builds through
-their wired-legacy schema/schema-rust toolchain; Spirit's port onto
-Ethos-based generation has not landed (blocked at bead
-`protos-engine-po1.10.11`).
+`schema-language` remains a frozen donor only for the pinned Spirit-family
+closure. `schema-rust` is also a current bootstrap projection producer: its
+published owner checks compile the generated code, and `sema-engine` consumes
+that checked projection for the current Sema table runtime. The current Rust
+projection is a replaceable stage, not a permanent definition of any file
+kind.
 
 The identity/Capsule producers are ordinary flake inputs rather than source-only
 inputs. This lets the assembly expose their published test derivations directly.
@@ -88,8 +96,8 @@ checks.
 committed `flake.lock`. Its live gate independently runs
 `nix flake metadata --json --no-write-lock-file path:$repo`, compares the
 actual evaluated `locks` with the committed lock, and proves neither the lock
-nor repository status changed. Root inputs must be exactly the table above
-plus the pinned Nixpkgs input; each root original and locked record must agree
+nor repository status changed. Root inputs must be exactly the table above;
+each root original and locked record must agree
 on a full 40-hex revision and the locked record must carry a `narHash`. Root
 branch, path, and extra inputs are rejected.
 
@@ -114,14 +122,18 @@ what prevents that mismatch without pretending the legacy graph has migrated.
 The gate therefore proves a coherent published carrier foundation without
 claiming universal migration of the retained compatibility graph.
 
-`scripts/check-slice-one-coherence` validates every chain-based language edge
-and the native authored Nomos runtime edges against the exact root revisions.
-It covers the canonical cores, rust-logos, neutral protos frame dependency,
-signal-nomos, nomos-engine, and every language-engine-witness alias. Its
-mutation suite rejects revision, repository, package-alias, protocol framing,
-projection-advance, stale-refusal, and restart drift. Production-source scans
-also enumerate every regular `nomos-engine` `src/**/*.rs` file and refuse the
-retired evaluator and central storage vocabulary.
+`scripts/check-slice-one-coherence` validates every direct producer edge in the
+current bootstrap language path against the exact root revisions. It covers
+the canonical cores, rust-logos, the neutral Protos frame dependency, and each
+language-engine-witness Cargo edge and alias. The Nomos wire closure remains a
+separate typed generation: the owner witness carries `nomos-engine` as an exact
+process-only Nix input, while this sink verifies its current-wire refusal and
+authority-process behavior without falsely requiring its transitive Cargo
+graph to equal the newest bootstrap roots. Production-source scans enumerate
+every regular `nomos-engine` `src/**/*.rs` file and refuse retired evaluator
+and central-storage vocabulary. Mutations reject producer, repository,
+package-alias, Interface/Nexus/Sema framing, transaction, timeout, byte-order,
+authority-receipt, and graph-refusal drift.
 
 `scripts/check-po-two-five-coherence` retains the exact po2.5 integration labels
 beside the current graph. It verifies that rust-logos and the po2.5 core-nomos
@@ -161,33 +173,39 @@ the producer's broader published suite as a separate closure check.
 
 `slice-one-behavior-witness` realizes the pinned
 language-engine-witness owner suite only after exact-pin, dependency-direction,
-and Slice One coherence derivations succeed. The owner suite decodes a
-six-slot Ethos application-backed newtype and enumeration with unit and
-positional tuple variants using translator-issued chains, archives and
-restores Whole Ethos, lowers through direct typed Nomos to identified Whole
-Logos, archives and restores Whole Logos, structurally emits and decodes Rust,
-refuses incomplete projections without returning partial source, then
-compiles and exhaustively runs the generated forms in a temporary Cargo crate. Its
-separate process witness terminates and restarts the pinned native Nomos engine
-against isolated temporary state and proves durable recovery and resumed
-progression. The current process path authority-seals authored Nomos, deploys
-it through the native daemon, recursively transforms a finite enumeration tree,
-asserts child-before-parent `Invoke` order and boundary-zero `InsertAt`, advances
-its authenticated NameTree projection, restarts on the same `nomos.sema`, and
-reproduces the exact canonical Logos archive at projection 1. It also proves
-recursive-binding rename projection, rejects stale projection artifacts, and
-preserves the current-deployment no-op before stale CAS ordering. The wrapper
-also realizes nomos-engine's 15-test owner gate and signal-nomos's typed
-protocol suite.
-Daemon readiness and every process socket read/write are bounded to ten
-seconds, and coherence mutations reject removal of those deadlines.
-It additionally realizes the owner's exact read-only Spirit-domain source
-inventory comparison, carries all 41 items and 369 variants through durable
-typed Ethos and Logos plus structural Rust emit/decode, and constructs all 369
-authored enum variants in scratch Cargo. `ScopeOf` and the two Vector newtypes
-that depend on its output remain typed structural data without a fabricated
-runtime. The wrapper dependencies ensure a producer-pin change cannot
-reuse a behavior result without rebuilding the relevant coherence closure.
+and Slice One coherence derivations succeed. The Nexus owner source has the
+complete `Nexus.{1 0 0}` header, imports, and body. One authority-approved
+transaction lowers through bootstrap Nomos to identified Whole Logos,
+survives archive recovery, carries unit, unary, and product semantics through
+the current structural Rust projection, refuses incomplete projections, and
+compiles and runs the result in scratch Cargo.
+
+The root also consumes `sema-engine`'s producer-owned Sema proof. Its
+`Sema.{1 0 0}` header/imports/body source is authority-assembled into a checked
+projection whose typed table is written, read, closed, and reopened through
+the engine. No Sema source or generated table is copied into this sink or the
+language witness.
+
+The process suite proves the present boundary precisely. A verified bootstrap
+transaction succeeds in process, while the real Nomos daemon refuses an
+unarchived wire population; successful persisted native-Nomos restart remains
+outside the current claim. Authored Nomos is sealed as one authority
+transaction, materializes only after its durable receipt is read, recovers
+across an authority-process restart, and accepts a spelling-only rename
+without changing content identity. One-request file-population tests prove
+missing, cyclic, external-`Invoke`, and source-root-escape graphs leave no
+receipt. Process readiness and socket I/O remain bounded, and the sink checks
+the direct big-endian framing evidence.
+
+The Spirit-domain owner source is the complete `Interface.{1 0 0}`
+header/imports/body transaction and must equal the source published by
+`signal-domain`. It carries 41 top-level types and 369 variants through the
+same authority-verified lowering, whole-Logos identity and archive recovery,
+and a current Rust projection byte-identical to the producer's checked output;
+scratch Cargo constructs all 369 variants. `ScopeOf` and both
+`Vector<DomainScope>` declarations remain typed applications. Producer-pin
+changes therefore rebuild the relevant source, coherence, and behavior
+closures.
 
 Run the same owning published suite explicitly with:
 

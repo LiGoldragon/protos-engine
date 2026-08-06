@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# These are the complete direct producer edges for the chain-based language
-# path and the native authored Nomos process that now owns its runtime.
-readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|raw-discovery|raw-discovery|\ncore-nomos|textual-rust|rust-logos|rust-logos\ncore-nomos|structural-codec|structural-codec|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nsignal-nomos|core-nomos|core-nomos|\nnomos-engine|core-ethos|core-ethos|\nnomos-engine|core-logos|core-logos|\nnomos-engine|core-nomos|core-nomos|\nnomos-engine|protos|protos|\nnomos-engine|sema-engine|sema-engine|\nnomos-engine|signal-nomos|signal-nomos|\nnomos-engine|signal-sema-translator|signal-sema-translator|\nnomos-engine|name-table|name-table|\nnomos-engine|structural-codec|structural-codec|\nlanguage-engine-witness|nomos-engine|nomos-engine|\nlanguage-engine-witness|signal-nomos|signal-nomos|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-protos|protos|protos\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
+# These are the complete direct producer edges for the current bootstrap
+# language path. The separately pinned Nomos wire closure keeps its own typed
+# producer graph; its root revisions and owner process evidence are checked
+# without pretending that closure is the same generation as this path.
+readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\ncore-nomos|raw-discovery|raw-discovery|\ncore-nomos|textual-rust|rust-logos|rust-logos\ncore-nomos|structural-codec|structural-codec|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nlanguage-engine-witness|sema-engine|sema-engine|\nlanguage-engine-witness|signal-domain|signal-domain|\nlanguage-engine-witness|signal-nomos|signal-nomos|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-sema-translator|sema-translator|sema-translator\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
 
 root_revision() {
   local lock_file=$1
@@ -123,54 +125,98 @@ reject_source_pattern() {
   fi
 }
 
+validate_bootstrap_fixture() {
+  local fixture=$1
+  local kind=$2
+  local body_pattern=$3
+
+  if [[ $(sed -n '1p' "$fixture") != "$kind.{1 0 0}" ||
+    $(sed -n '2p' "$fixture") != '[]' ||
+    $(sed -n '3p' "$fixture") != '{' ||
+    $(tail -n 1 "$fixture") != '}' ]]; then
+    echo "Slice One behavior witness lacks $kind header/import/body framing" >&2
+    return 1
+  fi
+  require_source_pattern "$fixture" "$kind body" "$body_pattern"
+}
+
 validate_behavior_witness() {
   local source_map_file=$1
+  local lock_file=$2
   local witness_root
+  local witness_flake
   local slice_test
+  local slice_fixture
   local spirit_domain_test
   local spirit_domain_fixture
+  local support_module
+  local signal_domain_revision
+  local nomos_engine_revision
   local restart_test
+  local sema_root
+  local sema_fixture
+  local sema_generated_test
+  local sema_generated_rust
+  local sema_support_module
 
   witness_root=$(source_path "$source_map_file" language-engine-witness) || {
     echo "Slice One behavior witness is absent from the root source map" >&2
     return 1
   }
+  witness_flake="$witness_root/flake.nix"
   slice_test="$witness_root/tests/slice_one.rs"
+  slice_fixture="$witness_root/tests/fixtures/slice-one-newtype.ethos"
   spirit_domain_test="$witness_root/tests/spirit_domain.rs"
   spirit_domain_fixture="$witness_root/tests/fixtures/spirit-domain.ethos"
+  support_module="$witness_root/tests/support/mod.rs"
   restart_test="$witness_root/tests/nomos_authority_process.rs"
-  [[ -f "$slice_test" && ! -L "$slice_test" &&
+  [[ -f "$witness_flake" && ! -L "$witness_flake" &&
+    -f "$slice_test" && ! -L "$slice_test" &&
+    -f "$slice_fixture" && ! -L "$slice_fixture" &&
     -f "$spirit_domain_test" && ! -L "$spirit_domain_test" &&
     -f "$spirit_domain_fixture" && ! -L "$spirit_domain_fixture" &&
+    -f "$support_module" && ! -L "$support_module" &&
     -f "$restart_test" && ! -L "$restart_test" ]] || {
     echo "Slice One behavior witness lacks regular owner test surfaces" >&2
     return 1
   }
 
-  require_source_pattern "$slice_test" "six-slot Ethos enum and application test" \
-    '^fn six_slot_ethos_lowers_and_emits_working_enum_and_application_shapes[(][)]'
-  require_source_pattern "$slice_test" "translator-issued item chain" \
-    '^[[:space:]]*newtype: issued[(]VocabularyRoot::Universal, &[[]42, 7, 9[]][)][,]'
-  require_source_pattern "$slice_test" "translator-issued enumeration chain" \
-    '^[[:space:]]*enumeration: issued[(]VocabularyRoot::Universal, &[[]42, 7, 10[]][)][,]'
-  require_source_pattern "$slice_test" "translator-issued descendant variant chain" \
-    '^[[:space:]]*batch_variant: issued[(]VocabularyRoot::Universal, &[[]42, 7, 10, 3[]][)][,]'
-  require_source_pattern "$slice_test" "lookup-only Integer chain" \
-    '^[[:space:]]*integer: issued[(]VocabularyRoot::Universal, &[[]3[]][)][,]'
-  require_source_pattern "$slice_test" "lookup-only Vector chain" \
-    '^[[:space:]]*vector: issued[(]VocabularyRoot::Universal, &[[]4[]][)][,]'
-  require_source_pattern "$slice_test" "typed six-slot decode" \
-    '[.]decode[(]ETHOS_SOURCE, &bindings[)]'
-  require_source_pattern "$slice_test" "Whole Ethos archive recovery" \
-    'WholeEthos::from_archive_bytes[(]&ethos_archive[)]'
-  require_source_pattern "$slice_test" "direct Nomos lowering" \
-    'SliceOneTransformation::new[(][)][.]lower[(]&restored_ethos[)]'
+  nomos_engine_revision=$(root_revision "$lock_file" nomos-engine)
+  require_source_pattern "$witness_flake" "exact process-only Nomos engine" \
+    "github:LiGoldragon/nomos-engine/${nomos_engine_revision}"
+
+  sema_root=$(source_path "$source_map_file" sema-engine) || {
+    echo "Sema behavior witness is absent from the root source map" >&2
+    return 1
+  }
+  sema_fixture="$sema_root/schema/witness.sema"
+  sema_generated_test="$sema_root/tests/generated_table.rs"
+  sema_generated_rust="$sema_root/tests/fixtures/generated_sema_table.rs"
+  sema_support_module="$sema_root/tests/support/mod.rs"
+  [[ -f "$sema_fixture" && ! -L "$sema_fixture" &&
+    -f "$sema_generated_test" && ! -L "$sema_generated_test" &&
+    -f "$sema_generated_rust" && ! -L "$sema_generated_rust" &&
+    -f "$sema_support_module" && ! -L "$sema_support_module" ]] || {
+    echo "Sema behavior witness lacks regular owner source and test surfaces" >&2
+    return 1
+  }
+
+  validate_bootstrap_fixture "$slice_fixture" Nexus \
+    'Identifiers[.]Vector<Integer> Status[.][[]Pending Ready[.]Integer Batch[.][{]Vector<Integer> Integer[}][]]'
+  require_source_pattern "$slice_test" "Nexus unit, unary, and product semantics" \
+    '^fn nexus_bootstrap_lowers_and_runs_unit_unary_and_product_semantics[(][)]'
+  require_source_pattern "$slice_test" "canonical Nexus source transaction" \
+    'assert_eq![(]assembly[.]canonical_source[(][)], NEXUS_SOURCE[)][;]'
+  require_source_pattern "$slice_test" "authority-verified bootstrap lowering" \
+    'BootstrapSliceOneLowering::new[(][)]'
+  require_source_pattern "$slice_test" "sealed transaction boundary" \
+    '[.]lower[(]assembly[.]reader[(][)], assembly[.]transaction[(][)][)]'
   require_source_pattern "$slice_test" "whole Logos identity" \
-    '^[[:space:]]*let whole_identity = logos'
+    'logos[.]content_identity[(][)][.]expect[(]"whole Logos identity"[)]'
   require_source_pattern "$slice_test" "Whole Logos archive recovery" \
-    'WholeLogos::from_archive_bytes[(]&logos_archive[)]'
+    'WholeLogos::from_archive_bytes[(]&archive[)]'
   require_source_pattern "$slice_test" "structural Rust emission" \
-    '^[[:space:]]*[.]emit_fixture[(]&restored_logos, &projections[(]&ids[)][)]'
+    '[.]emit_fixture[(]&restored, &projections[(]&ids[)][)]'
   require_source_pattern "$slice_test" "structural Rust decode" \
     'rust[.]decode_fixture[(]&emitted, &emitted_bindings[(]&emitted, &ids[)][)]'
   require_source_pattern "$slice_test" "unit variant carrier" \
@@ -178,55 +224,89 @@ validate_behavior_witness() {
   require_source_pattern "$slice_test" "tuple variant carrier" \
     'WholeLogosVariantPayload::Tuple'
   require_source_pattern "$slice_test" "no-partial-emission refusal" \
-    '^fn incomplete_projection_refuses_without_returning_partial_rust[(][)]'
+    '^fn incomplete_projection_refuses_without_partial_rust[(][)]'
   require_source_pattern "$slice_test" "scratch Cargo execution" \
     '^[[:space:]]*let run = Command::new[(]"cargo"[)]'
   require_source_pattern "$slice_test" "generated behavior output" \
-    '^[[:space:]]*"3 42\\n"'
+    '"3 42\\n"'
+  require_source_pattern "$slice_test" "exact published bootstrap train" \
+    '^fn vertical_slice_pins_the_published_bootstrap_train[(][)]'
+  reject_source_pattern "$slice_test" "retired six-slot source vocabulary" \
+    'six-slot|SixSlot'
 
-  require_source_pattern "$spirit_domain_test" "complete Spirit domain test" \
-    '^fn complete_spirit_domain_reaches_durable_logos_and_production_rust[(][)]'
+  validate_bootstrap_fixture "$sema_fixture" Sema \
+    'Domain[.]String DomainSnapshot[.][{]Domain Integer String[}]'
+  require_source_pattern "$sema_support_module" "canonical Sema source assembly" \
+    '[.]assemble[(]include_str![(]"[.][.]/[.][.]/schema/witness[.]sema"[)], approval[)]'
+  require_source_pattern "$sema_support_module" "authority-verified Sema generation" \
+    'BootstrapSemaGeneration::new[(]'
+  require_source_pattern "$sema_generated_rust" "checked Sema projection marker" \
+    '^// @generated by schema-rust from an authority-verified bootstrap Sema$'
+  require_source_pattern "$sema_generated_test" "checked source/projection freshness" \
+    '^fn checked_sema_source_and_generated_rust_are_fresh[(][)]'
+  require_source_pattern "$sema_generated_test" "generated typed table runtime" \
+    '^fn generated_domain_snapshot_table_writes_and_reads_a_typed_domain_key[(][)]'
+  require_source_pattern "$sema_generated_test" "generated table registration" \
+    '[.]register_table[(]z2VKo3::descriptor[(][)][)]'
+
+  validate_bootstrap_fixture "$spirit_domain_fixture" Interface \
+    'DomainScope[.]ScopeOf<Domain> DomainScopes[.]Vector<DomainScope> ScopeSet[.]Vector<DomainScope>'
+  require_source_pattern "$support_module" "canonical Interface fixture inclusion" \
+    '^pub const SOURCE: &str = include_str![(]"[.][.]/fixtures/spirit-domain[.]ethos"[)][;]'
+  signal_domain_revision=$(root_revision "$lock_file" signal-domain)
+  require_source_pattern "$support_module" "exact signal-domain source revision" \
+    "^pub const SIGNAL_DOMAIN_REVISION: &str = \"${signal_domain_revision}\"[;]"
+  require_source_pattern "$spirit_domain_test" "complete Spirit Interface transaction" \
+    '^fn complete_spirit_domain_is_one_verified_transaction_through_rust[(][)]'
+  require_source_pattern "$spirit_domain_test" "canonical Interface source transaction" \
+    'assert_eq![(]assembly[.]canonical_source[(][)], SOURCE[)][;]'
+  require_source_pattern "$spirit_domain_test" "published runtime source equality" \
+    'signal_domain::DOMAIN_INTERFACE_SOURCE'
+  require_source_pattern "$spirit_domain_test" "decoded Interface body" \
+    'BootstrapBody::Interface[(]body[)]'
   require_source_pattern "$spirit_domain_test" "41-item Spirit inventory" \
-    'assert_eq![(]inventory[.]items[(][)][.]len[(][)], 41[)][;]'
-  require_source_pattern "$spirit_domain_test" "38-enum Spirit inventory" \
-    'assert_eq![(]inventory[.]enumeration_count[(][)], 38[)][;]'
-  require_source_pattern "$spirit_domain_test" "369-variant Spirit inventory" \
-    'assert_eq![(]inventory[.]variant_count[(][)], 369[)][;]'
-  require_source_pattern "$spirit_domain_test" "37-payload Spirit inventory" \
-    'assert_eq![(]inventory[.]payload_variant_count[(][)], 37[)][;]'
-  require_source_pattern "$spirit_domain_test" "two Vector applications" \
-    'assert_eq![(]inventory[.]application_count[(]"Vector"[)], 2[)][;]'
-  require_source_pattern "$spirit_domain_test" "one ScopeOf application" \
-    'assert_eq![(]inventory[.]application_count[(]"ScopeOf"[)], 1[)][;]'
-  require_source_pattern "$spirit_domain_test" "complete Spirit Ethos archive recovery" \
-    'WholeEthos::from_archive_bytes[(]&ethos_archive[)]'
-  require_source_pattern "$spirit_domain_test" "typed Universal Vector to Rust Vec mapping" \
-    'SliceOneVocabularyReferenceMapping::new[(]'
-  require_source_pattern "$spirit_domain_test" "complete direct Nomos lowering" \
-    'slice_transformation[(]&identities[)][.]lower[(]&restored_ethos[)]'
+    'assert_eq![(]body[.]types[.]len[(][)], 41[)][;]'
+  require_source_pattern "$spirit_domain_test" "complete Spirit inventory" \
+    '[(]38, 3, 369, 37[)]'
+  require_source_pattern "$spirit_domain_test" "typed ScopeOf application" \
+    'manifest::SCOPEOF_SEAT[.]local'
+  require_source_pattern "$spirit_domain_test" "typed Vector applications" \
+    'manifest::VECTOR_SEAT[.]local'
+  require_source_pattern "$spirit_domain_test" "complete authority-verified lowering" \
+    'BootstrapSliceOneLowering::new[(][)]'
+  require_source_pattern "$spirit_domain_test" "sealed Spirit transaction boundary" \
+    '[.]lower[(]assembly[.]reader[(][)], assembly[.]transaction[(][)][)]'
   require_source_pattern "$spirit_domain_test" "complete Spirit Logos archive recovery" \
-    'WholeLogos::from_archive_bytes[(]&logos_archive[)]'
+    'WholeLogos::from_archive_bytes[(]&archived[)]'
   require_source_pattern "$spirit_domain_test" "complete production Rust emission" \
-    '[.]emit[(]&restored_logos, &bindings[)]'
-  require_source_pattern "$spirit_domain_test" "canonical encodedID spelling" \
-    'RustEncodedIdCodec::encode[(]&identities[.]scope_of[)]'
-  require_source_pattern "$spirit_domain_test" "immutable Rust Vec spelling" \
-    'assert![(]emitted[.]contains[(]"Vec"[)][)][;]'
-  require_source_pattern "$spirit_domain_test" "complete production Rust decode" \
-    '&emitted_bindings[(]&emitted, &restored_logos, &spellings[)]'
+    '[.]emit_with_type_paths[(]&restored, assembly[.]resolver[(][)], &DomainRustTypePaths::new[(][)][)]'
+  require_source_pattern "$spirit_domain_test" "byte-identical producer projection" \
+    'signal_domain::DOMAIN_INTERFACE_RUST'
   reject_source_pattern "$spirit_domain_test" "fixture emission on the Spirit completion path" \
     '[.]emit_fixture[(]'
   require_source_pattern "$spirit_domain_test" "369-variant scratch behavior" \
     '^[[:space:]]*"369\\n"'
-  require_source_pattern "$spirit_domain_test" "typed ScopeOf boundary" \
-    '^fn scope_of_stays_typed_application_data_without_a_runtime_substitute[(][)]'
-  require_source_pattern "$spirit_domain_test" "read-only signal-domain revision" \
-    '^const SIGNAL_DOMAIN_REVISION: &str = "[0-9a-f]{40}"[;]'
+  require_source_pattern "$spirit_domain_test" "fixture/runtime source pin witness" \
+    '^fn fixture_and_runtime_type_share_the_exact_published_source[(][)]'
+  require_source_pattern "$spirit_domain_test" "absence of schema-rust runtime dependency" \
+    'assert![(]!CARGO_MANIFEST[.]contains[(]"schema-rust"[)][)][;]'
 
-  require_source_pattern "$restart_test" "native authored Nomos process witness" \
-    '^fn authored_nomos_deploys_transforms_advances_and_recovers_through_the_process[(][)]'
-  require_source_pattern "$restart_test" "isolated process state" \
-    '^[[:space:]]*let directory = tempfile::tempdir[(][)][.]expect[(]"isolated process directory"[)][;]'
+  require_source_pattern "$restart_test" "current bootstrap process boundary" \
+    '^fn current_bootstrap_transform_succeeds_in_process_and_refuses_the_unarchived_wire[(][)]'
+  require_source_pattern "$restart_test" "unarchived bootstrap boundary" \
+    'BootstrapArchiveStatus::NotYetArchived'
+  require_source_pattern "$restart_test" "authority-verified in-process lowering" \
+    'BootstrapSliceOneLowering::new[(][)]'
+  require_source_pattern "$restart_test" "current Nomos wire request" \
+    '&NomosRequest::Transform [{]'
+  require_source_pattern "$restart_test" "unarchived wire refusal" \
+    'NomosReply::Rejected[(]NomosRejection::EthosPopulationInvalid[)]'
+  require_source_pattern "$restart_test" "current process producer pins" \
+    '^fn current_process_dependencies_pin_the_published_producers[(][)]'
+  require_source_pattern "$restart_test" "authored Nomos authority transaction" \
+    '^fn authored_nomos_seals_recovers_and_renames_through_the_authority_process[(][)]'
+  require_source_pattern "$restart_test" "isolated authority state" \
+    '^[[:space:]]*let directory = tempfile::tempdir[(][)][.]expect[(]"isolated authority directory"[)][;]'
   require_source_pattern "$restart_test" "bounded process readiness" \
     'receiver[.]recv_timeout[(]PROCESS_STARTUP_TIMEOUT[)]'
   require_source_pattern "$restart_test" "bounded process reads" \
@@ -235,36 +315,50 @@ validate_behavior_witness() {
     '[.]set_write_timeout[(]Some[(]PROCESS_IO_TIMEOUT[)][)]'
   require_source_pattern "$restart_test" "direct big-endian Nomos framing" \
     '^[[:space:]]*[.]to_be_bytes[(][)][,]'
-  require_source_pattern "$restart_test" "native Nomos deployment" \
-    '^[[:space:]]*&NomosRequest::Deploy [{]'
-  require_source_pattern "$restart_test" "nonempty native Nomos transform" \
-    '^[[:space:]]*&& !outcome[.]logos_population[(][)][.]is_empty[(][)]'
+  require_source_pattern "$restart_test" "one authored Nomos plan" \
+    '[.]plan_load[(]'
+  require_source_pattern "$restart_test" "authority seal request" \
+    'AuthorityOperation::SealUniversal[(]planned[.]request[(][)][.]clone[(][)][)]'
+  require_source_pattern "$restart_test" "unread receipt refusal" \
+    'NomosLoadError::ReceiptNotDurableSeal'
+  require_source_pattern "$restart_test" "durable receipt read" \
+    'ReadOperation::CommittedReceipt [{]'
+  require_source_pattern "$restart_test" "durable receipt materialization" \
+    '[.]complete_load[(]&planned, &durable, &fixed[)]'
   require_source_pattern "$restart_test" "authored recursive enumeration declaration" \
     '^ScopeOfStep[.]Recursive[.]Enumeration [{]$'
   require_source_pattern "$restart_test" "authored recursive self Invoke" \
     '^Invoke[.]ScopeOfStep$'
   require_source_pattern "$restart_test" "boundary-zero InsertAt" \
     '^InsertAt[.]children 0 rustfmt[.]skip$'
-  require_source_pattern "$restart_test" "finite recursive Ethos corpus" \
-    '^fn recursive_ethos_population[(]fixed: &FixedNames[)] -> EthosPopulationArchive [{]$'
-  require_source_pattern "$restart_test" "recursive child-before-parent output order" \
-    'assert_eq![(]constructors, vec![[]3, 3, 1, 3, 3, 1, 1, 1, 3, 1[]][)][;]'
-  require_source_pattern "$restart_test" "restart-stable canonical recursive output" \
-    'assert_eq![(]recovered_output, initial_output[)][;]'
+  require_source_pattern "$restart_test" "authority termination before recovery" \
+    '^[[:space:]]*daemon[.]stop[(][)][;]'
+  require_source_pattern "$restart_test" "same-state authority recovery" \
+    '^[[:space:]]*let mut recovered_daemon = Daemon::start[(]&socket, &database[)][;]'
+  require_source_pattern "$restart_test" "recovered durable receipt" \
+    'assert_eq![(]recovered_receipt, &receipt[)][;]'
+  require_source_pattern "$restart_test" "authorized spelling-only rename" \
+    'AuthorityOperation::Rename[(]Rename [{]'
   require_source_pattern "$restart_test" "renamed InsertAt canonical projection" \
     'InsertAt[.]descendants 0 rustfmt[.]skip'
-  require_source_pattern "$restart_test" "authorized projection advance" \
-    '^[[:space:]]*&NomosRequest::AdvanceProjection [{]'
-  require_source_pattern "$restart_test" "process termination before restart" \
-    '^[[:space:]]*nomos[.]stop[(][)][;]'
-  require_source_pattern "$restart_test" "same-state process restart" \
-    '^[[:space:]]*let mut recovered = NomosDaemon::start[(]&nomos_socket, &nomos_database[)][;]'
-  require_source_pattern "$restart_test" "recovered projection-one transform" \
-    'outcome[.]snapshot[(][)][.]projection_version[(][)] == NameTreeProjectionVersion::new[(]1[)]'
-  require_source_pattern "$restart_test" "stale projection refusal" \
-    'NomosReply::Rejected[(]NomosRejection::ProjectionStale[)]'
-  require_source_pattern "$restart_test" "current deployment no-op" \
-    'NomosReply::Deployed[(]DeployOutcome::AlreadyCurrent [{]'
+  require_source_pattern "$restart_test" "unresolved authored reference refusal" \
+    'AuthorityReply::Rejected[(]NoWriteFailure::UnresolvedReference [{] [.][.] [}][)]'
+  require_source_pattern "$restart_test" "one-request file population" \
+    '^fn authored_nomos_manifest_is_one_process_request_and_graph_failures_leave_no_receipt[(][)]'
+  require_source_pattern "$restart_test" "complete manifest planning" \
+    '[.]plan_file_population[(]'
+  require_source_pattern "$restart_test" "single manifest authority request" \
+    'assert_eq![(]planned[.]request[(][)][.]declarations[.]len[(][)], 1[)][;]'
+  require_source_pattern "$restart_test" "external Invoke refusal" \
+    'NomosManifestLoadError::ExternalInvoke[(]modules, spelling[)]'
+  require_source_pattern "$restart_test" "missing dependency refusal" \
+    'NomosManifestLoadError::MissingDependency[(]_, _[)]'
+  require_source_pattern "$restart_test" "dependency cycle refusal" \
+    'NomosManifestLoadError::DependencyCycle[(]_[)]'
+  require_source_pattern "$restart_test" "source-root escape refusal" \
+    'NomosManifestLoadError::SourceEscapesRoot[(]_[)]'
+  require_source_pattern "$restart_test" "graph refusal has no receipt" \
+    'assert_no_committed_receipt[(]&socket, [[]5[245][;] 32[]][)][;]'
   reject_source_pattern "$restart_test" "retired central storage relay" \
     'signal[_-]sema[_-]storage|SEMA_STORAGE_BIN|all four restarted daemons'
 }
@@ -325,7 +419,7 @@ validate_coherence() {
       return 1
   done < <(printf '%s\n' "$expected_edges")
 
-  validate_behavior_witness "$source_map_file"
+  validate_behavior_witness "$source_map_file" "$lock_file"
   validate_native_nomos_source_boundary "$source_map_file"
 }
 
@@ -344,19 +438,42 @@ copy_affected_manifests() {
     chmod u+w "$fixture_root/sources/$source_name/Cargo.toml"
     if [[ "$source_name" == language-engine-witness ]]; then
       mkdir -p "$fixture_root/sources/$source_name/tests/fixtures"
+      mkdir -p "$fixture_root/sources/$source_name/tests/support"
+      cp "$source_root/flake.nix" \
+        "$fixture_root/sources/$source_name/flake.nix"
       cp "$source_root/tests/slice_one.rs" \
         "$fixture_root/sources/$source_name/tests/slice_one.rs"
       cp "$source_root/tests/spirit_domain.rs" \
         "$fixture_root/sources/$source_name/tests/spirit_domain.rs"
+      cp "$source_root/tests/support/mod.rs" \
+        "$fixture_root/sources/$source_name/tests/support/mod.rs"
+      cp "$source_root/tests/fixtures/slice-one-newtype.ethos" \
+        "$fixture_root/sources/$source_name/tests/fixtures/slice-one-newtype.ethos"
       cp "$source_root/tests/fixtures/spirit-domain.ethos" \
         "$fixture_root/sources/$source_name/tests/fixtures/spirit-domain.ethos"
       cp "$source_root/tests/nomos_authority_process.rs" \
         "$fixture_root/sources/$source_name/tests/nomos_authority_process.rs"
+      chmod u+w "$fixture_root/sources/$source_name/flake.nix"
       chmod -R u+w "$fixture_root/sources/$source_name/tests"
     fi
     if [[ "$source_name" == nomos-engine ]]; then
       cp -R "$source_root/src" "$fixture_root/sources/$source_name/src"
       chmod -R u+w "$fixture_root/sources/$source_name/src"
+    fi
+    if [[ "$source_name" == sema-engine ]]; then
+      mkdir -p "$fixture_root/sources/$source_name/schema"
+      mkdir -p "$fixture_root/sources/$source_name/tests/fixtures"
+      mkdir -p "$fixture_root/sources/$source_name/tests/support"
+      cp "$source_root/schema/witness.sema" \
+        "$fixture_root/sources/$source_name/schema/witness.sema"
+      cp "$source_root/tests/generated_table.rs" \
+        "$fixture_root/sources/$source_name/tests/generated_table.rs"
+      cp "$source_root/tests/fixtures/generated_sema_table.rs" \
+        "$fixture_root/sources/$source_name/tests/fixtures/generated_sema_table.rs"
+      cp "$source_root/tests/support/mod.rs" \
+        "$fixture_root/sources/$source_name/tests/support/mod.rs"
+      chmod -R u+w "$fixture_root/sources/$source_name/schema" \
+        "$fixture_root/sources/$source_name/tests"
     fi
     fixture_map=$(
       jq -cn \
@@ -366,9 +483,10 @@ copy_affected_manifests() {
         '$fixture_map + {($source_name): $source_path}'
     )
   done < <(
-    printf '%s\n' "$expected_edges" |
-      cut -d '|' -f 1 |
-      LC_ALL=C sort -u
+    {
+      printf '%s\n' "$expected_edges" | cut -d '|' -f 1
+      printf '%s\n' nomos-engine sema-engine
+    } | LC_ALL=C sort -u
   )
   printf '%s\n' "$fixture_map" > "$fixture_root/source-map.json"
 }
@@ -390,12 +508,18 @@ run_self_test() {
   local temporary_root
   local core_ethos_manifest
   local nomos_engine_manifest
-  local nomos_engine_name_tree
+  local nomos_engine_source
   local witness_manifest
+  local witness_flake
   local witness_nomos_process_test
+  local witness_slice_fixture
   local witness_slice_test
+  local witness_spirit_domain_fixture
   local witness_spirit_domain_test
+  local witness_support_module
   local rust_logos_manifest
+  local sema_fixture
+  local sema_generated_test
   local structural_codec_revision
 
   validate_coherence "$lock_file" "$source_map_file"
@@ -404,12 +528,18 @@ run_self_test() {
   copy_affected_manifests "$source_map_file" "$temporary_root"
   core_ethos_manifest="$temporary_root/sources/core-ethos/Cargo.toml"
   nomos_engine_manifest="$temporary_root/sources/nomos-engine/Cargo.toml"
-  nomos_engine_name_tree="$temporary_root/sources/nomos-engine/src/name_tree.rs"
+  nomos_engine_source="$temporary_root/sources/nomos-engine/src/lib.rs"
   witness_manifest="$temporary_root/sources/language-engine-witness/Cargo.toml"
+  witness_flake="$temporary_root/sources/language-engine-witness/flake.nix"
   witness_nomos_process_test="$temporary_root/sources/language-engine-witness/tests/nomos_authority_process.rs"
+  witness_slice_fixture="$temporary_root/sources/language-engine-witness/tests/fixtures/slice-one-newtype.ethos"
   witness_slice_test="$temporary_root/sources/language-engine-witness/tests/slice_one.rs"
+  witness_spirit_domain_fixture="$temporary_root/sources/language-engine-witness/tests/fixtures/spirit-domain.ethos"
   witness_spirit_domain_test="$temporary_root/sources/language-engine-witness/tests/spirit_domain.rs"
+  witness_support_module="$temporary_root/sources/language-engine-witness/tests/support/mod.rs"
   rust_logos_manifest="$temporary_root/sources/rust-logos/Cargo.toml"
+  sema_fixture="$temporary_root/sources/sema-engine/schema/witness.sema"
+  sema_generated_test="$temporary_root/sources/sema-engine/tests/generated_table.rs"
   structural_codec_revision=$(root_revision "$lock_file" structural-codec)
 
   sed -i \
@@ -426,10 +556,10 @@ run_self_test() {
   expect_coherence_rejection "native Nomos protocol revision drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
-  cp "$(source_path "$source_map_file" nomos-engine)/src/name_tree.rs" \
-    "$nomos_engine_name_tree"
+  cp "$(source_path "$source_map_file" nomos-engine)/src/lib.rs" \
+    "$nomos_engine_source"
   printf '%s\n' 'const LEGACY_OUTPUT_SLOT: &str = "output_slot";' \
-    >> "$nomos_engine_name_tree"
+    >> "$nomos_engine_source"
   expect_coherence_rejection "retired path in recursively discovered production source" \
     "$lock_file" "$temporary_root/source-map.json"
 
@@ -449,6 +579,17 @@ run_self_test() {
   expect_coherence_rejection "alias package drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
+  cp "$(source_path "$source_map_file" language-engine-witness)/Cargo.toml" \
+    "$witness_manifest"
+  sed -i \
+    '/github:LiGoldragon\/nomos-engine\//s/[0-9a-f]\{40\}/0000000000000000000000000000000000000000/' \
+    "$witness_flake"
+  expect_coherence_rejection "process-only Nomos engine revision drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/flake.nix" \
+    "$witness_flake"
+
   cp "$(source_path "$source_map_file" rust-logos)/Cargo.toml" \
     "$rust_logos_manifest"
   printf \
@@ -459,12 +600,48 @@ run_self_test() {
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/slice_one.rs" \
     "$witness_slice_test"
-  sed -i 's/&\\[42, 7, 9\\]/\\&[42, 7, 8]/' "$witness_slice_test"
-  expect_coherence_rejection "behavior witness identity drift" \
+  sed -i \
+    's/assert_eq!(assembly[.]canonical_source(), NEXUS_SOURCE);/assert_ne!(assembly.canonical_source(), NEXUS_SOURCE);/' \
+    "$witness_slice_test"
+  expect_coherence_rejection "canonical Nexus transaction equality removal" \
     "$lock_file" "$temporary_root/source-map.json"
 
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/slice_one.rs" \
+    "$witness_slice_test"
+  sed -i '1s/^Nexus[.]/Sema./' "$witness_slice_fixture"
+  expect_coherence_rejection "Nexus header drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/fixtures/slice-one-newtype.ethos" \
+    "$witness_slice_fixture"
+  sed -i '2s/^\[\]$/[Universal]/' "$witness_slice_fixture"
+  expect_coherence_rejection "Nexus imports drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/fixtures/slice-one-newtype.ethos" \
+    "$witness_slice_fixture"
+  sed -i 's/Identifiers[.]Vector/Identifiers.List/' "$witness_slice_fixture"
+  expect_coherence_rejection "Nexus body drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/fixtures/slice-one-newtype.ethos" \
+    "$witness_slice_fixture"
+  sed -i '1s/^Sema[.]/Nexus./' "$sema_fixture"
+  expect_coherence_rejection "Sema header drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" sema-engine)/schema/witness.sema" \
+    "$sema_fixture"
   sed -i \
-    's/inventory[.]variant_count[(][)], 369/inventory.variant_count(), 368/' \
+    's/generated_domain_snapshot_table_writes_and_reads_a_typed_domain_key/generated_domain_snapshot_table_is_not_exercised/' \
+    "$sema_generated_test"
+  expect_coherence_rejection "Sema generated runtime witness removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" sema-engine)/tests/generated_table.rs" \
+    "$sema_generated_test"
+  sed -i \
+    's/[(]38, 3, 369, 37[)]/(38, 3, 368, 37)/' \
     "$witness_spirit_domain_test"
   expect_coherence_rejection "Spirit domain inventory drift" \
     "$lock_file" "$temporary_root/source-map.json"
@@ -472,19 +649,39 @@ run_self_test() {
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/spirit_domain.rs" \
     "$witness_spirit_domain_test"
   sed -i \
-    's/[.]emit[(]&restored_logos, &bindings[)]/.emit_fixture(\\&restored_logos, \\&bindings)/' \
+    '0,/[.]emit_with_type_paths/s//.emit_fixture/' \
     "$witness_spirit_domain_test"
   expect_coherence_rejection "Spirit production emission replacement" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/spirit_domain.rs" \
     "$witness_spirit_domain_test"
-  cp "$(source_path "$source_map_file" language-engine-witness)/tests/slice_one.rs" \
-    "$witness_slice_test"
+  sed -i '1s/^Interface[.]/Nexus./' "$witness_spirit_domain_fixture"
+  expect_coherence_rejection "Interface header drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/fixtures/spirit-domain.ethos" \
+    "$witness_spirit_domain_fixture"
   sed -i \
-    's#^[[:space:]]*nomos[.]stop[(][)][;]#    // restart removed#' \
+    's/^pub const SIGNAL_DOMAIN_REVISION: &str = "[0-9a-f]\{40\}";/pub const SIGNAL_DOMAIN_REVISION: \&str = "0000000000000000000000000000000000000000";/' \
+    "$witness_support_module"
+  expect_coherence_rejection "Interface source revision drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/support/mod.rs" \
+    "$witness_support_module"
+  sed -i \
+    's/NomosRejection::EthosPopulationInvalid/NomosRejection::SlotMissing/' \
     "$witness_nomos_process_test"
-  expect_coherence_rejection "behavior witness restart removal" \
+  expect_coherence_rejection "unarchived current-wire refusal drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/NomosLoadError::ReceiptNotDurableSeal/NomosLoadError::ReceiptUnknown/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "unread authority receipt refusal removal" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
@@ -498,14 +695,6 @@ run_self_test() {
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
     "$witness_nomos_process_test"
   sed -i \
-    's/^Invoke[.]ScopeOfStep$/Invoke.WireAttributes/' \
-    "$witness_nomos_process_test"
-  expect_coherence_rejection "recursive self Invoke witness removal" \
-    "$lock_file" "$temporary_root/source-map.json"
-
-  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
-    "$witness_nomos_process_test"
-  sed -i \
     's/^InsertAt[.]children 0 rustfmt[.]skip$/InsertAt.children 1 rustfmt.skip/' \
     "$witness_nomos_process_test"
   expect_coherence_rejection "InsertAt boundary witness drift" \
@@ -514,25 +703,40 @@ run_self_test() {
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
     "$witness_nomos_process_test"
   sed -i \
-    's/vec![[]3, 3, 1, 3, 3, 1, 1, 1, 3, 1[]]/vec![3, 1]/' \
+    's/let mut recovered_daemon = Daemon::start[(]&socket, &database[)]/let mut recovered_daemon = Daemon::start(\&socket, \&other_database)/' \
     "$witness_nomos_process_test"
-  expect_coherence_rejection "recursive output order witness drift" \
+  expect_coherence_rejection "authority recovery state drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
     "$witness_nomos_process_test"
   sed -i \
-    's/assert_eq![(]recovered_output, initial_output[)][;]/assert_ne!(recovered_output, initial_output);/' \
+    's/AuthorityOperation::Rename[(]Rename [{]/AuthorityOperation::Read(ReadOperation::Current)/' \
     "$witness_nomos_process_test"
-  expect_coherence_rejection "restart-stable recursive output witness removal" \
+  expect_coherence_rejection "authorized rename witness removal" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
     "$witness_nomos_process_test"
   sed -i \
-    's/InsertAt[.]descendants 0 rustfmt[.]skip/InsertAt.children 0 rustfmt.skip/' \
+    's/NoWriteFailure::UnresolvedReference/NoWriteFailure::ScopeUnknown/' \
     "$witness_nomos_process_test"
-  expect_coherence_rejection "recursive rename projection witness removal" \
+  expect_coherence_rejection "unresolved authored reference refusal drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i \
+    's/NomosManifestLoadError::ExternalInvoke/NomosManifestLoadError::MissingDependency/' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "manifest external Invoke refusal drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+
+  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
+    "$witness_nomos_process_test"
+  sed -i 's/assert_no_committed_receipt/allow_committed_receipt/g' \
+    "$witness_nomos_process_test"
+  expect_coherence_rejection "graph refusal receipt witness removal" \
     "$lock_file" "$temporary_root/source-map.json"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
@@ -562,23 +766,7 @@ run_self_test() {
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
     "$witness_nomos_process_test"
   sed -i 's/[.]to_be_bytes[(][)]/.to_le_bytes()/' "$witness_nomos_process_test"
-  expect_coherence_rejection "native Nomos framing byte-order drift" \
-    "$lock_file" "$temporary_root/source-map.json"
-
-  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
-    "$witness_nomos_process_test"
-  sed -i \
-    's/&NomosRequest::AdvanceProjection [{]/\\&NomosRequest::Transform {/' \
-    "$witness_nomos_process_test"
-  expect_coherence_rejection "projection advance witness removal" \
-    "$lock_file" "$temporary_root/source-map.json"
-
-  cp "$(source_path "$source_map_file" language-engine-witness)/tests/nomos_authority_process.rs" \
-    "$witness_nomos_process_test"
-  sed -i \
-    's/NomosReply::Rejected[(]NomosRejection::ProjectionStale[)]/NomosReply::Rejected(NomosRejection::SlotMissing)/' \
-    "$witness_nomos_process_test"
-  expect_coherence_rejection "stale projection refusal removal" \
+  expect_coherence_rejection "process framing byte-order drift" \
     "$lock_file" "$temporary_root/source-map.json"
 }
 
@@ -589,7 +777,7 @@ case ${1:-} in
       exit 2
     }
     run_self_test "$2" "$3"
-    echo "Slice One and native Nomos mutations reject producer, protocol, timeout, legacy-source, identity, recursion, InsertAt, and restart drift"
+    echo "Slice One mutations reject producer, header/import/body, transaction, authority, current-wire, timeout, framing, and refusal drift"
     ;;
   "")
     echo "usage: check-slice-one-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
@@ -601,6 +789,6 @@ case ${1:-} in
       exit 2
     }
     validate_coherence "$1" "$2"
-    echo "Slice One and native Nomos edges and behavior witness match exact published revisions"
+    echo "Slice One edges and Interface/Nexus/Sema behavior witness match exact published revisions"
     ;;
 esac

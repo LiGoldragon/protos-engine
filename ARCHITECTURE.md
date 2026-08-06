@@ -51,40 +51,44 @@ This is an integration limitation, not permission to add engine code here.
 ## Slice One behavior witness
 
 The pinned `language-engine-witness` repository owns the complete Slice One
-behavior proof. Its owner tests decode a complete six-slot Ethos document with
-translator-issued declaration and reference chains into an application-backed
-newtype and an enumeration with unit and positional tuple variants, archive
-and restore the Whole Ethos carrier, lower through the direct typed Nomos
-transformation, verify Whole Logos identity and archive recovery, structurally
-emit and decode Rust, refuse incomplete projections without partial output,
-and compile and exhaustively run the generated forms in a process-local
-scratch Cargo crate.
+behavior proof for Nexus. Its source is the complete `Nexus.{1 0 0}`
+header/imports/body form, not an unnamed positional carrier. The owner seals
+that exact source as one authority-approved transaction, passes the verified
+reader and transaction to bootstrap Nomos lowering, proves whole-Logos
+identity and archive recovery, and exercises unit, unary, and product type
+semantics. The current Rust projection round-trips structurally, refuses an
+incomplete name projection without partial output, and compiles and runs in a
+process-local scratch crate.
 
-The same published owner suite contains the native authored Nomos process
-continuity test. It asks the authority to seal authored SOURCE, deploys the
-result through the real Nomos daemon over the direct length-prefixed
-signal-nomos protocol, transforms nonempty Ethos, advances the authenticated
-NameTree projection, and kills the process. Reopening the same `nomos.sema`
-must transform at projection 1, reject stale initial artifacts, and accept
-current artifacts as `AlreadyCurrent` before applying stale CAS.
-`protos-engine` does not copy that test. Its coherence script validates the
-exact producer graph and executable evidence, with mutations for engine
-revision, protocol byte order, projection advance, stale refusal, and restart
-removal. It also requires the owner's ten-second readiness and socket I/O
-deadlines and recursively scans every regular `nomos-engine` `src/**/*.rs`
-file for retired evaluator and central storage paths. The root behavior
-derivation consumes nomos-engine's 15-test owner gate and signal-nomos's typed
-protocol suite after pin, direction, and coherence checks pass.
+Sema evidence remains producer-owned. The pinned `sema-engine` source begins
+with `Sema.{1 0 0}`, an imports section, and one body. Its owner test assembles
+that exact source under authority, checks the generated projection is fresh,
+then writes, reads, closes, and reopens the generated typed table through the
+real engine. The sink validates those source and test surfaces; it does not
+copy the Sema declaration or generated table.
 
-The pinned owner also checks the complete current Spirit domain as Ethos. Its
-read-only Nix inventory comparison is an explicit dependency of the root
-behavior witness. The owner carries 41 items and 369 variants through
-fixture-only complete Universal chains, durable Whole Ethos and Whole Logos,
-direct string-free Nomos, and structural Rust emit/decode, then compiles and
-constructs every authored enum variant. `ScopeOf` remains typed application
-data: no runtime transform exists on this path, so the two Vector newtypes
-whose payload is `DomainScope` are not replaced with a compatibility shape or
-claimed as Cargo behavior.
+The current native Nomos wire does not yet carry a successful archived
+bootstrap population. The witness therefore proves the complete bootstrap
+transaction in process and separately proves that arbitrary, unarchived wire
+bytes are refused by the real Nomos daemon. It makes no persisted native-Nomos
+restart claim. Authored Nomos continuity is instead proved at the authority
+boundary: one plan is sealed, refused before its receipt is durably read,
+materialized after that read, recovered across an authority-process restart,
+and renamed without changing content identity. A separate manifest test sends
+one authority request for the resolved file population and proves missing,
+cyclic, external-`Invoke`, and source-root-escape graphs leave no receipt.
+The Nomos engine is an exact process-only Nix input to the owner witness, while
+the current bootstrap Cargo producers remain a distinct typed generation.
+
+The pinned owner also checks the complete current Spirit domain as an
+`Interface.{1 0 0}` header/imports/body transaction. Its canonical bytes must
+equal the source published by `signal-domain`. The decoded Interface contains
+41 top-level types, 38 enumerations, three newtypes, 369 variants, and 37
+payload variants; authority-verified lowering preserves whole-Logos identity,
+and the current Rust projection must be byte-identical to the producer's
+checked projection. Scratch Cargo constructs all 369 enum variants. `ScopeOf`
+and both `Vector<DomainScope>` declarations remain typed applications rather
+than compatibility substitutes.
 
 ## Slice Three strict stream lifecycle
 

@@ -20,6 +20,19 @@ root_revision() {
   ' "$lock_file"
 }
 
+root_repository() {
+  local lock_file=$1
+  local input_name=$2
+
+  jq -er --arg input_name "$input_name" '
+    .root as $root
+    | .nodes[$root].inputs[$input_name] as $node_name
+    | select($node_name | type == "string")
+    | .nodes[$node_name].locked.repo
+    | select(type == "string" and length > 0)
+  ' "$lock_file"
+}
+
 source_path() {
   local source_map_file=$1
   local source_name=$2
@@ -54,6 +67,7 @@ validate_direct_edge() {
   local source_root
   local manifest
   local target_revision
+  local target_repository
   local declaration
   local compact_declaration
 
@@ -70,10 +84,13 @@ validate_direct_edge() {
     echo "Slice Three target is not an exact direct root pin: $target_name" >&2
     return 1
   }
+  target_repository=$(root_repository "$lock_file" "$target_name") || {
+    echo "Slice Three target repository is absent from the root lock: $target_name" >&2
+    return 1
+  }
   declaration=$(dependency_declaration "$manifest" "$dependency_name") || return 1
   compact_declaration=$(printf '%s\n' "$declaration" | tr -d '[:space:]')
 
-  local target_repository=${target_name#stream-}
   if [[ "$compact_declaration" != *"git=\"https://github.com/LiGoldragon/${target_repository}.git\""* ]]; then
     echo "Slice Three edge targets the wrong repository: $source_name -> $dependency_name" >&2
     return 1

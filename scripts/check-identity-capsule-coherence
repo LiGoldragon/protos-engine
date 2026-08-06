@@ -4,7 +4,22 @@ set -euo pipefail
 # Only edges changed by the identity/Capsule train belong here. Legacy
 # per-item and flat-name edges remain outside this table. The chain-based
 # Slice One aliases are checked by the separate slice coherence gate.
-readonly expected_edges=$'name-table|content-identity|content-identity|\nsignal-sema-translator|name-table|name-table|\nsema-translator|name-table|name-table|\nsema-translator|signal-sema-translator|signal-sema-translator|\nprotos|content-identity|capsule-content-identity|\nnomos-protos|content-identity|capsule-content-identity|\ncore-ethos|capsule-content-identity|content-identity|content-identity\ncore-ethos|protos|legacy-protos|\ncore-logos|capsule-content-identity|content-identity|content-identity\ncore-logos|protos|legacy-protos|\ncore-nomos|capsule-content-identity|capsule-content-identity|content-identity\ncore-nomos|protos|protos|\nsignal-nomos|capsule-content-identity|capsule-content-identity|content-identity\nnomos-engine|capsule-content-identity|capsule-content-identity|content-identity\nsealed-core-nomos|capsule-content-identity|capsule-content-identity|content-identity\nsealed-core-nomos|protos|nomos-protos|'
+readonly expected_edges='name-table|content-identity|capsule-content-identity|
+signal-sema-translator|name-table|name-table|
+sema-translator|name-table|name-table|
+sema-translator|signal-sema-translator|signal-sema-translator|
+protos|content-identity|capsule-content-identity|
+nomos-protos|content-identity|capsule-content-identity|
+core-ethos|capsule-content-identity|capsule-content-identity|content-identity
+core-ethos|protos|protos|
+core-logos|capsule-content-identity|capsule-content-identity|content-identity
+core-logos|protos|protos|
+core-nomos|capsule-content-identity|capsule-content-identity|content-identity
+core-nomos|protos|protos|
+signal-nomos|capsule-content-identity|capsule-content-identity|content-identity
+nomos-engine|capsule-content-identity|capsule-content-identity|content-identity
+sealed-core-nomos|capsule-content-identity|capsule-content-identity|content-identity
+sealed-core-nomos|protos|nomos-protos|'
 
 root_revision() {
   local lock_file=$1

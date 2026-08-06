@@ -1,16 +1,84 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly main_integration_pin='signal-domain|LiGoldragon|signal-domain|fbc400bf5ed5e4c4d27ef4e76cb48fa4e5d53658'
-readonly main_integration_input='signal-domain'
-
-readonly expected_pins=$'capsule-content-identity|LiGoldragon|content-identity|896b21e17f31b66d0802bff899b4b60acea9c0f1\ncontent-identity|LiGoldragon|content-identity|fdf2db1d5a9e8ea52d24d39a03833c3e6885c355\ncore-ethos|LiGoldragon|core-ethos|29237c33798db908bbfe10ef0cffe2c6a28be508\ncore-logos|LiGoldragon|core-logos|9a61e2ac1bf8a8c1163794d695902115a05a4007\ncore-nomos|LiGoldragon|core-nomos|6ef64cc38a104836b2b236ba4838ffd8e75dced1\nequivalent-core-nomos|LiGoldragon|core-nomos|e1b2febf9f143ab1c84d042d2e9bdd0685303ddc\nlanguage-engine-witness|LiGoldragon|language-engine-witness|efe8ed3d5ea53f280b93cc1f2f131d92ef781832\nlegacy-protos|LiGoldragon|protos|1343d0c405cdb6929552ea6b12c48739e73f35ab\nmeta-signal-spirit|LiGoldragon|meta-signal-spirit|0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3\nname-table|LiGoldragon|name-table|50cb4bb53ae2dc4f2516f6912be328ef98ae49f8\nnixpkgs|NixOS|nixpkgs|91cc1fdf6831e29b6c98768e721a72241f3d0797\nnomos-engine|LiGoldragon|nomos-engine|e4230f62b55fcf8543477a26d272862a63aa1fc3\nnomos-protos|LiGoldragon|protos|1263f9d1f73b57885d695ac033bdd6faa1334ddf\nprotos|LiGoldragon|protos|c85cec6117bfd4c423d952fd54e0c0bb11562f89\nraw-discovery|LiGoldragon|raw-discovery|2d4e2e00f2821c4e2893fa96028cef0ac76e9644\nrust-logos|LiGoldragon|rust-logos|f92a8eccd851ebb1f8140ec42e00b04ba73758d0\nschema-language|LiGoldragon|schema-language|9c217610c4b8d3bdaa9f95542e28c04424a593e3\nschema-rust|LiGoldragon|schema-rust|3721656b0a654d47d9abde31f14d89d01f9305cf\nsealed-core-nomos|LiGoldragon|core-nomos|ba7abc0b471a0385012b1d8a03cf4942e9da617e\nsema-engine|LiGoldragon|sema-engine|7bed5017a6f20ff2c109f693c2dedaaddf52e64d\nsema-translator|LiGoldragon|sema-translator|6df830ab1ec9f315a5b50e40ffc393b48ea3d412\nsignal-frame|LiGoldragon|signal-frame|0786fbe8caf27552afcdd5deb85bc82ec6088337\nsignal-nomos|LiGoldragon|signal-nomos|1af71a9d0625a6404f81cd6fe8b6393ac0c9040f\nsignal-sema-translator|LiGoldragon|signal-sema-translator|51c02c4a7b6f67d9dad095f11986085d7d65785b\nsignal-spirit|LiGoldragon|signal-spirit|1cf7c010029de46369b742687da4fa1ca6def9a9\nspirit|LiGoldragon|spirit|1049b8a1a9e3c2be7ece3553b89c7e3815939d43\nstream-core-ethos|LiGoldragon|core-ethos|29237c33798db908bbfe10ef0cffe2c6a28be508\nstream-core-logos|LiGoldragon|core-logos|a960aacff8ed13dc14b0ae0094208189d6609434\nstream-core-nomos|LiGoldragon|core-nomos|6ef64cc38a104836b2b236ba4838ffd8e75dced1\nstream-language-engine-witness|LiGoldragon|language-engine-witness|efe8ed3d5ea53f280b93cc1f2f131d92ef781832\nstream-nomos-types|LiGoldragon|nomos-types|a7b831e0540a8ad263cd07ed44ec4c95c56771fb\nstream-protos|LiGoldragon|protos|95aeb1470c549a404518faf1ab0280a36583a2b3\nstream-rust-logos|LiGoldragon|rust-logos|f92a8eccd851ebb1f8140ec42e00b04ba73758d0\nstructural-codec|LiGoldragon|structural-codec|fc6807f4365cde1551bbfe120520aec68245abdb\ntemplate-core-logos|LiGoldragon|core-logos|141abe23273273d2e4470ce15b42ccf9bc5c8764\ntemplate-rust-logos|LiGoldragon|rust-logos|96eda934a8f3203295f0a08869199441f109c369'
-readonly expected_input_names=$'capsule-content-identity\ncontent-identity\ncore-ethos\ncore-logos\ncore-nomos\nequivalent-core-nomos\nlanguage-engine-witness\nlegacy-protos\nmeta-signal-spirit\nname-table\nnixpkgs\nnomos-engine\nnomos-protos\nprotos\nraw-discovery\nrust-logos\nschema-language\nschema-rust\nsealed-core-nomos\nsema-engine\nsema-translator\nsignal-frame\nsignal-nomos\nsignal-sema-translator\nsignal-spirit\nspirit\nstream-core-ethos\nstream-core-logos\nstream-core-nomos\nstream-language-engine-witness\nstream-nomos-types\nstream-protos\nstream-rust-logos\nstructural-codec\ntemplate-core-logos\ntemplate-rust-logos'
+readonly expected_pins='capsule-content-identity|LiGoldragon|content-identity|896b21e17f31b66d0802bff899b4b60acea9c0f1
+content-identity|LiGoldragon|content-identity|fdf2db1d5a9e8ea52d24d39a03833c3e6885c355
+core-ethos|LiGoldragon|core-ethos|7a1384874f3747de97c6ccbb4ae6fa2149b27330
+core-logos|LiGoldragon|core-logos|abee4036fbeb58c767ef7dc3489804e2afd5c6e1
+core-nomos|LiGoldragon|core-nomos|4758e8db3c72e7c84c30c1a0b597b6d9ed65d35d
+equivalent-core-nomos|LiGoldragon|core-nomos|e1b2febf9f143ab1c84d042d2e9bdd0685303ddc
+language-engine-witness|LiGoldragon|language-engine-witness|2cbc9e67a8f011db84c7869b9fb5242f7e4ed13b
+legacy-protos|LiGoldragon|protos|1343d0c405cdb6929552ea6b12c48739e73f35ab
+meta-signal-spirit|LiGoldragon|meta-signal-spirit|0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3
+name-table|LiGoldragon|name-table|a22f48d8040ab9235f3552ad8654ff8e27b8157d
+nixpkgs|NixOS|nixpkgs|91cc1fdf6831e29b6c98768e721a72241f3d0797
+nomos-engine|LiGoldragon|nomos-engine|2ccb200894056abbaae70b10a070c427fa4fdf4c
+nomos-protos|LiGoldragon|protos|1263f9d1f73b57885d695ac033bdd6faa1334ddf
+protos|LiGoldragon|protos|65e7c6d4692a40e1c49deffb3fb4a9a2c3555c5b
+raw-discovery|LiGoldragon|raw-discovery|2d4e2e00f2821c4e2893fa96028cef0ac76e9644
+rust-logos|LiGoldragon|rust-logos|250e728fa9e5a02e3c9a6d4f0cfee0683863df83
+schema-language|LiGoldragon|schema-language|9c217610c4b8d3bdaa9f95542e28c04424a593e3
+schema-rust|LiGoldragon|schema-rust|c1d2ae1b0dd189cd8c8788a2cfc062e26c0377f3
+sealed-core-nomos|LiGoldragon|core-nomos|ba7abc0b471a0385012b1d8a03cf4942e9da617e
+sema-engine|LiGoldragon|sema-engine|9f62eb444d7ae257b34c740e1bbad8cca079a13b
+sema-translator|LiGoldragon|sema-translator|4675e5ddfdd0d24144498ec9b7d2e5b9cb422249
+signal-domain|LiGoldragon|signal-domain|6f7c1352602581cb6cb82f507fe573890c6ffa56
+signal-frame|LiGoldragon|signal-frame|0786fbe8caf27552afcdd5deb85bc82ec6088337
+signal-nomos|LiGoldragon|signal-nomos|bdcf54021e880f75ab693d00e3707478ca7de487
+signal-sema-translator|LiGoldragon|signal-sema-translator|3a26cb43f8ce7f9fe85da64d19aa55aa662943ce
+signal-spirit|LiGoldragon|signal-spirit|1cf7c010029de46369b742687da4fa1ca6def9a9
+spirit|LiGoldragon|spirit|1049b8a1a9e3c2be7ece3553b89c7e3815939d43
+stream-core-ethos|LiGoldragon|core-ethos|29237c33798db908bbfe10ef0cffe2c6a28be508
+stream-core-logos|LiGoldragon|core-logos|a960aacff8ed13dc14b0ae0094208189d6609434
+stream-core-nomos|LiGoldragon|core-nomos|6ef64cc38a104836b2b236ba4838ffd8e75dced1
+stream-language-engine-witness|LiGoldragon|language-engine-witness|efe8ed3d5ea53f280b93cc1f2f131d92ef781832
+stream-nomos-types|LiGoldragon|nomos-types|a7b831e0540a8ad263cd07ed44ec4c95c56771fb
+stream-protos|LiGoldragon|protos|95aeb1470c549a404518faf1ab0280a36583a2b3
+stream-rust-logos|LiGoldragon|rust-logos|f92a8eccd851ebb1f8140ec42e00b04ba73758d0
+structural-codec|LiGoldragon|structural-codec|413e3744569ca237e837a1fd57d9ba6ad6adc3de
+template-core-logos|LiGoldragon|core-logos|141abe23273273d2e4470ce15b42ccf9bc5c8764
+template-rust-logos|LiGoldragon|rust-logos|96eda934a8f3203295f0a08869199441f109c369'
+readonly expected_input_names='capsule-content-identity
+content-identity
+core-ethos
+core-logos
+core-nomos
+equivalent-core-nomos
+language-engine-witness
+legacy-protos
+meta-signal-spirit
+name-table
+nixpkgs
+nomos-engine
+nomos-protos
+protos
+raw-discovery
+rust-logos
+schema-language
+schema-rust
+sealed-core-nomos
+sema-engine
+sema-translator
+signal-domain
+signal-frame
+signal-nomos
+signal-sema-translator
+signal-spirit
+spirit
+stream-core-ethos
+stream-core-logos
+stream-core-nomos
+stream-language-engine-witness
+stream-nomos-types
+stream-protos
+stream-rust-logos
+structural-codec
+template-core-logos
+template-rust-logos'
 
 validate_lock_policy() {
   local lock_file=$1
   local actual_input_names
-  local expected_input_names_with_main
   local input_name
   local owner
   local repository
@@ -31,10 +99,9 @@ validate_lock_policy() {
   actual_input_names=$(
     jq -r '.root as $root | .nodes[$root].inputs | keys[]' "$lock_file"
   )
-  expected_input_names_with_main=$(printf '%s\n%s\n' "$expected_input_names" "$main_integration_input" | LC_ALL=C sort)
-  if [[ "$actual_input_names" != "$expected_input_names_with_main" ]]; then
+  if [[ "$actual_input_names" != "$expected_input_names" ]]; then
     echo "root source-input names differ from the exact policy set" >&2
-    diff -u <(printf '%s\n' "$expected_input_names_with_main") \
+    diff -u <(printf '%s\n' "$expected_input_names") \
       <(printf '%s\n' "$actual_input_names") >&2 || true
     return 1
   fi
@@ -78,16 +145,7 @@ validate_lock_policy() {
       echo "root input violates exact immutable pin policy: $input_name" >&2
       return 1
     }
-  done < <(
-    printf '%s\n%s\n' "$expected_pins" "$main_integration_pin" |
-      sed -e 's/2d4e2e00f2821c4e2893fa96028cef0ac76e9644/2d4e2e00f2821c4e2893fa96028cef0ac76e9644/' \
-        -e 's/9a61e2ac1bf8a8c1163794d695902115a05a4007/a6690f3709453225e2873df707d2c9eea8a24e50/' \
-        -e 's/a960aacff8ed13dc14b0ae0094208189d6609434/a6690f3709453225e2873df707d2c9eea8a24e50/' \
-        -e 's/a6690f3709453225e2873df707d2c9eea8a24e50/c7bd55bb29f7c0e10212571d2b4a2f69aae4b35b/g' \
-        -e 's/6ef64cc38a104836b2b236ba4838ffd8e75dced1/1580cac092885bfea6a8cd68d4e04b3a99eaf87d/g' \
-        -e 's/1580cac092885bfea6a8cd68d4e04b3a99eaf87d/96b156c5f578f82e07c1640e15ef04338a00b65e/g' \
-        -e 's/f92a8eccd851ebb1f8140ec42e00b04ba73758d0/f3e4b7846ed032bc644f9a5b10a4ca8f3fb4c593/g'
-  )
+  done < <(printf '%s\n' "$expected_pins")
 
   jq -e '
     all(
@@ -266,6 +324,7 @@ copy_flake_fixture() {
   mkdir -p "$fixture/scripts"
   cp "$repository_root/AGENTS.md" "$fixture/AGENTS.md"
   cp "$repository_root/ARCHITECTURE.md" "$fixture/ARCHITECTURE.md"
+  cp "$repository_root/NON_IDEAL_AGENTS.md" "$fixture/NON_IDEAL_AGENTS.md"
   cp "$repository_root/README.md" "$fixture/README.md"
   cp "$repository_root/flake.lock" "$fixture/flake.lock"
   cp "$repository_root/flake.nix" "$fixture/flake.nix"
