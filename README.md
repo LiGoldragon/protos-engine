@@ -40,7 +40,7 @@ Every repository input uses a full, published Git revision:
 | core-logos | `f3655c5ba60d2aec5a6bffa0962eef6b5964ee4e` |
 | core-nomos | `ff675b264e3650afb88291036ec2bdd97292a2e7` |
 | equivalent-core-nomos | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
-| language-engine-witness | `41b1fefda375f1dfa4c5e2ac90fbb6a30ebb0f2b` |
+| language-engine-witness | `9913d2dbd48b3153fb443f0c9b2123c693a75e11` |
 | legacy-protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
 | meta-signal-spirit | `0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3` |
 | name-table | `a22f48d8040ab9235f3552ad8654ff8e27b8157d` |
@@ -51,11 +51,11 @@ Every repository input uses a full, published Git revision:
 | raw-discovery | `2d4e2e00f2821c4e2893fa96028cef0ac76e9644` |
 | rust-logos | `55501fddc2d7e154d71fff1659386cbbba712267` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
-| schema-rust | `3c122cb62301f0b77556c05bc270d79f64a8d6d3` |
+| schema-rust | `9e36587c85bd69357e9042729ba2df0052799756` |
 | sealed-core-nomos | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
-| sema-engine | `22dcbe23715a362d677387447903f69cdda06af0` |
+| sema-engine | `fe50a6a1de7f707184d1fc7f641d2be0b51089de` |
 | sema-translator | `6b5499c0d25c801b56582fdcd8e021c3293a6d4d` |
-| signal-domain | `af7efa0c427421e89fdb3b9e621f66c43ef4c298` |
+| signal-domain | `f6996f935e4c24e494c244d65a57b46bb1045be7` |
 | signal-frame | `0786fbe8caf27552afcdd5deb85bc82ec6088337` |
 | signal-nomos | `44188eb83dea5f0f50d3e4702d19634fc4e7f485` |
 | signal-sema-translator | `3a26cb43f8ce7f9fe85da64d19aa55aa662943ce` |
@@ -80,12 +80,13 @@ The three Spirit-family pins retain the existing `PublicTextSearch` process
 witness until its successor feature revisions are independently audited and
 published.
 
-`schema-language` remains a frozen donor only for the pinned Spirit-family
-closure. `schema-rust` is also a current bootstrap projection producer: its
-published owner checks compile the generated code, and `sema-engine` consumes
-that checked projection for the current Sema table runtime. The current Rust
-projection is a replaceable stage, not a permanent definition of any file
-kind.
+`schema-language` remains a frozen donor only for the separately pinned
+Spirit-family closure. It does not enter the current bootstrap train.
+`schema-rust` exposes only verified bootstrap Interface and Sema generation;
+its live consumer locks contain one Schema Rust 0.15 package and no
+schema-language package. Rust Logos owns the sole Rust naming table and text
+projection boundary. Rust remains a replaceable projection stage, not a
+permanent definition of any file kind.
 
 The identity/Capsule producers are ordinary flake inputs rather than source-only
 inputs. This lets the assembly expose their published test derivations directly.
@@ -131,7 +132,10 @@ claiming universal migration of the retained compatibility graph.
 current bootstrap language path against the exact root revisions. It covers
 the canonical cores, rust-logos, the neutral Protos frame dependency, the
 translator/projection/domain/engine chain, and each live
-language-engine-witness Cargo edge and alias. It also proves that the witness
+language-engine-witness Cargo edge and alias. It proves Schema Rust has only
+its strict bootstrap source and test inventory, that the live closure contains
+one Schema Rust 0.15 and no schema-language package, and that Rust Logos alone
+owns the Rust naming table. It also proves that the witness
 has only its two explicit integration tests and that `nomos-engine` exposes the
 authority-sealed bootstrap library witness: exact Logos archive recovery,
 explicit Sema storage evidence, and refusal of storage evidence for other

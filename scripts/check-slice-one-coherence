@@ -4,7 +4,7 @@ set -euo pipefail
 # Complete direct producer edges for the authority-sealed bootstrap closure.
 # Every code-bearing root must resolve to the same published revisions as its
 # direct Cargo consumers.
-readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nsema-translator|core-ethos|core-ethos|\nschema-rust|core-ethos|core-ethos|\nschema-rust|core-nomos|core-nomos|\nschema-rust|sema-translator|sema-translator|\nsignal-domain|core-ethos|core-ethos|\nsignal-domain|schema-rust|schema-rust|\nsignal-domain|sema-translator|sema-translator|\nsema-engine|core-ethos|core-ethos|\nsema-engine|core-nomos|core-nomos|\nsema-engine|schema-rust|schema-rust|\nsema-engine|sema-translator|sema-translator|\nnomos-engine|core-ethos|core-ethos|\nnomos-engine|core-logos|core-logos|\nnomos-engine|core-nomos|core-nomos|\nnomos-engine|sema-translator|sema-translator|\nlanguage-engine-witness|signal-domain|signal-domain|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-sema-translator|sema-translator|sema-translator\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
+readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nsema-translator|core-ethos|core-ethos|\nschema-rust|core-ethos|core-ethos|\nschema-rust|core-nomos|core-nomos|\nschema-rust|rust-logos|rust-logos|\nschema-rust|sema-translator|sema-translator|\nsignal-domain|core-ethos|core-ethos|\nsignal-domain|schema-rust|schema-rust|\nsignal-domain|sema-translator|sema-translator|\nsema-engine|core-ethos|core-ethos|\nsema-engine|core-nomos|core-nomos|\nsema-engine|schema-rust|schema-rust|\nsema-engine|sema-translator|sema-translator|\nnomos-engine|core-ethos|core-ethos|\nnomos-engine|core-logos|core-logos|\nnomos-engine|core-nomos|core-nomos|\nnomos-engine|sema-translator|sema-translator|\nlanguage-engine-witness|signal-domain|signal-domain|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-sema-translator|sema-translator|sema-translator\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
 
 root_revision() {
   local lock_file=$1
@@ -358,6 +358,93 @@ validate_nomos_source_boundary() {
   fi
 }
 
+validate_schema_rust_boundary() {
+  local source_map_file=$1
+  local schema_root
+  local rust_root
+  local source_inventory
+  local test_inventory
+  local owner_name
+  local owner_root
+  local owner_lock
+  local naming_table_count
+
+  schema_root=$(source_path "$source_map_file" schema-rust) || {
+    echo "Schema Rust is absent from the root source map" >&2
+    return 1
+  }
+  rust_root=$(source_path "$source_map_file" rust-logos) || {
+    echo "Rust Logos is absent from the root source map" >&2
+    return 1
+  }
+  [[ -f "$schema_root/Cargo.toml" && ! -L "$schema_root/Cargo.toml" &&
+    -d "$schema_root/src" && ! -L "$schema_root/src" &&
+    -d "$schema_root/tests" && ! -L "$schema_root/tests" &&
+    -d "$rust_root/src" && ! -L "$rust_root/src" ]] || {
+    echo "Schema Rust boundary lacks regular source surfaces" >&2
+    return 1
+  }
+  if find "$schema_root/src" "$schema_root/tests" "$rust_root/src" \
+    -type l -print -quit | grep -q .; then
+    echo "Schema Rust boundary contains a symbolic link" >&2
+    return 1
+  fi
+
+  source_inventory=$(
+    find "$schema_root/src" -type f -name '*.rs' -printf '%P\n' |
+      LC_ALL=C sort
+  )
+  test_inventory=$(
+    find "$schema_root/tests" -type f -name '*.rs' -printf '%P\n' |
+      LC_ALL=C sort
+  )
+  [[ "$source_inventory" == $'bootstrap.rs\nbuild.rs\nlib.rs' &&
+    "$test_inventory" == 'bootstrap.rs' ]] || {
+    echo "Schema Rust bootstrap surface inventory drifted" >&2
+    return 1
+  }
+  require_source_pattern "$schema_root/Cargo.toml" "Schema Rust 0.15 package" \
+    '^version[[:space:]]*=[[:space:]]*"0[.]15[.]0"$'
+  if LC_ALL=C rg -n \
+    'schema-language|RustScalarAlias|default_aliases|RUST_NAMING_TRANSLATIONS|std[.]string::String' \
+    "$schema_root/Cargo.toml" "$schema_root/src" "$schema_root/tests" >/dev/null; then
+    echo "Schema Rust retains a deleted world or Rust naming policy" >&2
+    return 1
+  fi
+
+  naming_table_count=$(
+    LC_ALL=C rg -l '^const RUST_NAMING_TRANSLATIONS:' \
+      "$rust_root/src" --glob '*.rs' | wc -l
+  )
+  [[ "$naming_table_count" -eq 1 ]] || {
+    echo "Rust Logos must own exactly one Rust naming table" >&2
+    return 1
+  }
+
+  for owner_name in \
+    schema-rust signal-domain sema-engine language-engine-witness; do
+    owner_root=$(source_path "$source_map_file" "$owner_name") || {
+      echo "live Schema Rust owner is absent from the root source map: $owner_name" >&2
+      return 1
+    }
+    owner_lock="$owner_root/Cargo.lock"
+    [[ -f "$owner_lock" && ! -L "$owner_lock" ]] || {
+      echo "live Schema Rust owner lacks a regular Cargo.lock: $owner_name" >&2
+      return 1
+    }
+    [[ $(LC_ALL=C grep -c '^name = "schema-rust"$' "$owner_lock") -eq 1 &&
+      $(LC_ALL=C grep -A1 '^name = "schema-rust"$' "$owner_lock" |
+        grep -c '^version = "0[.]15[.]0"$') -eq 1 ]] || {
+      echo "live owner does not resolve exactly one Schema Rust 0.15: $owner_name" >&2
+      return 1
+    }
+    if LC_ALL=C grep -q '^name = "schema-language"$' "$owner_lock"; then
+      echo "Schema Language re-entered the live Schema Rust closure: $owner_name" >&2
+      return 1
+    fi
+  done
+}
+
 validate_coherence() {
   local lock_file=$1
   local source_map_file=$2
@@ -382,6 +469,7 @@ validate_coherence() {
   done < <(printf '%s\n' "$expected_edges")
 
   validate_behavior_witness "$source_map_file" "$lock_file"
+  validate_schema_rust_boundary "$source_map_file"
   validate_nomos_source_boundary "$source_map_file"
 }
 
@@ -398,6 +486,23 @@ copy_affected_manifests() {
     cp "$source_root/Cargo.toml" \
       "$fixture_root/sources/$source_name/Cargo.toml"
     chmod u+w "$fixture_root/sources/$source_name/Cargo.toml"
+    case $source_name in
+      schema-rust|signal-domain|sema-engine|language-engine-witness)
+        cp "$source_root/Cargo.lock" \
+          "$fixture_root/sources/$source_name/Cargo.lock"
+        chmod u+w "$fixture_root/sources/$source_name/Cargo.lock"
+        ;;
+    esac
+    if [[ "$source_name" == schema-rust ]]; then
+      cp -R "$source_root/src" "$fixture_root/sources/$source_name/src"
+      cp -R "$source_root/tests" "$fixture_root/sources/$source_name/tests"
+      chmod -R u+w "$fixture_root/sources/$source_name/src" \
+        "$fixture_root/sources/$source_name/tests"
+    fi
+    if [[ "$source_name" == rust-logos ]]; then
+      cp -R "$source_root/src" "$fixture_root/sources/$source_name/src"
+      chmod -R u+w "$fixture_root/sources/$source_name/src"
+    fi
     if [[ "$source_name" == language-engine-witness ]]; then
       mkdir -p "$fixture_root/sources/$source_name/tests/fixtures"
       mkdir -p "$fixture_root/sources/$source_name/tests/support"
@@ -482,8 +587,12 @@ run_self_test() {
   local witness_spirit_domain_test
   local witness_support_module
   local rust_logos_manifest
+  local rust_logos_codec
+  local schema_rust_build
+  local schema_rust_lib
   local sema_fixture
   local sema_generated_test
+  local signal_domain_lock
   local signal_nomos_revision
   local structural_codec_revision
 
@@ -503,8 +612,12 @@ run_self_test() {
   witness_spirit_domain_test="$temporary_root/sources/language-engine-witness/tests/spirit_domain.rs"
   witness_support_module="$temporary_root/sources/language-engine-witness/tests/support/mod.rs"
   rust_logos_manifest="$temporary_root/sources/rust-logos/Cargo.toml"
+  rust_logos_codec="$temporary_root/sources/rust-logos/src/codec.rs"
+  schema_rust_build="$temporary_root/sources/schema-rust/src/build.rs"
+  schema_rust_lib="$temporary_root/sources/schema-rust/src/lib.rs"
   sema_fixture="$temporary_root/sources/sema-engine/schema/witness.sema"
   sema_generated_test="$temporary_root/sources/sema-engine/tests/generated_table.rs"
+  signal_domain_lock="$temporary_root/sources/signal-domain/Cargo.lock"
   structural_codec_revision=$(root_revision "$lock_file" structural-codec)
 
   sed -i \
@@ -535,6 +648,33 @@ run_self_test() {
     "$rust_logos_manifest"
   expect_coherence_rejection "producer repository drift" \
     "$lock_file" "$temporary_root/source-map.json"
+
+  mv "$schema_rust_build" "$schema_rust_build.removed"
+  expect_coherence_rejection "Schema Rust bootstrap surface inventory drift" \
+    "$lock_file" "$temporary_root/source-map.json"
+  mv "$schema_rust_build.removed" "$schema_rust_build"
+
+  printf '%s\n' 'const RUST_NAMING_TRANSLATIONS: &[()] = &[];' \
+    >> "$schema_rust_lib"
+  expect_coherence_rejection "duplicate Schema Rust naming policy" \
+    "$lock_file" "$temporary_root/source-map.json"
+  cp "$(source_path "$source_map_file" schema-rust)/src/lib.rs" \
+    "$schema_rust_lib"
+
+  sed -i \
+    's/^const RUST_NAMING_TRANSLATIONS:/const RUST_NAMING_ALTERNATIVES:/' \
+    "$rust_logos_codec"
+  expect_coherence_rejection "Rust Logos naming boundary removal" \
+    "$lock_file" "$temporary_root/source-map.json"
+  cp "$(source_path "$source_map_file" rust-logos)/src/codec.rs" \
+    "$rust_logos_codec"
+
+  printf '%s\n' '' '[[package]]' 'name = "schema-language"' \
+    'version = "0.0.0"' >> "$signal_domain_lock"
+  expect_coherence_rejection "deleted schema world re-entry" \
+    "$lock_file" "$temporary_root/source-map.json"
+  cp "$(source_path "$source_map_file" signal-domain)/Cargo.lock" \
+    "$signal_domain_lock"
 
   cp "$(source_path "$source_map_file" language-engine-witness)/Cargo.toml" \
     "$witness_manifest"
@@ -660,7 +800,7 @@ case ${1:-} in
       exit 2
     }
     run_self_test "$2" "$3"
-    echo "Slice One mutations reject producer, header/import/body, transaction, authority, live-test inventory, and refusal drift"
+    echo "Slice One mutations reject producer, Schema Rust surface/naming, header/import/body, transaction, authority, live-test inventory, and refusal drift"
     ;;
   "")
     echo "usage: check-slice-one-coherence FLAKE_LOCK SOURCE_MAP_JSON" >&2
@@ -672,6 +812,6 @@ case ${1:-} in
       exit 2
     }
     validate_coherence "$1" "$2"
-    echo "Slice One edges and Interface/Nexus/Sema behavior witness match exact published revisions"
+    echo "Slice One edges, sole Schema Rust bootstrap boundary, and Interface/Nexus/Sema behavior witness match exact published revisions"
     ;;
 esac

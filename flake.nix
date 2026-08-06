@@ -13,7 +13,7 @@
     core-ethos.url = "github:LiGoldragon/core-ethos/427fd74a8217f557cfabdfe0ff23b784c855bf85";
     core-logos.url = "github:LiGoldragon/core-logos/f3655c5ba60d2aec5a6bffa0962eef6b5964ee4e";
     core-nomos.url = "github:LiGoldragon/core-nomos/ff675b264e3650afb88291036ec2bdd97292a2e7";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/41b1fefda375f1dfa4c5e2ac90fbb6a30ebb0f2b";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/9913d2dbd48b3153fb443f0c9b2123c693a75e11";
     legacy-protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     name-table = {
       url = "github:LiGoldragon/name-table/a22f48d8040ab9235f3552ad8654ff8e27b8157d";
@@ -31,9 +31,9 @@
     template-core-logos.url = "github:LiGoldragon/core-logos/141abe23273273d2e4470ce15b42ccf9bc5c8764";
     template-rust-logos.url = "github:LiGoldragon/rust-logos/96eda934a8f3203295f0a08869199441f109c369";
     equivalent-core-nomos.url = "github:LiGoldragon/core-nomos/e1b2febf9f143ab1c84d042d2e9bdd0685303ddc";
-    sema-engine.url = "github:LiGoldragon/sema-engine/22dcbe23715a362d677387447903f69cdda06af0";
+    sema-engine.url = "github:LiGoldragon/sema-engine/fe50a6a1de7f707184d1fc7f641d2be0b51089de";
     sema-translator.url = "github:LiGoldragon/sema-translator/6b5499c0d25c801b56582fdcd8e021c3293a6d4d";
-    signal-domain.url = "github:LiGoldragon/signal-domain/af7efa0c427421e89fdb3b9e621f66c43ef4c298";
+    signal-domain.url = "github:LiGoldragon/signal-domain/f6996f935e4c24e494c244d65a57b46bb1045be7";
     signal-frame.url = "github:LiGoldragon/signal-frame/0786fbe8caf27552afcdd5deb85bc82ec6088337";
     signal-nomos.url = "github:LiGoldragon/signal-nomos/44188eb83dea5f0f50d3e4702d19634fc4e7f485";
     signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/3a26cb43f8ce7f9fe85da64d19aa55aa662943ce";
@@ -41,7 +41,7 @@
       url = "github:LiGoldragon/schema-language/9c217610c4b8d3bdaa9f95542e28c04424a593e3";
       flake = false;
     };
-    schema-rust.url = "github:LiGoldragon/schema-rust/3c122cb62301f0b77556c05bc270d79f64a8d6d3";
+    schema-rust.url = "github:LiGoldragon/schema-rust/9e36587c85bd69357e9042729ba2df0052799756";
     signal-spirit = {
       url = "github:LiGoldragon/signal-spirit/1cf7c010029de46369b742687da4fa1ca6def9a9";
       flake = false;
@@ -313,6 +313,8 @@
                 sema-translator-test = sema-translator.checks.${system}.test;
                 sema-translator-process = sema-translator.checks.${system}.process;
                 schema-rust-test = schema-rust.checks.${system}.test;
+                schema-rust-sole-bootstrap-surface =
+                  schema-rust.checks.${system}.sole-bootstrap-surface;
                 stream-nomos-types-test = stream-nomos-types.checks.${system}.test;
                 protos-test = protos.checks.${system}.test;
                 protos-package-contents = protos.checks.${system}.package-contents;
