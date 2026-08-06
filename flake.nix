@@ -10,10 +10,10 @@
     capsule-content-identity = {
       url = "github:LiGoldragon/content-identity/896b21e17f31b66d0802bff899b4b60acea9c0f1";
     };
-    core-ethos.url = "github:LiGoldragon/core-ethos/249ed6ac5b8a3a84fee5884bcb35b929f07e9166";
-    core-logos.url = "github:LiGoldragon/core-logos/abee4036fbeb58c767ef7dc3489804e2afd5c6e1";
-    core-nomos.url = "github:LiGoldragon/core-nomos/a5e9aeeed90445a7df57ee1c4fda8e4be761b985";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/de82d144f62adb48eb148de922af4483f2bad251";
+    core-ethos.url = "github:LiGoldragon/core-ethos/427fd74a8217f557cfabdfe0ff23b784c855bf85";
+    core-logos.url = "github:LiGoldragon/core-logos/f3655c5ba60d2aec5a6bffa0962eef6b5964ee4e";
+    core-nomos.url = "github:LiGoldragon/core-nomos/ff675b264e3650afb88291036ec2bdd97292a2e7";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/41b1fefda375f1dfa4c5e2ac90fbb6a30ebb0f2b";
     legacy-protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     name-table = {
       url = "github:LiGoldragon/name-table/a22f48d8040ab9235f3552ad8654ff8e27b8157d";
@@ -22,26 +22,26 @@
       url = "github:LiGoldragon/raw-discovery/2d4e2e00f2821c4e2893fa96028cef0ac76e9644";
     };
     structural-codec = {
-      url = "github:LiGoldragon/structural-codec/413e3744569ca237e837a1fd57d9ba6ad6adc3de";
+      url = "github:LiGoldragon/structural-codec/879d76f91facedd6d5cbca79e282260e1beb9478";
     };
     protos.url = "github:LiGoldragon/protos/65e7c6d4692a40e1c49deffb3fb4a9a2c3555c5b";
     nomos-protos.url = "github:LiGoldragon/protos/1263f9d1f73b57885d695ac033bdd6faa1334ddf";
-    nomos-engine.url = "github:LiGoldragon/nomos-engine/c9a424d67e753e53b51b677e4b22182021fb823e";
+    nomos-engine.url = "github:LiGoldragon/nomos-engine/07c71bd4350347a2205333aeb489b56443a034f8";
     sealed-core-nomos.url = "github:LiGoldragon/core-nomos/ba7abc0b471a0385012b1d8a03cf4942e9da617e";
     template-core-logos.url = "github:LiGoldragon/core-logos/141abe23273273d2e4470ce15b42ccf9bc5c8764";
     template-rust-logos.url = "github:LiGoldragon/rust-logos/96eda934a8f3203295f0a08869199441f109c369";
     equivalent-core-nomos.url = "github:LiGoldragon/core-nomos/e1b2febf9f143ab1c84d042d2e9bdd0685303ddc";
-    sema-engine.url = "github:LiGoldragon/sema-engine/6dd09d9308fcd3b30e9aadb2a5e51b95a5d6b99e";
-    sema-translator.url = "github:LiGoldragon/sema-translator/bc8410dfe4d449cc0e820a2c5b4d44496ad92acd";
-    signal-domain.url = "github:LiGoldragon/signal-domain/fc07af4e0c8c70a8a0d083d400bf7ba0df9dae76";
+    sema-engine.url = "github:LiGoldragon/sema-engine/22dcbe23715a362d677387447903f69cdda06af0";
+    sema-translator.url = "github:LiGoldragon/sema-translator/6b5499c0d25c801b56582fdcd8e021c3293a6d4d";
+    signal-domain.url = "github:LiGoldragon/signal-domain/af7efa0c427421e89fdb3b9e621f66c43ef4c298";
     signal-frame.url = "github:LiGoldragon/signal-frame/0786fbe8caf27552afcdd5deb85bc82ec6088337";
-    signal-nomos.url = "github:LiGoldragon/signal-nomos/bdcf54021e880f75ab693d00e3707478ca7de487";
+    signal-nomos.url = "github:LiGoldragon/signal-nomos/44188eb83dea5f0f50d3e4702d19634fc4e7f485";
     signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/3a26cb43f8ce7f9fe85da64d19aa55aa662943ce";
     schema-language = {
       url = "github:LiGoldragon/schema-language/9c217610c4b8d3bdaa9f95542e28c04424a593e3";
       flake = false;
     };
-    schema-rust.url = "github:LiGoldragon/schema-rust/9bd0767a387774ea70f8cf4b9b5e3d3617cf7671";
+    schema-rust.url = "github:LiGoldragon/schema-rust/3c122cb62301f0b77556c05bc270d79f64a8d6d3";
     signal-spirit = {
       url = "github:LiGoldragon/signal-spirit/1cf7c010029de46369b742687da4fa1ca6def9a9";
       flake = false;
@@ -51,7 +51,7 @@
       flake = false;
     };
     spirit.url = "github:LiGoldragon/spirit/1049b8a1a9e3c2be7ece3553b89c7e3815939d43";
-    rust-logos.url = "github:LiGoldragon/rust-logos/250e728fa9e5a02e3c9a6d4f0cfee0683863df83";
+    rust-logos.url = "github:LiGoldragon/rust-logos/55501fddc2d7e154d71fff1659386cbbba712267";
     stream-nomos-types.url = "github:LiGoldragon/nomos-types/a7b831e0540a8ad263cd07ed44ec4c95c56771fb";
     stream-protos.url = "github:LiGoldragon/protos/95aeb1470c549a404518faf1ab0280a36583a2b3";
     stream-core-ethos.url = "github:LiGoldragon/core-ethos/29237c33798db908bbfe10ef0cffe2c6a28be508";

@@ -484,6 +484,7 @@ run_self_test() {
   local rust_logos_manifest
   local sema_fixture
   local sema_generated_test
+  local signal_nomos_revision
   local structural_codec_revision
 
   validate_coherence "$lock_file" "$source_map_file"
@@ -638,9 +639,10 @@ run_self_test() {
 
   cp "$(source_path "$source_map_file" language-engine-witness)/Cargo.toml" \
     "$witness_manifest"
-  printf '%s\n' \
-    'signal-nomos={git="https://github.com/LiGoldragon/signal-nomos.git",rev="bdcf54021e880f75ab693d00e3707478ca7de487"}' \
-    >> "$witness_manifest"
+  signal_nomos_revision=$(root_revision "$lock_file" signal-nomos)
+  printf \
+    'signal-nomos={git="https://github.com/LiGoldragon/signal-nomos.git",rev="%s"}\n' \
+    "$signal_nomos_revision" >> "$witness_manifest"
   expect_coherence_rejection "retired process-only Cargo dependency" \
     "$lock_file" "$temporary_root/source-map.json"
 

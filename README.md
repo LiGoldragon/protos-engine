@@ -36,28 +36,28 @@ Every repository input uses a full, published Git revision:
 | --- | --- |
 | capsule-content-identity | `896b21e17f31b66d0802bff899b4b60acea9c0f1` |
 | content-identity | `fdf2db1d5a9e8ea52d24d39a03833c3e6885c355` |
-| core-ethos | `249ed6ac5b8a3a84fee5884bcb35b929f07e9166` |
-| core-logos | `abee4036fbeb58c767ef7dc3489804e2afd5c6e1` |
-| core-nomos | `a5e9aeeed90445a7df57ee1c4fda8e4be761b985` |
+| core-ethos | `427fd74a8217f557cfabdfe0ff23b784c855bf85` |
+| core-logos | `f3655c5ba60d2aec5a6bffa0962eef6b5964ee4e` |
+| core-nomos | `ff675b264e3650afb88291036ec2bdd97292a2e7` |
 | equivalent-core-nomos | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
-| language-engine-witness | `de82d144f62adb48eb148de922af4483f2bad251` |
+| language-engine-witness | `41b1fefda375f1dfa4c5e2ac90fbb6a30ebb0f2b` |
 | legacy-protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
 | meta-signal-spirit | `0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3` |
 | name-table | `a22f48d8040ab9235f3552ad8654ff8e27b8157d` |
 | nixpkgs | `91cc1fdf6831e29b6c98768e721a72241f3d0797` |
-| nomos-engine | `c9a424d67e753e53b51b677e4b22182021fb823e` |
+| nomos-engine | `07c71bd4350347a2205333aeb489b56443a034f8` |
 | nomos-protos | `1263f9d1f73b57885d695ac033bdd6faa1334ddf` |
 | protos | `65e7c6d4692a40e1c49deffb3fb4a9a2c3555c5b` |
 | raw-discovery | `2d4e2e00f2821c4e2893fa96028cef0ac76e9644` |
-| rust-logos | `250e728fa9e5a02e3c9a6d4f0cfee0683863df83` |
+| rust-logos | `55501fddc2d7e154d71fff1659386cbbba712267` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
-| schema-rust | `9bd0767a387774ea70f8cf4b9b5e3d3617cf7671` |
+| schema-rust | `3c122cb62301f0b77556c05bc270d79f64a8d6d3` |
 | sealed-core-nomos | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
-| sema-engine | `6dd09d9308fcd3b30e9aadb2a5e51b95a5d6b99e` |
-| sema-translator | `bc8410dfe4d449cc0e820a2c5b4d44496ad92acd` |
-| signal-domain | `fc07af4e0c8c70a8a0d083d400bf7ba0df9dae76` |
+| sema-engine | `22dcbe23715a362d677387447903f69cdda06af0` |
+| sema-translator | `6b5499c0d25c801b56582fdcd8e021c3293a6d4d` |
+| signal-domain | `af7efa0c427421e89fdb3b9e621f66c43ef4c298` |
 | signal-frame | `0786fbe8caf27552afcdd5deb85bc82ec6088337` |
-| signal-nomos | `bdcf54021e880f75ab693d00e3707478ca7de487` |
+| signal-nomos | `44188eb83dea5f0f50d3e4702d19634fc4e7f485` |
 | signal-sema-translator | `3a26cb43f8ce7f9fe85da64d19aa55aa662943ce` |
 | signal-spirit | `1cf7c010029de46369b742687da4fa1ca6def9a9` |
 | spirit | `1049b8a1a9e3c2be7ece3553b89c7e3815939d43` |
@@ -68,17 +68,13 @@ Every repository input uses a full, published Git revision:
 | stream-nomos-types | `a7b831e0540a8ad263cd07ed44ec4c95c56771fb` |
 | stream-protos | `95aeb1470c549a404518faf1ab0280a36583a2b3` |
 | stream-rust-logos | `f92a8eccd851ebb1f8140ec42e00b04ba73758d0` |
-| structural-codec | `413e3744569ca237e837a1fd57d9ba6ad6adc3de` |
+| structural-codec | `879d76f91facedd6d5cbca79e282260e1beb9478` |
 | template-core-logos | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
 | template-rust-logos | `96eda934a8f3203295f0a08869199441f109c369` |
 
-The three roots changed by the bootstrap-generation removal deliberately name
-their tested code revisions. Their later documentation-only heads are
-`core-ethos` `fe18d80198332c765354b7e565d8154f5c4c5eb9`, `core-nomos`
-`f5af9f5998a2c49c1a62dc62187d6169934b6a04`, and `nomos-engine`
-`7012236738dfc806bdc52d4f4131baa2b84a2dd8`. Keeping the code revisions in the
-table preserves one exact Cargo closure while recording the prose revisions
-without creating a second dependency world.
+The current bootstrap train has one structural-codec producer revision. Every
+live direct consumer is pinned to that same revision, and every current root in
+the table names the published code revision whose own checks passed.
 
 The three Spirit-family pins retain the existing `PublicTextSearch` process
 witness until its successor feature revisions are independently audited and
