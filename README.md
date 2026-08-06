@@ -36,26 +36,26 @@ Every repository input uses a full, published Git revision:
 | --- | --- |
 | capsule-content-identity | `896b21e17f31b66d0802bff899b4b60acea9c0f1` |
 | content-identity | `fdf2db1d5a9e8ea52d24d39a03833c3e6885c355` |
-| core-ethos | `7a1384874f3747de97c6ccbb4ae6fa2149b27330` |
+| core-ethos | `249ed6ac5b8a3a84fee5884bcb35b929f07e9166` |
 | core-logos | `abee4036fbeb58c767ef7dc3489804e2afd5c6e1` |
-| core-nomos | `4758e8db3c72e7c84c30c1a0b597b6d9ed65d35d` |
+| core-nomos | `a5e9aeeed90445a7df57ee1c4fda8e4be761b985` |
 | equivalent-core-nomos | `e1b2febf9f143ab1c84d042d2e9bdd0685303ddc` |
-| language-engine-witness | `2cbc9e67a8f011db84c7869b9fb5242f7e4ed13b` |
+| language-engine-witness | `de82d144f62adb48eb148de922af4483f2bad251` |
 | legacy-protos | `1343d0c405cdb6929552ea6b12c48739e73f35ab` |
 | meta-signal-spirit | `0a7a2438c8e5d57cb1fd413452d0a7ddad4fb9b3` |
 | name-table | `a22f48d8040ab9235f3552ad8654ff8e27b8157d` |
 | nixpkgs | `91cc1fdf6831e29b6c98768e721a72241f3d0797` |
-| nomos-engine | `2ccb200894056abbaae70b10a070c427fa4fdf4c` |
+| nomos-engine | `c9a424d67e753e53b51b677e4b22182021fb823e` |
 | nomos-protos | `1263f9d1f73b57885d695ac033bdd6faa1334ddf` |
 | protos | `65e7c6d4692a40e1c49deffb3fb4a9a2c3555c5b` |
 | raw-discovery | `2d4e2e00f2821c4e2893fa96028cef0ac76e9644` |
 | rust-logos | `250e728fa9e5a02e3c9a6d4f0cfee0683863df83` |
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
-| schema-rust | `c1d2ae1b0dd189cd8c8788a2cfc062e26c0377f3` |
+| schema-rust | `9bd0767a387774ea70f8cf4b9b5e3d3617cf7671` |
 | sealed-core-nomos | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
-| sema-engine | `9f62eb444d7ae257b34c740e1bbad8cca079a13b` |
-| sema-translator | `4675e5ddfdd0d24144498ec9b7d2e5b9cb422249` |
-| signal-domain | `6f7c1352602581cb6cb82f507fe573890c6ffa56` |
+| sema-engine | `6dd09d9308fcd3b30e9aadb2a5e51b95a5d6b99e` |
+| sema-translator | `bc8410dfe4d449cc0e820a2c5b4d44496ad92acd` |
+| signal-domain | `fc07af4e0c8c70a8a0d083d400bf7ba0df9dae76` |
 | signal-frame | `0786fbe8caf27552afcdd5deb85bc82ec6088337` |
 | signal-nomos | `bdcf54021e880f75ab693d00e3707478ca7de487` |
 | signal-sema-translator | `3a26cb43f8ce7f9fe85da64d19aa55aa662943ce` |
@@ -71,6 +71,14 @@ Every repository input uses a full, published Git revision:
 | structural-codec | `413e3744569ca237e837a1fd57d9ba6ad6adc3de` |
 | template-core-logos | `141abe23273273d2e4470ce15b42ccf9bc5c8764` |
 | template-rust-logos | `96eda934a8f3203295f0a08869199441f109c369` |
+
+The three roots changed by the bootstrap-generation removal deliberately name
+their tested code revisions. Their later documentation-only heads are
+`core-ethos` `fe18d80198332c765354b7e565d8154f5c4c5eb9`, `core-nomos`
+`f5af9f5998a2c49c1a62dc62187d6169934b6a04`, and `nomos-engine`
+`7012236738dfc806bdc52d4f4131baa2b84a2dd8`. Keeping the code revisions in the
+table preserves one exact Cargo closure while recording the prose revisions
+without creating a second dependency world.
 
 The three Spirit-family pins retain the existing `PublicTextSearch` process
 witness until its successor feature revisions are independently audited and
@@ -108,11 +116,12 @@ rule applies to this repository's root inputs.
 
 `scripts/check-identity-capsule-coherence` compares the affected direct Cargo
 edges with those exact root revisions. Its table includes the final integrity
-producer, translator, generic Capsule, the legacy carrier edges retained by
-core-ethos/core-logos, and the content-only protos/core-nomos/signal-nomos/
-nomos-engine edges. Chain-based and runtime edges are checked separately by
-`scripts/check-slice-one-coherence`. The identity gate deliberately does not
-demand universal transitive equality: the cores' direct legacy per-item
+producer, translator, generic Capsule, the legacy carrier edge retained by
+core-logos, and the content-only protos, current core-nomos, signal-nomos, and
+sealed-core-nomos edges. The current core-ethos and nomos-engine closures no
+longer participate in the Capsule gate; their complete direct code edges are
+checked by `scripts/check-slice-one-coherence`. The identity gate deliberately
+does not demand universal transitive equality: retained direct legacy per-item
 identity/archive and flat name-table dependencies remain on their established
 typed revisions.
 The legacy 0.3 identity crate and dependency-renamed 0.4 Capsule identity crate
@@ -124,16 +133,17 @@ claiming universal migration of the retained compatibility graph.
 
 `scripts/check-slice-one-coherence` validates every direct producer edge in the
 current bootstrap language path against the exact root revisions. It covers
-the canonical cores, rust-logos, the neutral Protos frame dependency, and each
-language-engine-witness Cargo edge and alias. The Nomos wire closure remains a
-separate typed generation: the owner witness carries `nomos-engine` as an exact
-process-only Nix input, while this sink verifies its current-wire refusal and
-authority-process behavior without falsely requiring its transitive Cargo
-graph to equal the newest bootstrap roots. Production-source scans enumerate
-every regular `nomos-engine` `src/**/*.rs` file and refuse retired evaluator
-and central-storage vocabulary. Mutations reject producer, repository,
-package-alias, Interface/Nexus/Sema framing, transaction, timeout, byte-order,
-authority-receipt, and graph-refusal drift.
+the canonical cores, rust-logos, the neutral Protos frame dependency, the
+translator/projection/domain/engine chain, and each live
+language-engine-witness Cargo edge and alias. It also proves that the witness
+has only its two explicit integration tests and that `nomos-engine` exposes the
+authority-sealed bootstrap library witness: exact Logos archive recovery,
+explicit Sema storage evidence, and refusal of storage evidence for other
+kinds. Production-source scans enumerate every regular `nomos-engine`
+`src/**/*.rs` file and refuse retired evaluator and central-storage vocabulary.
+Mutations reject producer, repository, package-alias, Interface/Nexus/Sema
+framing, transaction, authority boundary, live-test inventory, and refusal
+drift.
 
 `scripts/check-po-two-five-coherence` retains the exact po2.5 integration labels
 beside the current graph. It verifies that rust-logos and the po2.5 core-nomos
@@ -186,16 +196,13 @@ projection whose typed table is written, read, closed, and reopened through
 the engine. No Sema source or generated table is copied into this sink or the
 language witness.
 
-The process suite proves the present boundary precisely. A verified bootstrap
-transaction succeeds in process, while the real Nomos daemon refuses an
-unarchived wire population; successful persisted native-Nomos restart remains
-outside the current claim. Authored Nomos is sealed as one authority
-transaction, materializes only after its durable receipt is read, recovers
-across an authority-process restart, and accepts a spelling-only rename
-without changing content identity. One-request file-population tests prove
-missing, cyclic, external-`Invoke`, and source-root-escape graphs leave no
-receipt. Process readiness and socket I/O remain bounded, and the sink checks
-the direct big-endian framing evidence.
+The Nomos owner proof is now a library boundary. An authority-sealed Nexus
+transaction lowers to identified Whole Logos and restores the exact archive;
+Sema lowering consumes caller-supplied storage provenance, while non-Sema
+kinds reject that provenance. The sink also proves the deleted daemon/process
+suite cannot re-enter through automatic test discovery, Cargo dependencies, or
+Nix inputs. Persistence, sockets, receipts, and restart behavior are therefore
+not claims of this bootstrap closure.
 
 The Spirit-domain owner source is the complete `Interface.{1 0 0}`
 header/imports/body transaction and must equal the source published by

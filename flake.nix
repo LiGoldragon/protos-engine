@@ -10,10 +10,10 @@
     capsule-content-identity = {
       url = "github:LiGoldragon/content-identity/896b21e17f31b66d0802bff899b4b60acea9c0f1";
     };
-    core-ethos.url = "github:LiGoldragon/core-ethos/7a1384874f3747de97c6ccbb4ae6fa2149b27330";
+    core-ethos.url = "github:LiGoldragon/core-ethos/249ed6ac5b8a3a84fee5884bcb35b929f07e9166";
     core-logos.url = "github:LiGoldragon/core-logos/abee4036fbeb58c767ef7dc3489804e2afd5c6e1";
-    core-nomos.url = "github:LiGoldragon/core-nomos/4758e8db3c72e7c84c30c1a0b597b6d9ed65d35d";
-    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/2cbc9e67a8f011db84c7869b9fb5242f7e4ed13b";
+    core-nomos.url = "github:LiGoldragon/core-nomos/a5e9aeeed90445a7df57ee1c4fda8e4be761b985";
+    language-engine-witness.url = "github:LiGoldragon/language-engine-witness/de82d144f62adb48eb148de922af4483f2bad251";
     legacy-protos.url = "github:LiGoldragon/protos/1343d0c405cdb6929552ea6b12c48739e73f35ab";
     name-table = {
       url = "github:LiGoldragon/name-table/a22f48d8040ab9235f3552ad8654ff8e27b8157d";
@@ -26,14 +26,14 @@
     };
     protos.url = "github:LiGoldragon/protos/65e7c6d4692a40e1c49deffb3fb4a9a2c3555c5b";
     nomos-protos.url = "github:LiGoldragon/protos/1263f9d1f73b57885d695ac033bdd6faa1334ddf";
-    nomos-engine.url = "github:LiGoldragon/nomos-engine/2ccb200894056abbaae70b10a070c427fa4fdf4c";
+    nomos-engine.url = "github:LiGoldragon/nomos-engine/c9a424d67e753e53b51b677e4b22182021fb823e";
     sealed-core-nomos.url = "github:LiGoldragon/core-nomos/ba7abc0b471a0385012b1d8a03cf4942e9da617e";
     template-core-logos.url = "github:LiGoldragon/core-logos/141abe23273273d2e4470ce15b42ccf9bc5c8764";
     template-rust-logos.url = "github:LiGoldragon/rust-logos/96eda934a8f3203295f0a08869199441f109c369";
     equivalent-core-nomos.url = "github:LiGoldragon/core-nomos/e1b2febf9f143ab1c84d042d2e9bdd0685303ddc";
-    sema-engine.url = "github:LiGoldragon/sema-engine/9f62eb444d7ae257b34c740e1bbad8cca079a13b";
-    sema-translator.url = "github:LiGoldragon/sema-translator/4675e5ddfdd0d24144498ec9b7d2e5b9cb422249";
-    signal-domain.url = "github:LiGoldragon/signal-domain/6f7c1352602581cb6cb82f507fe573890c6ffa56";
+    sema-engine.url = "github:LiGoldragon/sema-engine/6dd09d9308fcd3b30e9aadb2a5e51b95a5d6b99e";
+    sema-translator.url = "github:LiGoldragon/sema-translator/bc8410dfe4d449cc0e820a2c5b4d44496ad92acd";
+    signal-domain.url = "github:LiGoldragon/signal-domain/fc07af4e0c8c70a8a0d083d400bf7ba0df9dae76";
     signal-frame.url = "github:LiGoldragon/signal-frame/0786fbe8caf27552afcdd5deb85bc82ec6088337";
     signal-nomos.url = "github:LiGoldragon/signal-nomos/bdcf54021e880f75ab693d00e3707478ca7de487";
     signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/3a26cb43f8ce7f9fe85da64d19aa55aa662943ce";
@@ -41,7 +41,7 @@
       url = "github:LiGoldragon/schema-language/9c217610c4b8d3bdaa9f95542e28c04424a593e3";
       flake = false;
     };
-    schema-rust.url = "github:LiGoldragon/schema-rust/c1d2ae1b0dd189cd8c8788a2cfc062e26c0377f3";
+    schema-rust.url = "github:LiGoldragon/schema-rust/9bd0767a387774ea70f8cf4b9b5e3d3617cf7671";
     signal-spirit = {
       url = "github:LiGoldragon/signal-spirit/1cf7c010029de46369b742687da4fa1ca6def9a9";
       flake = false;
@@ -218,7 +218,6 @@
                 ownerNomosEngine = nomos-engine.checks.${system}.test;
                 ownerSchemaRust = schema-rust.checks.${system}.test;
                 ownerSemaEngine = sema-engine.checks.${system}.test;
-                ownerSignalNomos = signal-nomos.checks.${system}.test;
                 ownerWitness = language-engine-witness.checks.${system}.test;
                 ownerSpiritDomainInventory =
                   language-engine-witness.checks.${system}.spirit-domain-inventory;
@@ -230,7 +229,6 @@
                 test -e "$ownerNomosEngine"
                 test -e "$ownerSchemaRust"
                 test -e "$ownerSemaEngine"
-                test -e "$ownerSignalNomos"
                 test -e "$ownerWitness"
                 test -e "$ownerSpiritDomainInventory"
                 touch "$out"

@@ -10,14 +10,10 @@ sema-translator|name-table|name-table|
 sema-translator|signal-sema-translator|signal-sema-translator|
 protos|content-identity|capsule-content-identity|
 nomos-protos|content-identity|capsule-content-identity|
-core-ethos|capsule-content-identity|capsule-content-identity|content-identity
-core-ethos|protos|protos|
 core-logos|capsule-content-identity|capsule-content-identity|content-identity
 core-logos|protos|protos|
 core-nomos|capsule-content-identity|capsule-content-identity|content-identity
-core-nomos|protos|protos|
 signal-nomos|capsule-content-identity|capsule-content-identity|content-identity
-nomos-engine|capsule-content-identity|capsule-content-identity|content-identity
 sealed-core-nomos|capsule-content-identity|capsule-content-identity|content-identity
 sealed-core-nomos|protos|nomos-protos|'
 
