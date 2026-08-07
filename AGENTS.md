@@ -15,3 +15,13 @@ for the Protos micro-repository family.
 - Keep substantial checks in `scripts/`; `flake.nix` remains their readable
   index.
 - Use Jujutsu for history and publication.
+
+## Protos estate status
+
+Stack: incorrect-new
+Status: frozen reference
+Role: integration/conformance orchestration
+
+No new code is accepted here. Do not add Cargo or Nix dependency edges to this repository.
+
+Existing edges may be observed, never extended.
