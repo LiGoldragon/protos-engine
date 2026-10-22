@@ -6,7 +6,7 @@ supersede an entry by appending a later one; never edit; recency governs.
 ## Entry 1 — the schema→ethos rename extends into quotes, via bracket convention
 
 Agent text answered: the poison-treatment agent flagged one passage it
-deliberately left untouched — sema-engine documentation carrying the
+deliberately left untouched — memory-engine documentation carrying the
 direction-language "the schema component holds the compiled binary runtime
 schema", attributed to a Spirit record — because rewording quoted material
 risked misrepresenting it. The flag was relayed to the psyche in chat with that
@@ -25,7 +25,7 @@ itself still applies. The new-stack rename schema→ethos therefore extends into
 quoted statements: edit the quote using the bracket convention — "[ethos]" in
 place of "schema" — to signal an after-the-fact rename while preserving that
 the statement holds under the new name. This applies to quotes about the new
-stack that predate the 2026-07-27 rename (the sema-engine passage first). It
+stack that predate the 2026-07-27 rename (the memory-engine passage first). It
 does not rename the frozen donors' own historical self-descriptions
 (schema-language, schema-rust die under their old names), and the firsthand
 rulings logs in this design tree remain append-only and unedited.
@@ -319,7 +319,7 @@ overnight train:
    test suites get wired into protos-engine's check-all — treated as
    implementation hygiene completing po1.8's own acceptance criteria, not a
    design lean.
-9. sema-engine's "macro" wording for its unrelated redb table-descriptor
+9. memory-engine's "macro" wording for its unrelated redb table-descriptor
    generator: out of the transformer-naming ruling's scope; left as is.
 
 An addendum document carries these to the Codex train with the grade stated;

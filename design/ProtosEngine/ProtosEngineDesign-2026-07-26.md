@@ -406,7 +406,7 @@ the topic again cold, twice, before closing it a third time.
 
 > **Agent:** **Done.** keel is deleted from GitHub and disk — verified
 > unresolvable. `LiGoldragon/documentation` is live: private, described
-> "Standard machinery documentation for the sema ecosystem," cloned at
+> "Standard machinery documentation for the memory ecosystem," cloned at
 > `repos/documentation`, seeded with the minimal README and pushed to
 > `main`. It waits empty, per your rule: populated once the code reflects
 > the design.

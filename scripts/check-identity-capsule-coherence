@@ -5,9 +5,9 @@ set -euo pipefail
 # per-item and flat-name edges remain outside this table. The chain-based
 # Slice One aliases are checked by the separate slice coherence gate.
 readonly expected_edges='name-table|content-identity|capsule-content-identity|
-signal-sema-translator|name-table|name-table|
-sema-translator|name-table|name-table|
-sema-translator|signal-sema-translator|signal-sema-translator|
+signal-memory-translator|name-table|name-table|
+memory-translator|name-table|name-table|
+memory-translator|signal-memory-translator|signal-memory-translator|
 protos|content-identity|capsule-content-identity|
 nomos-protos|content-identity|capsule-content-identity|
 core-logos|capsule-content-identity|capsule-content-identity|content-identity

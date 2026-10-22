@@ -44,7 +44,7 @@ as the foundational fourth, use the same protos mechanism to load to and from
 textual form into encoded form; they have their own syntax but look similar —
 they are all protos-family languages. The textual style shared by the family
 is named **protos** (PsycheVisionReacquisition entry 3). Each engine is a
-stateful daemon with its own embedded sema db; one small translator daemon
+stateful daemon with its own embedded memory db; one small translator daemon
 owns naming and identity allocation. Nomos is there to create the sugar
 syntax of Ethos, and Logos is there to give a true representation of the
 assembly language; the entire reason Nomos exists is so that the
@@ -57,7 +57,7 @@ transformation can be modified using the Nomos language. **[ruled]**
 > point of creating nomos was to be able to modify."
 
 The endgame is **operational editing** — no text editing; operations sent to
-the daemon and applied atomically — and the long arc is the sema vision: a
+the daemon and applied atomically — and the long arc is the memory vision: a
 way of thinking about data that eventually contains no strings at all.
 **[ruled]** "the ultimate computer language cannot use strings, since they are
 an extremely inefficient way of representing a set (which language is)".
@@ -275,21 +275,21 @@ billing's table              tasks' table
 
 **Terminology guard:** the container's working term is **module**; never
 "domain" — the word is four-times taken for hash separation, and the
-term-overload law forbids it (**[ruled]** "There can be no sema-storage
-daemon, as it would overload the term sema").
+term-overload law forbids it (**[ruled]** "There can be no memory-storage
+daemon, as it would overload the term memory").
 
 ## 6. Daemon architecture
 
-**[ruled] 2026-07-27**: "sema is the database of each daemon. either you are
+**[ruled] 2026-07-27**: "memory is the database of each daemon. either you are
 mistaken, or the implementation is. each daemon is stateful". The 2026-07-17
-"seat it centrally in sema" was overruled and mis-voiced — "I shouldnt have
-said "in sema", since all daemon state lives in *its* sema db. There can be no
-sema-storage daemon". **[ruled]** the nametable authority is its own small
+"seat it centrally in memory" was overruled and mis-voiced — "I shouldnt have
+said "in memory", since all daemon state lives in *its* memory db. There can be no
+memory-storage daemon". **[ruled]** the nametable authority is its own small
 daemon ("a, its own small daemon"). **[ruled] 2026-07-28 (entry 16)** its
-final repository and package name is `sema-translator`, and its typed signal
-contract's is `signal-sema-translator`. They are new repositories, not renames
-of `sema-storage` or `signal-sema-storage`; the old repositories remain frozen
-donors until their separately designed dissolution. `sema-storage`'s
+final repository and package name is `memory-translator`, and its typed signal
+contract's is `signal-memory-translator`. They are new repositories, not renames
+of `memory-storage` or `signal-memory-storage`; the old repositories remain frozen
+donors until their separately designed dissolution. `memory-storage`'s
 stateless-client architecture is dead law and the repo cannot keep its role.
 
 **[confirmed] Translator mechanism approved 2026-07-28.** The operational
@@ -306,7 +306,7 @@ chain.
 
 - `name-table` is the pure nested-table library, generic over caller-supplied
   root types. It is proven with at least two unrelated fixture root enums.
-  `signal-sema-translator` and `sema-translator` instantiate the approved
+  `signal-memory-translator` and `memory-translator` instantiate the approved
   production roots separately from that generic substrate.
 - `LocalEncodedId(u16)` is allocated within one table. `TableAddress<Root>` is
   a root plus zero or more module IDs; `EncodedId<Root>` is a root plus one or
@@ -348,7 +348,7 @@ provisioned immutable; authored module tables are mutable. Production
 provisioning belongs to the root-variant proposal.
 
 **[derived] Approved sharing and failure mechanism:** the translator is the
-only writer and one actor serializes its embedded sema database. Verified
+only writer and one actor serializes its embedded memory database. Verified
 historical snapshots remain readable while it is unavailable; seals and
 renames fail closed. Expected markers and table generations detect concurrent
 staleness; idempotent receipts recover a lost reply after commit. Startup
@@ -387,14 +387,14 @@ previously unknown words but never alter, remove, or rebind an entry.
 transformation data. The root is an address-space tag in the translator's one
 embedded database; lookup never falls back between roots. Fixture stays
 test-only; future language vocabularies gain new production roots only with
-explicit wire/archive version changes. The larger sema-vision word space
+explicit wire/archive version changes. The larger memory-vision word space
 remains future design.
 
 **[derived] Approved entry-16 surfaces:** the Rust library is
-`sema_translator`; daemon binary `sema-translator-daemon`; service
-`sema-translator-daemon.service`; runtime directory `sema-translator`; socket
-`sema-translator.sock`; and owned database `sema-translator.sema`. The
-contract library is `signal_sema_translator`. The new daemon and contract have
+`memory_translator`; daemon binary `memory-translator-daemon`; service
+`memory-translator-daemon.service`; runtime directory `memory-translator`; socket
+`memory-translator.sock`; and owned database `memory-translator.memory`. The
+contract library is `signal_memory_translator`. The new daemon and contract have
 distinct socket, database, archive, and typed wire surfaces, with no
 old-socket alias, adapter, redirect, multiplexing, or fallback. Mixed or
 legacy contracts fail typed before request decoding or writes.
@@ -404,10 +404,10 @@ dynamic-enum member identity; and retirement. The emitted-chain design
 direction is closed; selecting and proving its exact codec is implementation
 work under entries 7 and 17.
 
-## 7. The sema vision — intent
+## 7. The memory vision — intent
 
 **[ruled] 2026-07-27**, psyche-initiated (verbatim in full in SliceOneRulings
-entry 5): sema "means more than just a database. It's a new way of thinking
+entry 5): memory "means more than just a database. It's a new way of thinking
 about data, which doesn't contain strings eventually." Single words become
 dynamically assigned enums — spelling-constrained, stored as integers through
 the translator. Long prose stays strings for now ("a very, very long-term
@@ -746,7 +746,7 @@ before proceeding.
 **po1 train:** 14/21 complete; po1.10 in progress; nomos-engine c679660
 adopted the Ethos contract (0.2.0).
 
-**Standing morning-audit findings:** sema-storage still live as write
+**Standing morning-audit findings:** memory-storage still live as write
 authority outside naming (dissolution beads open); schema-rust still pinned
 in protos-engine flake for spirit's not-yet-ported build; core-nomos legacy
 string-bearing modules quarantined not removed, prettyplease transitively via
@@ -768,7 +768,7 @@ gate-enforced.
 `raw-discovery/ARCHITECTURE.md` ("Structure is span-free" presents the
 refused model as canon), `core-nomos/ARCHITECTURE.md` (relabels 1,892-line
 `generation.rs` as "the emission boundary", a license to bypass the
-no-strings rule), `sema-storage/ARCHITECTURE.md` and
+no-strings rule), `memory-storage/ARCHITECTURE.md` and
 `ethos-engine/ARCHITECTURE.md`/`AGENTS.md` (overruled central-daemon law).
 
 Stale claims — plan no work for these: the protos-content-identity ShortCode
@@ -799,7 +799,7 @@ flowchart TD
    untouched.
 2. The two proposals were brought one at a time and are closed: entry 15
    approved `VocabularyRoot::{Universal, Rust}`; entry 16 approved
-   `sema-translator` and `signal-sema-translator` with distinct new repository
+   `memory-translator` and `signal-memory-translator` with distinct new repository
    and runtime surfaces. Entry 17 later confirms that the emitted-chain
    direction was already answered and returns the exact codec to
    implementation matter.
@@ -828,7 +828,7 @@ flowchart TD
    the slice closes.
 9. Slice 2 opens by presenting the deterministic field-naming rule for
    ratification; the projection algebra is the vocabulary, not the answer.
-10. Spirit port after the gate passes; approve the sema-storage dissolution
+10. Spirit port after the gate passes; approve the memory-storage dissolution
     mechanism before its implementation, migrate storage one daemon at a time,
     and retire the old topology last. Sequencing judgment (naming authority
     early, storage migration late) is agent judgment the psyche has not ruled.
@@ -861,7 +861,7 @@ Closed by the 07-28 session: the global longest-match law (now law, token
 level); the identity crux (the encodedID is the durable identity; nested
 module tables); the homonym/conflict question (dissolved by the nested model);
 the production root set (`VocabularyRoot::{Universal, Rust}`); and the naming
-authority names (`sema-translator`, `signal-sema-translator`). Entry 17
+authority names (`memory-translator`, `signal-memory-translator`). Entry 17
 closes the mistaken psyche-level emitted-chain format question: the direction
 is textual-binary, rustc-friendly, compact, readable, and accessible; the
 exact codec is implementation matter.
@@ -908,7 +908,7 @@ same protos mechanism); the "make them the same thing" contradiction
 17. Law-scope rulings pending with the psyche: positional-fields
     source-vs-wire scope, alias scope, transitive syn/quote (via
     rkyv/thiserror everywhere), StoreSchema compatibility tests.
-18. sema-engine ARCHITECTURE.md carries "macro" usage for the unrelated redb
+18. memory-engine ARCHITECTURE.md carries "macro" usage for the unrelated redb
     table-descriptor generator — whether that is in scope for the transformer
     naming ruling is unresolved.
 19. Whether anything indirectly gates structural-codec's conformance tests

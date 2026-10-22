@@ -31,12 +31,12 @@
     template-core-logos.url = "github:LiGoldragon/core-logos/141abe23273273d2e4470ce15b42ccf9bc5c8764";
     template-rust-logos.url = "github:LiGoldragon/rust-logos/96eda934a8f3203295f0a08869199441f109c369";
     equivalent-core-nomos.url = "github:LiGoldragon/core-nomos/e1b2febf9f143ab1c84d042d2e9bdd0685303ddc";
-    sema-engine.url = "github:LiGoldragon/sema-engine/fe50a6a1de7f707184d1fc7f641d2be0b51089de";
-    sema-translator.url = "github:LiGoldragon/sema-translator/6b5499c0d25c801b56582fdcd8e021c3293a6d4d";
+    memory-engine.url = "github:LiGoldragon/memory-engine/fe50a6a1de7f707184d1fc7f641d2be0b51089de";
+    memory-translator.url = "github:LiGoldragon/memory-translator/6b5499c0d25c801b56582fdcd8e021c3293a6d4d";
     signal-domain.url = "github:LiGoldragon/signal-domain/f6996f935e4c24e494c244d65a57b46bb1045be7";
     signal-frame.url = "github:LiGoldragon/signal-frame/0786fbe8caf27552afcdd5deb85bc82ec6088337";
     signal-nomos.url = "github:LiGoldragon/signal-nomos/44188eb83dea5f0f50d3e4702d19634fc4e7f485";
-    signal-sema-translator.url = "github:LiGoldragon/signal-sema-translator/3a26cb43f8ce7f9fe85da64d19aa55aa662943ce";
+    signal-memory-translator.url = "github:LiGoldragon/signal-memory-translator/3a26cb43f8ce7f9fe85da64d19aa55aa662943ce";
     schema-language = {
       url = "github:LiGoldragon/schema-language/9c217610c4b8d3bdaa9f95542e28c04424a593e3";
       flake = false;
@@ -82,12 +82,12 @@
       template-core-logos,
       template-rust-logos,
       equivalent-core-nomos,
-      sema-engine,
-      sema-translator,
+      memory-engine,
+      memory-translator,
       signal-domain,
       signal-frame,
       signal-nomos,
-      signal-sema-translator,
+      signal-memory-translator,
       schema-language,
       schema-rust,
       signal-spirit,
@@ -217,7 +217,7 @@
                 validatedSliceOneCoherence = sliceOneCoherence;
                 ownerNomosEngine = nomos-engine.checks.${system}.test;
                 ownerSchemaRust = schema-rust.checks.${system}.test;
-                ownerSemaEngine = sema-engine.checks.${system}.test;
+                ownerMemoryEngine = memory-engine.checks.${system}.test;
                 ownerWitness = language-engine-witness.checks.${system}.test;
                 ownerSpiritDomainInventory =
                   language-engine-witness.checks.${system}.spirit-domain-inventory;
@@ -228,7 +228,7 @@
                 test -e "$validatedSliceOneCoherence"
                 test -e "$ownerNomosEngine"
                 test -e "$ownerSchemaRust"
-                test -e "$ownerSemaEngine"
+                test -e "$ownerMemoryEngine"
                 test -e "$ownerWitness"
                 test -e "$ownerSpiritDomainInventory"
                 touch "$out"
@@ -306,12 +306,12 @@
                 name-table-test = name-table.checks.${system}.test;
                 raw-discovery-test = raw-discovery.checks.${system}.test;
                 structural-codec-test = structural-codec.checks.${system}.test;
-                signal-sema-translator-test = signal-sema-translator.checks.${system}.test;
+                signal-memory-translator-test = signal-memory-translator.checks.${system}.test;
                 signal-frame-test = signal-frame.checks.${system}.default;
                 signal-nomos-test = signal-nomos.checks.${system}.test;
-                sema-engine-test = sema-engine.checks.${system}.test;
-                sema-translator-test = sema-translator.checks.${system}.test;
-                sema-translator-process = sema-translator.checks.${system}.process;
+                memory-engine-test = memory-engine.checks.${system}.test;
+                memory-translator-test = memory-translator.checks.${system}.test;
+                memory-translator-process = memory-translator.checks.${system}.process;
                 schema-rust-test = schema-rust.checks.${system}.test;
                 schema-rust-sole-bootstrap-surface =
                   schema-rust.checks.${system}.sole-bootstrap-surface;

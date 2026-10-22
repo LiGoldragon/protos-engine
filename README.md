@@ -53,12 +53,12 @@ Every repository input uses a full, published Git revision:
 | schema-language | `9c217610c4b8d3bdaa9f95542e28c04424a593e3` |
 | schema-rust | `9e36587c85bd69357e9042729ba2df0052799756` |
 | sealed-core-nomos | `ba7abc0b471a0385012b1d8a03cf4942e9da617e` |
-| sema-engine | `fe50a6a1de7f707184d1fc7f641d2be0b51089de` |
-| sema-translator | `6b5499c0d25c801b56582fdcd8e021c3293a6d4d` |
+| memory-engine | `fe50a6a1de7f707184d1fc7f641d2be0b51089de` |
+| memory-translator | `6b5499c0d25c801b56582fdcd8e021c3293a6d4d` |
 | signal-domain | `f6996f935e4c24e494c244d65a57b46bb1045be7` |
 | signal-frame | `0786fbe8caf27552afcdd5deb85bc82ec6088337` |
 | signal-nomos | `44188eb83dea5f0f50d3e4702d19634fc4e7f485` |
-| signal-sema-translator | `3a26cb43f8ce7f9fe85da64d19aa55aa662943ce` |
+| signal-memory-translator | `3a26cb43f8ce7f9fe85da64d19aa55aa662943ce` |
 | signal-spirit | `1cf7c010029de46369b742687da4fa1ca6def9a9` |
 | spirit | `1049b8a1a9e3c2be7ece3553b89c7e3815939d43` |
 | stream-core-ethos | `29237c33798db908bbfe10ef0cffe2c6a28be508` |
@@ -82,7 +82,7 @@ published.
 
 `schema-language` remains a frozen donor only for the separately pinned
 Spirit-family closure. It does not enter the current bootstrap train.
-`schema-rust` exposes only verified bootstrap Interface and Sema generation;
+`schema-rust` exposes only verified bootstrap Interface and Memory generation;
 its live consumer locks contain one Schema Rust 0.15 package and no
 schema-language package. Rust Logos owns the sole Rust naming table and text
 projection boundary. Rust remains a replaceable projection stage, not a
@@ -91,9 +91,9 @@ permanent definition of any file kind.
 The identity/Capsule producers are ordinary flake inputs rather than source-only
 inputs. This lets the assembly expose their published test derivations directly.
 On `x86_64-linux`, the root check surface passes through the content-identity,
-name-table, signal-frame, signal-sema-translator, sema-engine, sema-translator,
+name-table, signal-frame, signal-memory-translator, memory-engine, memory-translator,
 protos, core-ethos, core-logos, rust-logos, core-nomos, signal-nomos, and
-nomos-engine test derivations. It also exposes sema-translator's dedicated
+nomos-engine test derivations. It also exposes memory-translator's dedicated
 real-process derivation and protos' package-contents derivation as separate
 checks.
 
@@ -138,10 +138,10 @@ one Schema Rust 0.15 and no schema-language package, and that Rust Logos alone
 owns the Rust naming table. It also proves that the witness
 has only its two explicit integration tests and that `nomos-engine` exposes the
 authority-sealed bootstrap library witness: exact Logos archive recovery,
-explicit Sema storage evidence, and refusal of storage evidence for other
+explicit Memory storage evidence, and refusal of storage evidence for other
 kinds. Production-source scans enumerate every regular `nomos-engine`
 `src/**/*.rs` file and refuse retired evaluator and central-storage vocabulary.
-Mutations reject producer, repository, package-alias, Interface/Nexus/Sema
+Mutations reject producer, repository, package-alias, Interface/Nexus/Memory
 framing, transaction, authority boundary, live-test inventory, and refusal
 drift.
 
@@ -190,15 +190,15 @@ survives archive recovery, carries unit, unary, and product semantics through
 the current structural Rust projection, refuses incomplete projections, and
 compiles and runs the result in scratch Cargo.
 
-The root also consumes `sema-engine`'s producer-owned Sema proof. Its
-`Sema.{1 0 0}` header/imports/body source is authority-assembled into a checked
+The root also consumes `memory-engine`'s producer-owned Memory proof. Its
+`Memory.{1 0 0}` header/imports/body source is authority-assembled into a checked
 projection whose typed table is written, read, closed, and reopened through
-the engine. No Sema source or generated table is copied into this sink or the
+the engine. No Memory source or generated table is copied into this sink or the
 language witness.
 
 The Nomos owner proof is now a library boundary. An authority-sealed Nexus
 transaction lowers to identified Whole Logos and restores the exact archive;
-Sema lowering consumes caller-supplied storage provenance, while non-Sema
+Memory lowering consumes caller-supplied storage provenance, while non-Memory
 kinds reject that provenance. The sink also proves the deleted daemon/process
 suite cannot re-enter through automatic test discovery, Cargo dependencies, or
 Nix inputs. Persistence, sockets, receipts, and restart behavior are therefore

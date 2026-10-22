@@ -59,7 +59,7 @@ validate_public_text_search_witness() {
     echo "owner witness socket is not derived from TempDir in executable code" >&2
     return 1
   }
-  grep -Eq '^[[:space:]]*let database_path = temp[.]path[(][)][.]join[(]"public-text-search[.]sema"[)][;][[:space:]]*$' \
+  grep -Eq '^[[:space:]]*let database_path = temp[.]path[(][)][.]join[(]"public-text-search[.]memory"[)][;][[:space:]]*$' \
     <<< "$witness" || {
     echo "owner witness database is not derived from TempDir in executable code" >&2
     return 1

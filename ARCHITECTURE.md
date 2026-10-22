@@ -60,12 +60,12 @@ semantics. The current Rust projection round-trips structurally, refuses an
 incomplete name projection without partial output, and compiles and runs in a
 process-local scratch crate.
 
-Sema evidence remains producer-owned. The pinned `sema-engine` source begins
-with `Sema.{1 0 0}`, an imports section, and one body. Its owner test assembles
+Memory evidence remains producer-owned. The pinned `memory-engine` source begins
+with `Memory.{1 0 0}`, an imports section, and one body. Its owner test assembles
 that exact source under authority, checks the generated projection is fresh,
 then writes, reads, closes, and reopens the generated typed table through the
 real engine. The sink validates those source and test surfaces; it does not
-copy the Sema declaration or generated table.
+copy the Memory declaration or generated table.
 
 The current native Nomos wire does not yet carry a successful archived
 bootstrap population. The witness therefore proves the complete bootstrap

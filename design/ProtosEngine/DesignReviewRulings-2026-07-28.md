@@ -467,26 +467,26 @@ append-only via the trusted versioned release. The root is an
 address-space tag in the translator's one embedded database; lookup
 never falls back between roots; future language vocabularies gain new
 production roots only with explicit wire/archive version changes. The
-larger sema-vision word space — all human language, dynamic-enum
+larger memory-vision word space — all human language, dynamic-enum
 vocabularies, where schema.org borrowing was floated — remains future
 design and is not foreclosed. The root-variant half of the standing
 open question closes; the daemon's final name remains open.
 
-## 16. The naming authority is sema-translator
+## 16. The naming authority is memory-translator
 
-**Agent (Codex):** asked: "Do you approve `sema-translator` and
-`signal-sema-translator` with these exact repository and runtime surfaces?"
+**Agent (Codex):** asked: "Do you approve `memory-translator` and
+`signal-memory-translator` with these exact repository and runtime surfaces?"
 
 **Psyche 2026-07-28, verbatim:** yes
 
 Log note (log-authored, not psyche words): the naming authority's final
-repository and package name is `sema-translator`; its signal contract's final
-repository and package name is `signal-sema-translator`. These are new
-repositories, not renames of `sema-storage` or `signal-sema-storage`. The
-approved runtime surfaces are: Rust library `sema_translator`, daemon binary
-`sema-translator-daemon`, service `sema-translator-daemon.service`, runtime
-directory `sema-translator`, socket `sema-translator.sock`, and owned database
-`sema-translator.sema`; the contract library is `signal_sema_translator`.
+repository and package name is `memory-translator`; its signal contract's final
+repository and package name is `signal-memory-translator`. These are new
+repositories, not renames of `memory-storage` or `signal-memory-storage`. The
+approved runtime surfaces are: Rust library `memory_translator`, daemon binary
+`memory-translator-daemon`, service `memory-translator-daemon.service`, runtime
+directory `memory-translator`, socket `memory-translator.sock`, and owned database
+`memory-translator.memory`; the contract library is `signal_memory_translator`.
 The new daemon and contract have distinct socket, database, archive, and typed
 wire surfaces, with no old-socket alias, adapter, redirect, multiplexing, or
 fallback to the central-storage contract. Mixed or legacy contracts fail typed

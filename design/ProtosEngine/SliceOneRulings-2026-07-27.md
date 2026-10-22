@@ -19,41 +19,41 @@ kind as a type parameter, kind-distinct types by construction.
 
 **Psyche 2026-07-27:** Generic struct
 
-## 2. Daemons are stateful; sema is each daemon's database
+## 2. Daemons are stateful; memory is each daemon's database
 
 **Agent (Claude):** reported the implementation as it stands — one
-central sema-storage daemon as sole durable write authority, with the
+central memory-storage daemon as sole durable write authority, with the
 schema/nomos/logos engines as stateless socket clients — citing its
 ARCHITECTURE.md claim of the settled 2026-07-17 ruling "seat it
-centrally in sema".
+centrally in memory".
 
-**Psyche 2026-07-27:** sema is the database of each daemon. either you
+**Psyche 2026-07-27:** memory is the database of each daemon. either you
 are mistaken, or the implementation is. each daemon is stateful
 
-**Psyche 2026-07-27,** of the 2026-07-17 central-in-sema ruling: which
+**Psyche 2026-07-27,** of the 2026-07-17 central-in-memory ruling: which
 was later overruled
 
 **Psyche 2026-07-27:** We could have a shared component just for the
 nametable, while the rest of the data lives in each daemon
 
-## 3. No sema-storage daemon; the nametable authority is its own small daemon
+## 3. No memory-storage daemon; the nametable authority is its own small daemon
 
 **Agent (Claude):** asked whether the shared nametable component is
 (a) its own small daemon the three daemons consult for name→ID
 binding, or (b) a shared library over one shared durable store.
 
-**Psyche 2026-07-27:** sema is the storage engine for all our daemons,
+**Psyche 2026-07-27:** memory is the storage engine for all our daemons,
 so this repo will confuse everyone with its misleading name. which
-means that  'seat it centrally in sema' means a separate daemon, and
-wasnt correctly voiced. I shouldnt have said "in sema", since all
-daemon state lives in *its* sema db. There can be no sema-storage
-daemon, as it would overload the term sema.
+means that  'seat it centrally in memory' means a separate daemon, and
+wasnt correctly voiced. I shouldnt have said "in memory", since all
+daemon state lives in *its* memory db. There can be no memory-storage
+daemon, as it would overload the term memory.
 
 **Psyche 2026-07-27:** a,  its own small daemon
 
 Log note (log-authored, not psyche words): the durable never-re-mint /
 never-rebind identity-authority laws move into this daemon; the
-sema-storage repo cannot keep its name and its stateless-client
+memory-storage repo cannot keep its name and its stateless-client
 architecture is superseded; its ARCHITECTURE.md "settled" claim is
 dead law.
 
@@ -75,15 +75,15 @@ the unified table; redefinition remains an error at seal. Supersedes
 variant survives as slice structure of one global namespace (see entry
 5: enum at the root).
 
-## 5. The sema vision — psyche-initiated dictation
+## 5. The memory vision — psyche-initiated dictation
 
 **Agent turn:** none — Psyche initiated.
 
 **Psyche 2026-07-27, verbatim in full:**
 "There's an interesting twist here, ironically, with the agent having
-decided on its own to call the current name component SEMA or SEMA
+decided on its own to call the current name component MEMORY or MEMORY
 storage. It might actually be more appropriate than I first thought,
-since the idea of SEMA originally was for this perfectly typed,
+since the idea of MEMORY originally was for this perfectly typed,
 perfectly specified schema-based language. And by schema here, I'm not
 talking about our language, which might need a different name just
 because it's confusing. Maybe something that goes along with Nomos and
@@ -98,15 +98,15 @@ maybe we have a type for that, which allows us to have a kind of
 dynamically assigned enum of sorts with variant names that are not
 strictly enums and variants in the runtime as Rust sees them, but that
 have limits on how they can be spelled and are stored as integers
-using this SEMA naming component, which would allow us to start
-specifying SEMA as I see it, which is bigger than just, it's not that
+using this MEMORY naming component, which would allow us to start
+specifying MEMORY as I see it, which is bigger than just, it's not that
 it's bigger than a database, but it means more than just a database.
 It's a new way of thinking about data, which doesn't contain strings
 eventually. So this could be the first step. We would need a component
 that can translate these identifiers, which would be integers, and
 this name table concept that we've fleshed out in this engine. That
 component could then extend to do more. And so I'm leaning on a side
-of maybe not SEMA storage is not the right name. Maybe SEMA translator
+of maybe not MEMORY storage is not the right name. Maybe MEMORY translator
 to use the noun approach that I've been trying to migrate towards. And
 we could put that also, some of this in standards, also how we name
 components by nouns as an aside. But obviously 16-bit integer is not
@@ -137,7 +137,7 @@ representing a set (which language is)
 borrowing being matter:** something to distill into standards; which I
 want to lean on more, and use more now
 
-Log note (log-authored): "sema-translator" is a leaning, not a fixed
+Log note (log-authored): "memory-translator" is a leaning, not a fixed
 name; the root variant set and any schema.org borrowing are matter.
 
 ## 6. Newtype wrapped-field visibility — Private

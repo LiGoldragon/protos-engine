@@ -4,7 +4,7 @@ set -euo pipefail
 # Complete direct producer edges for the authority-sealed bootstrap closure.
 # Every code-bearing root must resolve to the same published revisions as its
 # direct Cargo consumers.
-readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-sema-translator|signal-sema-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-sema-translator|signal-sema-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-sema-translator|signal-sema-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-sema-translator|signal-sema-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nsema-translator|core-ethos|core-ethos|\nschema-rust|core-ethos|core-ethos|\nschema-rust|core-nomos|core-nomos|\nschema-rust|rust-logos|rust-logos|\nschema-rust|sema-translator|sema-translator|\nsignal-domain|core-ethos|core-ethos|\nsignal-domain|schema-rust|schema-rust|\nsignal-domain|sema-translator|sema-translator|\nsema-engine|core-ethos|core-ethos|\nsema-engine|core-nomos|core-nomos|\nsema-engine|schema-rust|schema-rust|\nsema-engine|sema-translator|sema-translator|\nnomos-engine|core-ethos|core-ethos|\nnomos-engine|core-logos|core-logos|\nnomos-engine|core-nomos|core-nomos|\nnomos-engine|sema-translator|sema-translator|\nlanguage-engine-witness|signal-domain|signal-domain|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-sema-translator|sema-translator|sema-translator\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-sema-translator|signal-sema-translator|signal-sema-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
+readonly expected_edges=$'structural-codec|name-table|name-table|\nstructural-codec|raw-discovery|raw-discovery|\ncore-ethos|encoded-name-table|name-table|name-table\ncore-ethos|signal-memory-translator|signal-memory-translator|\ncore-ethos|raw-discovery|raw-discovery|\ncore-ethos|structural-codec|structural-codec|\ncore-logos|encoded-name-table|name-table|name-table\ncore-logos|signal-memory-translator|signal-memory-translator|\ncore-logos|structural-codec|structural-codec|\ncore-nomos|encoded-name-table|name-table|name-table\ncore-nomos|signal-memory-translator|signal-memory-translator|\ncore-nomos|core-ethos|core-ethos|\ncore-nomos|core-logos|core-logos|\nrust-logos|core-logos|core-logos|\nrust-logos|name-table|name-table|\nrust-logos|raw-discovery|raw-discovery|\nrust-logos|signal-memory-translator|signal-memory-translator|\nrust-logos|structural-codec|structural-codec|\nprotos|signal-frame|signal-frame|\nmemory-translator|core-ethos|core-ethos|\nschema-rust|core-ethos|core-ethos|\nschema-rust|core-nomos|core-nomos|\nschema-rust|rust-logos|rust-logos|\nschema-rust|memory-translator|memory-translator|\nsignal-domain|core-ethos|core-ethos|\nsignal-domain|schema-rust|schema-rust|\nsignal-domain|memory-translator|memory-translator|\nmemory-engine|core-ethos|core-ethos|\nmemory-engine|core-nomos|core-nomos|\nmemory-engine|schema-rust|schema-rust|\nmemory-engine|memory-translator|memory-translator|\nnomos-engine|core-ethos|core-ethos|\nnomos-engine|core-logos|core-logos|\nnomos-engine|core-nomos|core-nomos|\nnomos-engine|memory-translator|memory-translator|\nlanguage-engine-witness|signal-domain|signal-domain|\nlanguage-engine-witness|slice-core-ethos|core-ethos|core-ethos\nlanguage-engine-witness|slice-core-logos|core-logos|core-logos\nlanguage-engine-witness|slice-core-nomos|core-nomos|core-nomos\nlanguage-engine-witness|slice-name-table|name-table|name-table\nlanguage-engine-witness|slice-raw-discovery|raw-discovery|raw-discovery\nlanguage-engine-witness|slice-rust-logos|rust-logos|rust-logos\nlanguage-engine-witness|slice-memory-translator|memory-translator|memory-translator\nlanguage-engine-witness|slice-signal-frame|signal-frame|signal-frame\nlanguage-engine-witness|slice-signal-memory-translator|signal-memory-translator|signal-memory-translator\nlanguage-engine-witness|slice-structural-codec|structural-codec|structural-codec'
 
 root_revision() {
   local lock_file=$1
@@ -154,11 +154,11 @@ validate_behavior_witness() {
   local engine_root
   local engine_test
   local retired_process_test
-  local sema_root
-  local sema_fixture
-  local sema_generated_test
-  local sema_generated_rust
-  local sema_support_module
+  local memory_root
+  local memory_fixture
+  local memory_generated_test
+  local memory_generated_rust
+  local memory_support_module
 
   witness_root=$(source_path "$source_map_file" language-engine-witness) || {
     echo "Slice One behavior witness is absent from the root source map" >&2
@@ -193,9 +193,9 @@ validate_behavior_witness() {
   require_source_pattern "$witness_manifest" "live Spirit-domain test" \
     '^name="spirit_domain"$'
   reject_source_pattern "$witness_manifest" "retired process-only Cargo dependencies" \
-    '^(signal-nomos|sema-engine|rkyv)='
+    '^(signal-nomos|memory-engine|rkyv)='
   reject_source_pattern "$witness_flake" "retired process-only Nix machinery" \
-    'nomos-engine|NOMOS_ENGINE_BIN|NOMOS_GENERATOR_BIN|SEMA_TRANSLATOR_BIN'
+    'nomos-engine|NOMOS_ENGINE_BIN|NOMOS_GENERATOR_BIN|MEMORY_TRANSLATOR_BIN'
 
   engine_root=$(source_path "$source_map_file" nomos-engine) || {
     echo "Nomos engine behavior witness is absent from the root source map" >&2
@@ -212,24 +212,24 @@ validate_behavior_witness() {
     '[.]lower_bootstrap[(]&\[\][)]'
   require_source_pattern "$engine_test" "engine archive recovery" \
     'WholeLogos::from_archive_bytes[(]outcome[.]archive[(][)][)]'
-  require_source_pattern "$engine_test" "storage-aware Sema lowering" \
-    '^fn sema_consumes_explicit_storage_evidence_and_other_kinds_refuse_it[(][)]'
-  require_source_pattern "$engine_test" "non-Sema storage evidence refusal" \
+  require_source_pattern "$engine_test" "storage-aware Memory lowering" \
+    '^fn memory_consumes_explicit_storage_evidence_and_other_kinds_refuse_it[(][)]'
+  require_source_pattern "$engine_test" "non-Memory storage evidence refusal" \
     'BootstrapTransformationError::UnexpectedExternalStorageProvenance'
 
-  sema_root=$(source_path "$source_map_file" sema-engine) || {
-    echo "Sema behavior witness is absent from the root source map" >&2
+  memory_root=$(source_path "$source_map_file" memory-engine) || {
+    echo "Memory behavior witness is absent from the root source map" >&2
     return 1
   }
-  sema_fixture="$sema_root/schema/witness.sema"
-  sema_generated_test="$sema_root/tests/generated_table.rs"
-  sema_generated_rust="$sema_root/tests/fixtures/generated_sema_table.rs"
-  sema_support_module="$sema_root/tests/support/mod.rs"
-  [[ -f "$sema_fixture" && ! -L "$sema_fixture" &&
-    -f "$sema_generated_test" && ! -L "$sema_generated_test" &&
-    -f "$sema_generated_rust" && ! -L "$sema_generated_rust" &&
-    -f "$sema_support_module" && ! -L "$sema_support_module" ]] || {
-    echo "Sema behavior witness lacks regular owner source and test surfaces" >&2
+  memory_fixture="$memory_root/schema/witness.memory"
+  memory_generated_test="$memory_root/tests/generated_table.rs"
+  memory_generated_rust="$memory_root/tests/fixtures/generated_memory_table.rs"
+  memory_support_module="$memory_root/tests/support/mod.rs"
+  [[ -f "$memory_fixture" && ! -L "$memory_fixture" &&
+    -f "$memory_generated_test" && ! -L "$memory_generated_test" &&
+    -f "$memory_generated_rust" && ! -L "$memory_generated_rust" &&
+    -f "$memory_support_module" && ! -L "$memory_support_module" ]] || {
+    echo "Memory behavior witness lacks regular owner source and test surfaces" >&2
     return 1
   }
 
@@ -266,19 +266,19 @@ validate_behavior_witness() {
   reject_source_pattern "$slice_test" "retired six-slot source vocabulary" \
     'six-slot|SixSlot'
 
-  validate_bootstrap_fixture "$sema_fixture" Sema \
+  validate_bootstrap_fixture "$memory_fixture" Memory \
     'Domain[.]String DomainSnapshot[.][{]Domain Integer String[}]'
-  require_source_pattern "$sema_support_module" "canonical Sema source assembly" \
-    '[.]assemble[(]include_str![(]"[.][.]/[.][.]/schema/witness[.]sema"[)], approval[)]'
-  require_source_pattern "$sema_support_module" "authority-verified Sema generation" \
-    'BootstrapSemaGeneration::new[(]'
-  require_source_pattern "$sema_generated_rust" "checked Sema projection marker" \
-    '^// @generated by schema-rust from an authority-verified bootstrap Sema$'
-  require_source_pattern "$sema_generated_test" "checked source/projection freshness" \
-    '^fn checked_sema_source_and_generated_rust_are_fresh[(][)]'
-  require_source_pattern "$sema_generated_test" "generated typed table runtime" \
+  require_source_pattern "$memory_support_module" "canonical Memory source assembly" \
+    '[.]assemble[(]include_str![(]"[.][.]/[.][.]/schema/witness[.]memory"[)], approval[)]'
+  require_source_pattern "$memory_support_module" "authority-verified Memory generation" \
+    'BootstrapMemoryGeneration::new[(]'
+  require_source_pattern "$memory_generated_rust" "checked Memory projection marker" \
+    '^// @generated by schema-rust from an authority-verified bootstrap Memory$'
+  require_source_pattern "$memory_generated_test" "checked source/projection freshness" \
+    '^fn checked_memory_source_and_generated_rust_are_fresh[(][)]'
+  require_source_pattern "$memory_generated_test" "generated typed table runtime" \
     '^fn generated_domain_snapshot_table_writes_and_reads_a_typed_domain_key[(][)]'
-  require_source_pattern "$sema_generated_test" "generated table registration" \
+  require_source_pattern "$memory_generated_test" "generated table registration" \
     '[.]register_table[(]z2VKo3::descriptor[(][)][)]'
 
   validate_bootstrap_fixture "$spirit_domain_fixture" Interface \
@@ -351,7 +351,7 @@ validate_nomos_source_boundary() {
     return 1
   }
   if LC_ALL=C rg -n -i \
-    'MacroPackage|apply_enriched|enriched_fixture|wire_fixture|signal[_-]sema[_-]storage|sema-storage|SEMA_STORAGE_BIN|SemaPlane|output_slot|kameo' \
+    'MacroPackage|apply_enriched|enriched_fixture|wire_fixture|signal[_-]memory[_-]storage|memory-storage|MEMORY_STORAGE_BIN|MemoryPlane|output_slot|kameo' \
     "$engine_root/Cargo.toml" "${production_sources[@]}" >/dev/null; then
     echo "Nomos production source retains a retired evaluator or central storage path" >&2
     return 1
@@ -422,7 +422,7 @@ validate_schema_rust_boundary() {
   }
 
   for owner_name in \
-    schema-rust signal-domain sema-engine language-engine-witness; do
+    schema-rust signal-domain memory-engine language-engine-witness; do
     owner_root=$(source_path "$source_map_file" "$owner_name") || {
       echo "live Schema Rust owner is absent from the root source map: $owner_name" >&2
       return 1
@@ -487,7 +487,7 @@ copy_affected_manifests() {
       "$fixture_root/sources/$source_name/Cargo.toml"
     chmod u+w "$fixture_root/sources/$source_name/Cargo.toml"
     case $source_name in
-      schema-rust|signal-domain|sema-engine|language-engine-witness)
+      schema-rust|signal-domain|memory-engine|language-engine-witness)
         cp "$source_root/Cargo.lock" \
           "$fixture_root/sources/$source_name/Cargo.lock"
         chmod u+w "$fixture_root/sources/$source_name/Cargo.lock"
@@ -529,16 +529,16 @@ copy_affected_manifests() {
       chmod -R u+w "$fixture_root/sources/$source_name/src" \
         "$fixture_root/sources/$source_name/tests"
     fi
-    if [[ "$source_name" == sema-engine ]]; then
+    if [[ "$source_name" == memory-engine ]]; then
       mkdir -p "$fixture_root/sources/$source_name/schema"
       mkdir -p "$fixture_root/sources/$source_name/tests/fixtures"
       mkdir -p "$fixture_root/sources/$source_name/tests/support"
-      cp "$source_root/schema/witness.sema" \
-        "$fixture_root/sources/$source_name/schema/witness.sema"
+      cp "$source_root/schema/witness.memory" \
+        "$fixture_root/sources/$source_name/schema/witness.memory"
       cp "$source_root/tests/generated_table.rs" \
         "$fixture_root/sources/$source_name/tests/generated_table.rs"
-      cp "$source_root/tests/fixtures/generated_sema_table.rs" \
-        "$fixture_root/sources/$source_name/tests/fixtures/generated_sema_table.rs"
+      cp "$source_root/tests/fixtures/generated_memory_table.rs" \
+        "$fixture_root/sources/$source_name/tests/fixtures/generated_memory_table.rs"
       cp "$source_root/tests/support/mod.rs" \
         "$fixture_root/sources/$source_name/tests/support/mod.rs"
       chmod -R u+w "$fixture_root/sources/$source_name/schema" \
@@ -554,7 +554,7 @@ copy_affected_manifests() {
   done < <(
     {
       printf '%s\n' "$expected_edges" | cut -d '|' -f 1
-      printf '%s\n' nomos-engine sema-engine
+      printf '%s\n' nomos-engine memory-engine
     } | LC_ALL=C sort -u
   )
   printf '%s\n' "$fixture_map" > "$fixture_root/source-map.json"
@@ -590,8 +590,8 @@ run_self_test() {
   local rust_logos_codec
   local schema_rust_build
   local schema_rust_lib
-  local sema_fixture
-  local sema_generated_test
+  local memory_fixture
+  local memory_generated_test
   local signal_domain_lock
   local signal_nomos_revision
   local structural_codec_revision
@@ -615,8 +615,8 @@ run_self_test() {
   rust_logos_codec="$temporary_root/sources/rust-logos/src/codec.rs"
   schema_rust_build="$temporary_root/sources/schema-rust/src/build.rs"
   schema_rust_lib="$temporary_root/sources/schema-rust/src/lib.rs"
-  sema_fixture="$temporary_root/sources/sema-engine/schema/witness.sema"
-  sema_generated_test="$temporary_root/sources/sema-engine/tests/generated_table.rs"
+  memory_fixture="$temporary_root/sources/memory-engine/schema/witness.memory"
+  memory_generated_test="$temporary_root/sources/memory-engine/tests/generated_table.rs"
   signal_domain_lock="$temporary_root/sources/signal-domain/Cargo.lock"
   structural_codec_revision=$(root_revision "$lock_file" structural-codec)
 
@@ -711,7 +711,7 @@ run_self_test() {
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/slice_one.rs" \
     "$witness_slice_test"
-  sed -i '1s/^Nexus[.]/Sema./' "$witness_slice_fixture"
+  sed -i '1s/^Nexus[.]/Memory./' "$witness_slice_fixture"
   expect_coherence_rejection "Nexus header drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
@@ -729,20 +729,20 @@ run_self_test() {
 
   cp "$(source_path "$source_map_file" language-engine-witness)/tests/fixtures/slice-one-newtype.ethos" \
     "$witness_slice_fixture"
-  sed -i '1s/^Sema[.]/Nexus./' "$sema_fixture"
-  expect_coherence_rejection "Sema header drift" \
+  sed -i '1s/^Memory[.]/Nexus./' "$memory_fixture"
+  expect_coherence_rejection "Memory header drift" \
     "$lock_file" "$temporary_root/source-map.json"
 
-  cp "$(source_path "$source_map_file" sema-engine)/schema/witness.sema" \
-    "$sema_fixture"
+  cp "$(source_path "$source_map_file" memory-engine)/schema/witness.memory" \
+    "$memory_fixture"
   sed -i \
     's/generated_domain_snapshot_table_writes_and_reads_a_typed_domain_key/generated_domain_snapshot_table_is_not_exercised/' \
-    "$sema_generated_test"
-  expect_coherence_rejection "Sema generated runtime witness removal" \
+    "$memory_generated_test"
+  expect_coherence_rejection "Memory generated runtime witness removal" \
     "$lock_file" "$temporary_root/source-map.json"
 
-  cp "$(source_path "$source_map_file" sema-engine)/tests/generated_table.rs" \
-    "$sema_generated_test"
+  cp "$(source_path "$source_map_file" memory-engine)/tests/generated_table.rs" \
+    "$memory_generated_test"
   sed -i \
     's/[(]38, 3, 369, 37[)]/(38, 3, 368, 37)/' \
     "$witness_spirit_domain_test"
@@ -812,6 +812,6 @@ case ${1:-} in
       exit 2
     }
     validate_coherence "$1" "$2"
-    echo "Slice One edges, sole Schema Rust bootstrap boundary, and Interface/Nexus/Sema behavior witness match exact published revisions"
+    echo "Slice One edges, sole Schema Rust bootstrap boundary, and Interface/Nexus/Memory behavior witness match exact published revisions"
     ;;
 esac
